@@ -3,12 +3,12 @@ import * as bcrypt from "bcrypt"
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Bookmark } from "src/bookmarks/entities/bookmark.entity";
-enum UserType {
+export enum UserType {
     BASIC = 'BASIC',
     KAKAO = 'KAKAO',
     GOOGLE = 'GOOGLE'
 }
-enum UserRole {
+export enum UserRole {
     USER = 'USER',
     MANAGER = 'MANAGER'
 }
@@ -30,11 +30,11 @@ export class User {
     @ApiProperty({ description: '별명' })
     nickname: string;
 
-    @Column({type:'enum', enum:UserRole})
+    @Column({type:'enum', enum:UserRole, default:UserRole.USER})
     @ApiProperty({ description: '유저/매니저' })
     role: UserRole
 
-    @Column({type:'enum', enum:UserType})
+    @Column({type:'enum', enum:UserType, default:UserType.BASIC})
     @ApiProperty({ description: '유저 가입 유형' })
     type: UserType
 

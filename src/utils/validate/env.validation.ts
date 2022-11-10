@@ -2,9 +2,9 @@ import { plainToClass } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 enum Environment {
-  Local = "local",
-  Dev = "dev",
-  Production = "production"
+  local = "local",
+  dev = "dev",
+  production = "production"
 }
 
 class EnvironmentVariables {
@@ -34,11 +34,13 @@ class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
+
   const validatedConfig = plainToClass(
     EnvironmentVariables,
     config,
     { enableImplicitConversion: true },
   );
+  console.log(validatedConfig)
   const errors = validateSync(validatedConfig, { skipMissingProperties: false });
 
   if (errors.length > 0) {
