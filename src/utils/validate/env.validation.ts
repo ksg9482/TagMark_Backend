@@ -1,5 +1,5 @@
 import { plainToClass } from 'class-transformer';
-import { IsEnum, IsNumber, validateSync } from 'class-validator';
+import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 enum Environment {
   Local = "local",
@@ -14,11 +14,22 @@ class EnvironmentVariables {
   @IsNumber()
   PORT: number;
 
+  @IsString()
   DB_HOST: string;
+
+  @IsNumber()
   DB_PORT: number;
+
+  @IsString()
   DB_USERNAME: string;
+
+  @IsString()
   DB_PASSWORD: string;
+
+  @IsString()
   DB_NAME: string;
+
+  @IsString()
   PRIVATE_KEY: string;
 }
 
