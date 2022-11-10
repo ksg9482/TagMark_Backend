@@ -3,7 +3,15 @@ import * as bcrypt from "bcrypt"
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Bookmark } from "src/bookmarks/entities/bookmark.entity";
-
+export enum UserType {
+    BASIC = 'BASIC',
+    KAKAO = 'KAKAO',
+    GOOGLE = 'GOOGLE'
+}
+export enum UserRole {
+    USER = 'USER',
+    MANAGER = 'MANAGER'
+}
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -22,6 +30,14 @@ export class User {
     @ApiProperty({ description: '별명' })
     nickname: string;
 
+    @Column({type:'enum', enum:UserRole, default:UserRole.USER})
+    @ApiProperty({ description: '유저/매니저' })
+    role: UserRole
+
+    @Column({type:'enum', enum:UserType, default:UserType.BASIC})
+    @ApiProperty({ description: '유저 가입 유형' })
+    type: UserType
+
     @OneToMany(
         () => Bookmark,
         bookmark => bookmark.user
@@ -39,6 +55,7 @@ export class User {
 
 //서비스로 옮기고 거기서 불러오기 -> 그러면 의존방향이 옳지 않음.
     @BeforeInsert()
+    @BeforeUpdate()
     async hashPassword():Promise<void>{
         if(this.password){
             try {

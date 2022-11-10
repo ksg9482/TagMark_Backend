@@ -20,17 +20,19 @@ import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'pass',
-      database: process.env.DB_NAME || 'tagmark',
-      synchronize: process.env.NODE_ENV !== 'prod', 
-      logging: process.env.NODE_ENV !== 'prod',
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      synchronize: process.env.NODE_ENV !== 'production', 
+      logging: process.env.NODE_ENV !== 'production',
       entities: [
         User, 
         Bookmark,

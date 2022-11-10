@@ -73,13 +73,21 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.service.(t|j)s",
+      "**/*.controller.(t|j)s"
+    ],
+    "coveragePathIgnorePatterns": [
+      "node_modules",
+      ".entity.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
