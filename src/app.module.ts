@@ -20,6 +20,8 @@ import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
     TypeOrmModule.forRoot({
