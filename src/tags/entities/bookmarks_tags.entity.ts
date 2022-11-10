@@ -1,7 +1,6 @@
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
-import { SimilarTag } from "./similarTag.entity";
 import { Bookmark } from "src/bookmarks/entities/bookmark.entity";
 import { Tag } from "./tag.entity";
 
@@ -14,13 +13,15 @@ export class Bookmarks_Tags {
     
     @ManyToOne(
         () => Bookmark,
-        bookmark => bookmark.tags
+        bookmark => bookmark.tags,
+        {onDelete:"CASCADE"}
     )
     bookmark:Bookmark
 
     @ManyToOne(
         () => Tag,
-        tag => tag.bookmarks
+        tag => tag.bookmarks,
+        {onDelete:"CASCADE"}
     )
     tag:Tag
 

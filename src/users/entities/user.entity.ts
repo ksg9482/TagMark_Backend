@@ -3,6 +3,8 @@ import * as bcrypt from "bcrypt"
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Bookmark } from "src/bookmarks/entities/bookmark.entity";
+import { Tag } from "src/tags/entities/tag.entity";
+import { Users_Tags } from "src/tags/entities/users_tags.entity";
 export enum UserType {
     BASIC = 'BASIC',
     KAKAO = 'KAKAO',
@@ -43,6 +45,12 @@ export class User {
         bookmark => bookmark.user
     )
     bookmarks:Bookmark[]
+
+    @OneToMany(
+        ()=>Users_Tags,
+        users_tags => users_tags.tag
+    )
+    tags:Tag[]
     
     @CreateDateColumn()
     @ApiProperty({ description: '가입날짜' })

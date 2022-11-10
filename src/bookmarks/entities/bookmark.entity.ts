@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "src/users/entities/user.entity";
 import { Domain } from "./domain.entity";
@@ -11,35 +11,37 @@ export class Bookmark {
     @ApiProperty({ description: 'id' })
     id: number;
 
-    @OneToMany(
+    @ManyToOne(
         () => Domain,
         domain => domain.domain
     )
+    @JoinColumn()
     domain: Domain
 
-    @JoinColumn({
-        name:'domain_id',
-        referencedColumnName:'id'
-    })
-    domain_id:number
+    // @JoinColumn({
+    //     name:'domain_id',
+    //     referencedColumnName:'id'
+    // })
+    // domain_id:number
 
     @Column({unique:true})
     @ApiProperty({ description: 'URL 패스 & 세부사항' })
     path: string;
 
-    @OneToMany(
+    @ManyToOne(
         () => User,
         user => user.bookmarks,
         {onDelete:"CASCADE"},
     )
+    @JoinColumn()
     user:User;
 
-    @JoinColumn({
-        name:'user_id',
-        referencedColumnName:'id'
-    })
-    @ApiProperty({ description: '작성한 사용자의 id', type:"number" })
-    user_id:number;
+    // @JoinColumn({
+    //     name:'user_id',
+    //     referencedColumnName:'id'
+    // })
+    // @ApiProperty({ description: '작성한 사용자의 id', type:"number" })
+    // user_id:number;
 
     @OneToMany(
         ()=>Bookmarks_Tags,
