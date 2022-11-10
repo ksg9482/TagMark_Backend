@@ -1,9 +1,10 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
-import { SimilarTag } from "./similarTag.entity";
+import { Users_Tags } from "./users_tags.entity";
 import { Bookmark } from "src/bookmarks/entities/bookmark.entity";
 import { Bookmarks_Tags } from "./bookmarks_tags.entity";
+import { User } from "src/users/entities/user.entity";
 
 @Entity()
 export class Tag {
@@ -15,17 +16,18 @@ export class Tag {
     @ApiProperty({ description: '태그' })
     tag: string;
 
-    @OneToMany(
-        () => SimilarTag,
-        SimilarTag => SimilarTag.similar_tag
-    )
-    similarTags:SimilarTag[];
     
     @OneToMany(
         ()=>Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.bookmark
     )
     bookmarks:Bookmark[]
+
+    @OneToMany(
+        ()=>Users_Tags,
+        users_tags => users_tags.user
+    )
+    users:User[]
 
     @CreateDateColumn({type: "timestamp"})
     @ApiProperty({ description: '생성날짜' })

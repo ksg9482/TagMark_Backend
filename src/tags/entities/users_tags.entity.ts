@@ -2,29 +2,27 @@ import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColum
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Tag } from "./tag.entity";
+import { User } from "src/users/entities/user.entity";
 
-@Entity()
-export class SimilarTag {
+@Entity() 
+export class Users_Tags {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
     id: number;
 
     @ManyToOne(
-        () => Tag,
-        Tag => Tag.similarTags,
-        {onDelete:"CASCADE"},
+        () => User,
+        user => user.tags,
+        {onDelete:"CASCADE"}
     )
-    tag:Tag;
+    user:User
 
-    @JoinColumn({
-        name:'tag_id',
-        referencedColumnName:"id"
-    })
-    tag_id:number;
-
-    @Column()
-    @ApiProperty({ description: '태그' })
-    similar_tag: string;
+    @ManyToOne(
+        () => Tag,
+        tag => tag.users,
+        {onDelete:"CASCADE"}
+    )
+    tag:Tag
     
     @CreateDateColumn({type: "timestamp"})
     @ApiProperty({ description: '생성날짜' })

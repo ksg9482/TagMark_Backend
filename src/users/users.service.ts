@@ -106,7 +106,6 @@ export class UsersService {
             else return obj;
         }
         const userDataDeepCopy = deepCopy(userData);
-        console.log(userDataDeepCopy)
         const userDataCopy:User = JSON.parse(JSON.stringify(userData));
         const propertyArr = Array.isArray(property) ? property : [property];
         for(let property of propertyArr) {

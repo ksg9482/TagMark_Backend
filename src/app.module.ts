@@ -11,10 +11,10 @@ import { User } from './users/entities/user.entity';
 import { Bookmark } from './bookmarks/entities/bookmark.entity';
 import { Tag } from './tags/entities/tag.entity';
 import { Domain } from './bookmarks/entities/domain.entity';
-import { SimilarTag } from './tags/entities/similarTag.entity';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './utils/validate/env.validation';
 import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
+import { Users_Tags } from './tags/entities/users_tags.entity';
 
 @Module({
   imports: [
@@ -38,7 +38,7 @@ import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
         Bookmark,
         Domain,
         Tag,
-        SimilarTag,
+        Users_Tags,
         Bookmarks_Tags
       ]
     }),

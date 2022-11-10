@@ -12,7 +12,7 @@ export class Domain {
     @ApiProperty({ description: 'URL 도메인' })
     domain: string;
 
-    @ManyToOne(
+    @OneToMany(
         ()=>Bookmark,
         path => path.domain
     )

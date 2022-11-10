@@ -5,7 +5,6 @@ import { User } from './src/users/entities/user.entity';
 import { Bookmark } from './src/bookmarks/entities/bookmark.entity';
 import { Domain } from './src/bookmarks/entities/domain.entity';
 import { Bookmarks_Tags } from './src/tags/entities/bookmarks_tags.entity';
-import { SimilarTag } from './src/tags/entities/similarTag.entity';
 import { Tag } from './src/tags/entities/tag.entity';
 
 dotenv.config();
