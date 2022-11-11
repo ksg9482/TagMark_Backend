@@ -49,7 +49,8 @@ import { Users_Tags } from './tags/entities/users_tags.entity';
     TagsModule, 
     CommonModule,
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY
+      privateKey: process.env.PRIVATE_KEY,
+      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
     })
   ],
   controllers: [],

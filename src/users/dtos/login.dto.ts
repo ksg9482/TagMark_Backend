@@ -14,5 +14,8 @@ export class LoginInputDto {
 
 export class LoginOutputDto extends UserProfileOutputDto{
     @IsString()
-    token:string;
+    accessToken:string;
+
+    @IsString()
+    refreshToken:string;
 }

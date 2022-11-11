@@ -31,6 +31,9 @@ class EnvironmentVariables {
 
   @IsString()
   PRIVATE_KEY: string;
+
+  @IsString()
+  REFRESH_PRIVATE_KEY: string;
 }
 
 export function validate(config: Record<string, unknown>) {

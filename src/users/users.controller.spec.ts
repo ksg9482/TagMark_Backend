@@ -59,6 +59,7 @@ describe('UsersController', () => {
     role: UserRole.USER,
     type: UserType.BASIC,
     bookmarks: [],
+    tags:[],
     createdAt: new Date(),
     updatedAt: new Date(),
     hashPassword: () => { return new Promise(() => { }) },
@@ -86,7 +87,7 @@ describe('UsersController', () => {
 
       jest.spyOn(service, 'login').mockResolvedValue(loginOutput)
       const result = await controller.login({ email: '', password: '' })
-      expect(result).toMatchObject(loginOutput)
+      expect(result).toMatchObject({user:loginOutput.user, accessToken:loginOutput.token})
     });
   });
 });
