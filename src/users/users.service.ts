@@ -1,28 +1,34 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+//import axios from 'axios';
 import { JwtService } from 'src/jwt/jwt.service';
 import { Repository } from 'typeorm';
 import { LoginInputDto, LoginOutputDto } from './dtos/login.dto';
 import { SignUpInputDto, SignUpOutputDto } from './dtos/sign-up.dto';
 import { UserProfileOutputDto } from './dtos/user-profile.dto';
 import { User } from './entities/user.entity';
-export interface EditUserInputDto extends Pick<User, 'id' | 'password' | 'nickname'> {}
+export interface EditUserInputDto {
+    changePassword: string;
+    changeNickname: string
+}
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly users: Repository<User>,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly httpService: HttpService
     ) { }
 
-    public async findById(id: number): Promise<UserProfileOutputDto> {
+    async findById(id: number): Promise<UserProfileOutputDto> {
         const user = await this.users.findOneBy({ id });
         return { user }
     }
 
-    public async createAccount(signUpInputDto:SignUpInputDto): Promise<SignUpOutputDto> {
+    async createAccount(signUpInputDto: Partial<SignUpInputDto>): Promise<SignUpOutputDto> {
         const usercheck = await this.findByEmail(signUpInputDto.email);
-        if(usercheck) {
+        if (usercheck) {
             throw new Error('Email is aleady exist');
         };
 
@@ -37,61 +43,113 @@ export class UsersService {
         return { user: userData }
     }
 
-    public async login(loginInputDto:LoginInputDto):Promise<LoginOutputDto> {
-        const user = await this.findByEmail(loginInputDto.email);
+    async login(loginInputDto: LoginInputDto): Promise<LoginOutputDto> {
+        const user = await this.users.findOne({
+            where: { email: loginInputDto.email },
+            select: ['id', 'email', 'password']
+        });
         if (!user) {
             throw new Error('User not found');
         };
-        
+
         const checkPassword = await user.checkPassword(loginInputDto.password);
-        if(!checkPassword) {
+        if (!checkPassword) {
             throw new Error('Wrong password');
         };
+
         const userData = this.deleteProperty(user, 'password');
-        const token = this.jwtService.sign(userData)
-        return { user:userData, token }
+        const accessToken = this.jwtService.sign(userData);
+        const refreshToken = this.jwtService.refresh(userData);
+        return { user: userData, accessToken, refreshToken }
     }
 
-    public async editUser(editUserInputDto:Partial<EditUserInputDto>) {
-        const user = await this.users.findOne({where:{id:editUserInputDto.id}});
+    async editUser(userId: number, editUserInputDto: Partial<EditUserInputDto>) {
+        //원본 -> 바꿈. 바꿀 바디 필요
+        //어차피 가드에서 거른다. user not found가 여기에 필요할까?
+        const user = await this.users.findOne({ where: { id: userId } });
         if (!user) {
             throw new Error('User not found');
         };
-        const editMap = {
-            password: {password: editUserInputDto.password},
-            nickname: {nickname: editUserInputDto.nickname},
-            passAndNick: {password: editUserInputDto.password, nickname: editUserInputDto.nickname},
+        if (editUserInputDto.changeNickname) {
+            user.nickname = editUserInputDto.changeNickname
         }
-        // let key:string = editUserInputDto.password && editUserInputDto.nickname 
-        // ? 'passAndNick'
-        // : `${editUserInputDto}`
-        let key:string;
-        if(editUserInputDto.password && editUserInputDto.nickname) {
-            key = 'passAndNick'
-        } else if (editUserInputDto.password) {
-            key = 'password'
-        } else {
-            key = 'nickname'
+        if (editUserInputDto.changePassword) {
+            user.password = editUserInputDto.changePassword
         }
-        const result = await this.users.update({id:editUserInputDto.id},editMap[key])
+        const result = await this.users.save(user);
         return { result }
+        // const editMap = {
+        //     password: {password: editUserInputDto.changePassword},
+        //     nickname: {nickname: editUserInputDto.changeNickname},
+        //     passAndNick: {password: editUserInputDto.changePassword, nickname: editUserInputDto.changeNickname},
+        // }
+        // // let key:string = editUserInputDto.password && editUserInputDto.nickname 
+        // // ? 'passAndNick'
+        // // : `${editUserInputDto}`
+        // let key:string;
+        // if(editUserInputDto.changePassword && editUserInputDto.changeNickname) {
+        //     key = 'passAndNick'
+        // } else if (editUserInputDto.changePassword) {
+        //     key = 'password'
+        // } else {
+        //     key = 'nickname'
+        // }
+        //const result = await this.users.update({id:userId},editMap[key])
+        //return { result }
     }
 
-    public async deleteUser(id:number) {
-        const user = await this.users.findOne({where:{id:id}});
+    async deleteUser(id: number) {
+        const user = await this.users.findOne({ where: { id: id } });
         if (!user) {
             throw new Error('User not found');
         };
-        const deleteUser = await this.users.delete({id:id})
+        const deleteUser = await this.users.delete({ id: id })
         return { deleteUser }
     }
 
-    protected async findByEmail (email: string) {
+    async refresh(refreshToken: string) {
+        const verifyToken = this.jwtService.verify(refreshToken);
+        if (!verifyToken) {
+            throw new Error('Token expire');
+        };
+        const user = await this.users.findOne({ where: { id: verifyToken['id'] } });
+        const accessToken = this.jwtService.sign(user);
+
+        return accessToken;
+    }
+
+    async googleOauth(accessToken: string) {
+        const getGoogleUserData = async (accessToken: string) => {
+            const getUserInfo = await this.httpService.axiosRef.get(`https://www.googleapis.com/oauth2/v1/userinfo`
+            + `?access_token=${accessToken}`)
+            console.log(getUserInfo)
+            if (!getUserInfo) {
+              throw new Error('Google OAuth get user info fail')
+            }
+            return getUserInfo;
+          };
+      
+          const setGoogleUserForm = (userData)=> {
+            const userForm = {
+              email: userData.email,
+              password: userData.id,
+              type: 'google'
+            };
+            return userForm;
+          };
+      
+          const googleUserInfo = await getGoogleUserData(accessToken);
+          const googleUser = setGoogleUserForm(googleUserInfo);
+      
+          return 'googleUser';
+    }
+
+    protected async findByEmail(email: string) {
         return await this.users.findOne({
             where: { email }
         });
     }
-    protected deleteProperty (userData:User, property:string | string[]) {
+    protected deleteProperty(userData: User, property: string | string[]) {
         const deepCopy = (obj) => {
             if (obj instanceof Object) {
                 let result = new obj.constructor();
@@ -106,9 +164,10 @@ export class UsersService {
             else return obj;
         }
         const userDataDeepCopy = deepCopy(userData);
-        const userDataCopy:User = JSON.parse(JSON.stringify(userData));
+        const userDataCopy: User = JSON.parse(JSON.stringify(userData));
+        console.log('deepCopy -', userDataDeepCopy) //date를 문자열로 수정해야 함
         const propertyArr = Array.isArray(property) ? property : [property];
-        for(let property of propertyArr) {
+        for (let property of propertyArr) {
             Reflect.deleteProperty(userDataCopy, property);
         };
         return userDataCopy

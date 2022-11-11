@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsOptional, IsString, MaxLength, MinLength, ValidateIf } from "class-validator";
+
 import { UserProfileOutputDto } from "./user-profile.dto";
 
 export class SignUpInputDto {
@@ -8,11 +9,12 @@ export class SignUpInputDto {
     email: string;
 
     @IsString()
-    @MinLength(8)
-    @ApiProperty({ description: '비밀번호',minimum:8})
+    @MinLength(6)
+    @ApiProperty({ description: '비밀번호',minimum:6})
     password: string;
 
     @IsString()
+    @IsOptional()
     @ApiProperty({ description: '별명'})
     nickname: string;
 }

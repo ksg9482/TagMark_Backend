@@ -24,11 +24,11 @@ export class User {
     @ApiProperty({ description: '이메일' })
     email: string;
 
-    @Column()
+    @Column({select:false})
     @ApiProperty({ description: '비밀번호' })
     password: string;
 
-    @Column()
+    @Column({default:'익명'})
     @ApiProperty({ description: '별명' })
     nickname: string;
 
@@ -65,6 +65,7 @@ export class User {
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword():Promise<void>{
+        console.log(this)
         if(this.password){
             try {
                 this.password = await bcrypt.hash(this.password, 10)
@@ -73,6 +74,7 @@ export class User {
             }
         }
     }
+    
 
     async checkPassword(aPassword: string): Promise<boolean> {
         try {

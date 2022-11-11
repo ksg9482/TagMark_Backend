@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, InternalServerErrorException, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, InternalServerErrorException, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 import { LoginInputDto } from './dtos/login.dto';
 import { SignUpInputDto } from './dtos/sign-up.dto';
 import { User } from './entities/user.entity';
@@ -38,8 +39,9 @@ export class UsersController {
         @Body(new ValidationPipe()) loginInputDto: LoginInputDto
     ) {
         try {
-            const { user, token } = await this.usersService.login(loginInputDto)
-            return { user, token }
+            const { user, accessToken, refreshToken } = await this.usersService.login(loginInputDto)
+            
+            return { user, accessToken, refreshToken } 
         } catch (error) {
             const error400 = ['User not found', 'Wrong password'];
             if (error400.includes(error.message)) {
@@ -51,10 +53,11 @@ export class UsersController {
 
     @Patch('/')
     async editUser(
+        @AuthUser() userId:number,
         @Body(new ValidationPipe()) editUserInputDto: EditUserInputDto
     ) {
         try {
-            const result = await this.usersService.editUser(editUserInputDto);
+            const result = await this.usersService.editUser(userId, editUserInputDto);
             return result
         } catch (error) {
             const error400 = ['User not found'];
@@ -80,4 +83,21 @@ export class UsersController {
             throw new InternalServerErrorException();
         }
     }
+
+    @Get('/refresh')
+    async refresh(
+        @Headers('accessToken') oldAccessToken:string
+    ) {
+        const accessToken = await this.usersService.refresh(oldAccessToken);
+        return {accessToken}
+    }
+
+    @Post('/google')
+    async googleOauth(
+        @Body() accessToken: string
+    ) {
+        const googleOAuth = await this.usersService.googleOauth(accessToken)
+        return {googleOAuth}
+    }
+
 }

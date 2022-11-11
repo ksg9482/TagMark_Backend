@@ -10,9 +10,20 @@ export class JwtService {
         ) {}
 
         sign(userData: any): string {
-            return jwt.sign({...userData}, this.options.privateKey)
+            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'10s'})
             
             
+        }
+
+        refresh(userData: any): string {
+            const token = jwt.sign(
+                {
+                    id: userData.id,
+                },
+                this.options.refreshPrivateKey,
+                {expiresIn:'1d'}
+            );
+            return token;
         }
 
         verify(token: string) {

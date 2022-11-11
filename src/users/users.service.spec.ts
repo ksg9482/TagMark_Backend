@@ -59,6 +59,7 @@ describe('UsersService', () => {
     role: UserRole.USER,
     type: UserType.BASIC,
     bookmarks: [],
+    tags:[],
     createdAt: new Date(),
     updatedAt: new Date(),
     hashPassword: () => { return new Promise(() => { }) },

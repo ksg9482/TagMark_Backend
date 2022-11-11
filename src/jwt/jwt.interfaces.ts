@@ -1,4 +1,5 @@
 
 export interface JwtModuleOptions {
-    privateKey: string
+    privateKey: string;
+    refreshPrivateKey: string;
 }
