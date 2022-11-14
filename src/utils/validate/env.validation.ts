@@ -37,15 +37,14 @@ class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
-
   const validatedConfig = plainToClass(
     EnvironmentVariables,
     config,
     { enableImplicitConversion: true },
   );
-  console.log(validatedConfig)
+  
   const errors = validateSync(validatedConfig, { skipMissingProperties: false });
-
+  
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }

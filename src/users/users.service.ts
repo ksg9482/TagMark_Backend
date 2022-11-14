@@ -122,7 +122,6 @@ export class UsersService {
         const getGoogleUserData = async (accessToken: string) => {
             const getUserInfo = await this.httpService.axiosRef.get(`https://www.googleapis.com/oauth2/v1/userinfo`
             + `?access_token=${accessToken}`)
-            console.log(getUserInfo)
             if (!getUserInfo) {
               throw new Error('Google OAuth get user info fail')
             }
@@ -165,7 +164,7 @@ export class UsersService {
         }
         const userDataDeepCopy = deepCopy(userData);
         const userDataCopy: User = JSON.parse(JSON.stringify(userData));
-        console.log('deepCopy -', userDataDeepCopy) //date를 문자열로 수정해야 함
+         //date를 문자열로 수정해야 함
         const propertyArr = Array.isArray(property) ? property : [property];
         for (let property of propertyArr) {
             Reflect.deleteProperty(userDataCopy, property);
