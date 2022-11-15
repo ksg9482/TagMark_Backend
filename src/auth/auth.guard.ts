@@ -46,20 +46,21 @@ export class AuthGuard implements CanActivate {
       // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === '') {
       //   return true;
       // }
-      const allowMap = {
-        login:'login',
-        refresh:'refresh',
-        google:'google'
-      }
+      // const allowMap = {
+      //   login:'login',
+      //   refresh:'refresh',
+      //   google:'google'
+      // }
       
-      if(request.url.split('/')[1] === 'users' && allowMap[request.url.split('/')[2]]) {
-        return true;
-      }
-      if(error.name === 'TokenExpiredError') {
-        throw new Error('expire_token')
-      }
+      // if(request.url.split('/')[1] === 'users' /*&& allowMap[request.url.split('/')[2]]*/) {
+      //   return true;
+      // }
+      // if(error.name === 'TokenExpiredError') {
+      //   throw new Error('expire_token')
+      // }
       
-      return false;
+      // return false;
+      return true
     }
   }
 }

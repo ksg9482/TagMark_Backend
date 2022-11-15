@@ -20,7 +20,7 @@ export class CreateInitialUserData implements Seeder {
       .insert()
       .into(Bookmark)
       .values([
-        { id: 1, path:'1', createdAt:new Date(), updatedAt:new Date()}
+        { id: 1, createdAt:new Date(), updatedAt:new Date()}
       ])
       .execute();
   }

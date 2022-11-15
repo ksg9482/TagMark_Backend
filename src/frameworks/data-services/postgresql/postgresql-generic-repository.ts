@@ -1,10 +1,15 @@
 import { Repository } from 'typeorm'
 import { GenericRepository } from "src/core";
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     private _repository: Repository<T>;
 
-    constructor(repository: Repository<T>) {
+    constructor(
+        @Inject(Repository<T>)
+        repository: Repository<T>
+        ) {
         this._repository = repository;
     }
 
@@ -18,6 +23,7 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     }
 
     create(item: T): Promise<T> {
+        console.log('호출')
         console.log(item)
         return this._repository.save(this._repository.create(item))
     }

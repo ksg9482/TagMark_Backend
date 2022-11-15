@@ -9,7 +9,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { User } from './users/entities/user.entity';
 import { Bookmark } from './bookmarks/entities/bookmark.entity';
 import { Tag } from './tags/entities/tag.entity';
-import { Domain } from './bookmarks/entities/domain.entity';
+import { Url } from './bookmarks/entities/url.entity';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './utils/validate/env.validation';
 import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
@@ -28,24 +28,44 @@ import { BookmarkController, TagController, UserController } from './controllers
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
-    DataServicesModule,
-    UserUsecasesModule,
-    BookmarkUsecasesModule,
-    TagUsecasesModule,
-    //AuthModule, 
-    // JwtModule.forRoot({
-    //   privateKey: process.env.PRIVATE_KEY,
-    //   refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
-    // })
+    //클린 아키텍처 적용중
+    // DataServicesModule,
+    // UserUsecasesModule,
+    // BookmarkUsecasesModule,
+    // TagUsecasesModule,
+    //클린 아키텍처 적용중
+    AuthModule, 
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
+      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
+    }),
+    TypeOrmModule.forRoot({
+      type: "postgres",
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      synchronize: process.env.NODE_ENV !== 'production', 
+      logging: process.env.NODE_ENV !== 'production',
+      entities: [
+        User, 
+        Bookmark,
+        Url,
+        Tag,
+        Users_Tags,
+        Bookmarks_Tags
+      ]
+    }),
+    UsersModule, 
+    BookmarksModule, 
+    TagsModule, 
     UtilsModule, 
-    //UsersModule, 
-    //BookmarksModule, 
-    //TagsModule, 
   ],
   controllers: [
-    UserController,
-    BookmarkController,
-    TagController
+    // UserController,
+    // BookmarkController,
+    // TagController
   ],
   providers: [],
 })
