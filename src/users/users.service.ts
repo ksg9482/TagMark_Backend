@@ -31,7 +31,7 @@ export class UsersService {
         if (usercheck) {
             throw new Error('Email is aleady exist');
         };
-
+        
         const user = await this.users.save(
             this.users.create({
                 email: signUpInputDto.email,

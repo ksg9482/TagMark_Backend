@@ -19,7 +19,7 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
         database: config.get('DB_NAME'),
         synchronize: config.get('NODE_ENV') !== 'production',
         logging: config.get('NODE_ENV') !== 'production',
-        entities:[__dirname + './../../**/*.entity{.ts,.js}'],
+        entities:[__dirname + './../../**/*.model{.ts,.js}'],
       })
     }),
     TypeOrmModule.forFeature([
@@ -39,4 +39,5 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
   ],
   exports: [DataServices]
 })
+
 export class PostgresqlDataServicesModule { }

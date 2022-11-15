@@ -24,6 +24,8 @@ export class UserController {
     ): Promise<any> {
         const createUserResponse = new CreateUserResponseDto();
         try {
+            console.log('컨트롤러',userDto)
+            console.log(this.userUseCases)
             const user = this.userFactoryService.createNewUser(userDto);
             const createdUser = await this.userUseCases.createUser(user);
 

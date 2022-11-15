@@ -19,13 +19,15 @@ export class Tag {
     
     @OneToMany(
         ()=>Bookmarks_Tags,
-        bookmarks_tags => bookmarks_tags.bookmark
+        bookmarks_tags => bookmarks_tags.bookmark,
+        {onDelete:"CASCADE"}
     )
     bookmarks:Bookmark[]
 
     @OneToMany(
         ()=>Users_Tags,
-        users_tags => users_tags.user
+        users_tags => users_tags.user,
+        {onDelete:"CASCADE"}
     )
     users:User[]
 
