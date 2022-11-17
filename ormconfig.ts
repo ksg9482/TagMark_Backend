@@ -3,7 +3,6 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 import { User } from './src/users/entities/user.entity';
 import { Bookmark } from './src/bookmarks/entities/bookmark.entity';
-import { Url } from './src/bookmarks/entities/url.entity';
 import { Bookmarks_Tags } from './src/tags/entities/bookmarks_tags.entity';
 import { Tag } from './src/tags/entities/tag.entity';
 

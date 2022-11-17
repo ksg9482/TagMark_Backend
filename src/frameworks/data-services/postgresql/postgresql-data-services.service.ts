@@ -25,7 +25,8 @@ implements DataServices, OnApplicationBootstrap
         private TagRepository: Repository<Tag>
     ) {}
 
-    onApplicationBootstrap() {
+    //onModuleInit로하면 안되나? 호스트 모듈의 종속성이 해결(resolve)되면 호출
+    onApplicationBootstrap() { //모든 모듈이 초기화된 후 연결을 수신 대기하기 전에 호출
         this.users = new PostgresqlGenericRepository<User>(this.UserRepository);
         this.bookmarks = new PostgresqlGenericRepository<Bookmark>(this.BookmarkRepository);
         this.tags = new PostgresqlGenericRepository<Tag>(this.TagRepository);
