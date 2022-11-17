@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkInputDto } from './dtos/create-bookmark.dto';
@@ -10,6 +10,19 @@ export class BookmarksController {
     constructor(
         private readonly bookmarksService: BookmarksService
         ) { };
+
+    @Get('/mybookmark')
+    async getUserAllBookmark(
+        //@AuthUser() userId:number,
+    ) {
+        try {
+            const userId = 1
+            const { bookmarks } = await this.bookmarksService.getUserAllBookmarks(userId)
+            return bookmarks
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     @Post('/')
     async createBookmark(
@@ -25,28 +38,29 @@ export class BookmarksController {
         }
     }
 
-    @Patch('/')
+    @Patch('/:id')
     async editBookmarkUrl(
         //@AuthUser() userId:number,
+        @Param('id', ParseIntPipe) bookmarkId: number,
         @Body(new ValidationPipe()) editBookmarkUrlInputDto: EditBookmarkUrlInputDto
     ) {
         try {
             const userId = 1
-            const result = await this.bookmarksService.editBookmarkUrl(userId, editBookmarkUrlInputDto)
+            const result = await this.bookmarksService.editBookmark(userId, bookmarkId, editBookmarkUrlInputDto)
             return result
         } catch (error) {
             console.log(error)
         }
     }
 
-    @Delete('/')
+    @Delete('/:id')
     async deleteBookmark(
         //@AuthUser() userId:number,
-        @Body(new ValidationPipe()) deleteBookmarkInputDto: DeleteBookmarkInputDto
+        @Param('id', ParseIntPipe) bookmarkId: number
     ) {
         try {
             const userId = 1
-            const result = await this.bookmarksService.deleteBookmark(userId, deleteBookmarkInputDto)
+            const result = await this.bookmarksService.deleteBookmark(userId, bookmarkId)
             return result
         } catch (error) {
             console.log(error)

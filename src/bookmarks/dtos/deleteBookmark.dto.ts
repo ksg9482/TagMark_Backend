@@ -2,7 +2,6 @@ import { PartialType } from "@nestjs/mapped-types";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEmail, IsNumber, IsOptional, IsString, MaxLength, MinLength, ValidateIf } from "class-validator";
 import { Tag } from "src/tags/entities/tag.entity";
-import { Url } from "../entities/url.entity";
 
 import { BookmarkOutputDto } from "./bookmark.dto";
 
