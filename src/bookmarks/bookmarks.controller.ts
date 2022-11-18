@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { TagsService } from 'src/tags/tags.service';
 import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkInputDto } from './dtos/create-bookmark.dto';
 import { DeleteBookmarkInputDto } from './dtos/deleteBookmark.dto';
@@ -8,7 +9,8 @@ import { EditBookmarkUrlInputDto } from './dtos/edit-bookmarkUrl.dto';
 @Controller('bookmarks')
 export class BookmarksController {
     constructor(
-        private readonly bookmarksService: BookmarksService
+        private readonly bookmarksService: BookmarksService,
+        private readonly tagsService: TagsService
         ) { };
 
     @Get('/mybookmark')
@@ -29,9 +31,14 @@ export class BookmarksController {
         //@AuthUser() userId:number,
         @Body(new ValidationPipe()) createBookmarkInputDto: CreateBookmarkInputDto
     ) {
+        const userId = 1
+        
         try {
-            const userId = 1
+            const tagNames = this.tagsService.tagToString(createBookmarkInputDto.tags)
+            const tags = await this.tagsService.getTagsByNames(tagNames)
+            createBookmarkInputDto.tags = tags;
             const { bookmark } = await this.bookmarksService.createBookmark(userId, createBookmarkInputDto)
+            await this.tagsService.attachTag(userId, bookmark.id, tags)
             return bookmark
         } catch (error) {
             console.log(error)

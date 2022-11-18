@@ -1,8 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { CreateTagInputDto } from './dtos/create-tag.dto';
 import { EditTagInputDto } from './dtos/edit-tag.dto copy';
+import { GetTagsInputDto } from './dtos/get-tags.dto';
 import { TagsService } from './tags.service';
-
+interface AttachTagDto {
+    tagId: number[]
+}
 @Controller('tags')
 export class TagsController {
     constructor(
@@ -59,5 +62,13 @@ export class TagsController {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    @Post('/test')
+    async attachTag(
+        @Body() getTagsInputDto: GetTagsInputDto
+    ) {
+        const tags = await this.tagsService.getTagsByNames(['여행', '야시장']);
+        return tags
     }
 }

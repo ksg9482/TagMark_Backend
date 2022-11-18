@@ -13,11 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 import { validate } from './utils/validate/env.validation';
 import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
 import { Users_Tags } from './tags/entities/users_tags.entity';
-import { DataServicesModule } from './services/data-services/data-services.module';
-import { UserUsecasesModule } from './use-cases/user';
-import { BookmarkUsecasesModule } from './use-cases/bookmark';
-import { TagUsecasesModule } from './use-cases/tag';
-import { BookmarkController, TagController, UserController } from './controllers';
 
 @Module({
   imports: [
@@ -27,12 +22,6 @@ import { BookmarkController, TagController, UserController } from './controllers
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
-    //클린 아키텍처 적용중
-    // DataServicesModule,
-    // UserUsecasesModule,
-    // BookmarkUsecasesModule,
-    // TagUsecasesModule,
-    //클린 아키텍처 적용중
     AuthModule, 
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
@@ -47,6 +36,7 @@ import { BookmarkController, TagController, UserController } from './controllers
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'production', 
       logging: process.env.NODE_ENV !== 'production',
+      //useUTC:true,
       entities: [
         User, 
         Bookmark,
@@ -60,11 +50,7 @@ import { BookmarkController, TagController, UserController } from './controllers
     TagsModule, 
     UtilsModule, 
   ],
-  controllers: [
-    // UserController,
-    // BookmarkController,
-    // TagController
-  ],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

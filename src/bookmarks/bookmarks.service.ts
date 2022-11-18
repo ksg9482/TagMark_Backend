@@ -14,17 +14,23 @@ export class BookmarksService {
     ) { }
 
     async getAllBookmarks() {
-        return await this.bookmarks.find({relations:['url', 'tags']})
+        return await this.bookmarks.find({relations:[ 'tags']})
     }
 
     async getUserAllBookmarks(userId:number) {
-        const bookmarks = await this.bookmarks.find({where:{userId:userId},relations:['url', 'tags']})
+        const bookmarks = await this.bookmarks.find({where:{userId:userId},relations:['tags']})
+        const test = await this.bookmarks.createQueryBuilder('bookmark')
+        //.select('*')
+        .leftJoinAndSelect('bookmarks_tags', 'bookmarks_tags','bookmarks_tags.bookmarkId = bookmark.id')
+        .leftJoinAndSelect('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
+        .getRawMany()
+        //.getMany()
+        console.log(test)
         return {bookmarks: bookmarks}
     }
 
     async createBookmark(userId:number, createBookmarkInputDto: Partial<CreateBookmarkInputDto>): Promise<CreateBookmarkOutputDto> {
         const bookmark = await this.bookmarks.findOne({where:{url:createBookmarkInputDto.url}})
-        
         if(bookmark) {
             throw new Error('Bookmark is aleady exist')
         }

@@ -28,13 +28,6 @@ export class Bookmark {
     @Column()
     userId: number
 
-    // @JoinColumn({
-    //     name:'user_id',
-    //     referencedColumnName:'id'
-    // })
-    // @ApiProperty({ description: '작성한 사용자의 id', type:"number" })
-    // user_id:number;
-
     @OneToMany(
         ()=>Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.tag

@@ -27,6 +27,7 @@ export class UsersService {
     }
 
     async createAccount(signUpInputDto: Partial<SignUpInputDto>): Promise<SignUpOutputDto> {
+        console.log(this.users)
         const usercheck = await this.findByEmail(signUpInputDto.email);
         if (usercheck) {
             throw new Error('Email is aleady exist');
