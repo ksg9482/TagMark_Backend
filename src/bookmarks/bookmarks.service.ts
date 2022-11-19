@@ -18,15 +18,28 @@ export class BookmarksService {
     }
 
     async getUserAllBookmarks(userId:number) {
-        const bookmarks = await this.bookmarks.find({where:{userId:userId},relations:['tags']})
-        const test = await this.bookmarks.createQueryBuilder('bookmark')
-        //.select('*')
-        .leftJoinAndSelect('bookmarks_tags', 'bookmarks_tags','bookmarks_tags.bookmarkId = bookmark.id')
-        .leftJoinAndSelect('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
+        const tagProperty = (/*entityName:string,properties:string[]*/) => {
+            const name = 'tag'
+            const test = ['id', 'name']
+            return `'id', "tag"."id",'tag', "tag"."tag"`
+        }
+        console.log(tagProperty())
+        const bookmarks:Bookmark[] = await this.bookmarks.createQueryBuilder('bookmark')
+        .select(`"bookmark".*`)
+        .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
+        .leftJoin('bookmarks_tags', 'bookmarks_tags','bookmarks_tags.bookmarkId = bookmark.id')
+        .leftJoin('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
+        .where(`"userId" = ${userId}`)
+        .groupBy("bookmark.id")
+        .orderBy('bookmark."createdAt"', 'DESC')
         .getRawMany()
-        //.getMany()
-        console.log(test)
-        return {bookmarks: bookmarks}
+        const bookmarksForm = bookmarks.map((bookmark)=>{
+            if(bookmark.tags[0].id === null) {
+                bookmark.tags = null
+            }
+            return bookmark
+        })
+        return {bookmarks: bookmarksForm}
     }
 
     async createBookmark(userId:number, createBookmarkInputDto: Partial<CreateBookmarkInputDto>): Promise<CreateBookmarkOutputDto> {

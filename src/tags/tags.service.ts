@@ -134,7 +134,31 @@ export class TagsService {
     //DB에 해당 태그가 있는지. 필터로 판단. 필터되서 나온 문자열은 태그에 없는 것.
     //그 문자열만 태그 추가(IN). 그리고 조인테이블에 추가
 
-    //
+    async getAlluserTags(userId:number) {
+        const tags = await this.tags.createQueryBuilder('tag')
+        .select(`tag.*`)
+        .leftJoin(`bookmarks_tags`,`bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
+        .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
+        .where(`bookmark."userId" = ${userId}`)
+        .getRawMany()
+        return {tags: tags}
+    }
+
+    
+    async getTagAllBookmarks() {
+        //이거 북마크로 옮겨야됨. or문으로 검색하는 거
+        /*
+        SELECT "bookmark".*,
+array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag")) AS "tags"
+FROM "bookmark" "bookmark" 
+LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON "bookmarks_tags"."bookmarkId" = "bookmark"."id"  
+LEFT JOIN "tag" "tag" ON "tag"."id" = "bookmarks_tags"."tagId" 
+WHERE "userId" = 1 and ("tag"."tag" in ('여행','야시장'))
+GROUP BY "bookmark"."id" 
+ORDER BY bookmark."createdAt" DESC
+        */
+    }
+
     tagToString(tags:Tag[]):string[] {
         const tagStrings:string[] = []
         const deepCopy = (obj) => {
