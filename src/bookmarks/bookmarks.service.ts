@@ -14,17 +14,36 @@ export class BookmarksService {
     ) { }
 
     async getAllBookmarks() {
-        return await this.bookmarks.find({relations:['url', 'tags']})
+        return await this.bookmarks.find({relations:[ 'tags']})
     }
 
     async getUserAllBookmarks(userId:number) {
-        const bookmarks = await this.bookmarks.find({where:{userId:userId},relations:['url', 'tags']})
-        return {bookmarks: bookmarks}
+        const tagProperty = (/*entityName:string,properties:string[]*/) => {
+            const name = 'tag'
+            const test = ['id', 'name']
+            return `'id', "tag"."id",'tag', "tag"."tag"`
+        }
+        console.log(tagProperty())
+        const bookmarks:Bookmark[] = await this.bookmarks.createQueryBuilder('bookmark')
+        .select(`"bookmark".*`)
+        .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
+        .leftJoin('bookmarks_tags', 'bookmarks_tags','bookmarks_tags.bookmarkId = bookmark.id')
+        .leftJoin('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
+        .where(`"userId" = ${userId}`)
+        .groupBy("bookmark.id")
+        .orderBy('bookmark."createdAt"', 'DESC')
+        .getRawMany()
+        const bookmarksForm = bookmarks.map((bookmark)=>{
+            if(bookmark.tags[0].id === null) {
+                bookmark.tags = null
+            }
+            return bookmark
+        })
+        return {bookmarks: bookmarksForm}
     }
 
     async createBookmark(userId:number, createBookmarkInputDto: Partial<CreateBookmarkInputDto>): Promise<CreateBookmarkOutputDto> {
         const bookmark = await this.bookmarks.findOne({where:{url:createBookmarkInputDto.url}})
-        
         if(bookmark) {
             throw new Error('Bookmark is aleady exist')
         }

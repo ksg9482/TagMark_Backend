@@ -1,8 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { CreateTagInputDto } from './dtos/create-tag.dto';
 import { EditTagInputDto } from './dtos/edit-tag.dto copy';
+import { GetTagsInputDto } from './dtos/get-tags.dto';
 import { TagsService } from './tags.service';
-
+interface AttachTagDto {
+    tagId: number[]
+}
 @Controller('tags')
 export class TagsController {
     constructor(
@@ -18,10 +21,18 @@ export class TagsController {
             console.log(error)
         }
     }
-    //유저가 가진 모든 태그와 북마크 + 페이지네이션
+    //유저가 가진 모든 태그 + 페이지네이션
     @Get('/')
-    async getUserAllTags() {
-        
+    async getUserAllTags(
+        //@AuthUser() userId:number,
+    ) {
+        try {
+            const userId = 1
+            const {tags} = await this.tagsService.getAlluserTags(userId);
+            return tags;
+        } catch (error) {
+            console.log(error)
+        }
     }
     //검색용. 배열이용. AND검색. 태그에 해당하는 모든 북마크. 태그랑 북마크랑 책임 나눠야함
     async andFindTagAndBookmarks() {
@@ -59,5 +70,13 @@ export class TagsController {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    @Post('/test')
+    async attachTag(
+        @Body() getTagsInputDto: GetTagsInputDto
+    ) {
+        const tags = await this.tagsService.getTagsByNames(['여행', '야시장']);
+        return tags
     }
 }
