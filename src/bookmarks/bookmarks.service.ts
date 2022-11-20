@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateBookmarkInputDto, CreateBookmarkOutputDto } from './dtos/create-bookmark.dto';
 import { DeleteBookmarkInputDto } from './dtos/deleteBookmark.dto';
-import { EditBookmarkUrlInputDto, EditBookmarkUrlOutputDto } from './dtos/edit-bookmarkUrl.dto';
+import { EditBookmarkInputDto, EditBookmarkOutputDto } from './dtos/edit-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 
 @Injectable()
@@ -76,9 +76,9 @@ export class BookmarksService {
         return { bookmark: createdBookmark }
     }
 
-    async editBookmark(userId: number, bookmarkId:number, editBookmarkUrlInputDto:EditBookmarkUrlInputDto){
+    async editBookmarkUrl(userId: number, bookmarkId:number, changeUrl:string){
         this.bookmarkCheck(userId, bookmarkId)
-        await this.bookmarks.update(bookmarkId,{url:editBookmarkUrlInputDto.changeUrl})
+        await this.bookmarks.update(bookmarkId,{url:changeUrl})
         return {message: 'Updated'}
     }
 

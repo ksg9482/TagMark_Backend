@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from '@nestjs/common';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 import { CreateTagInputDto } from './dtos/create-tag.dto';
 import { EditTagInputDto } from './dtos/edit-tag.dto copy';
 import { GetTagsInputDto } from './dtos/get-tags.dto';
@@ -35,12 +36,24 @@ export class TagsController {
         }
     }
     //검색용. 배열이용. AND검색. 태그에 해당하는 모든 북마크. 태그랑 북마크랑 책임 나눠야함
-    async andFindTagAndBookmarks() {
-        
+    async andFindTagAndBookmarks(
+        @AuthUser() userId:number,
+        @Query('tags') tags: string
+    ) {
+        //tags -> 태그1+태그2
+        const tagArr = tags.split('+') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+        const {bookmarks} = await this.tagsService.getTagAllBookmarksAND(userId, tagArr)
+        return bookmarks
     }
     //검색용. 배열이용. OR검색. 태그에 해당하는 모든 북마크. 태그랑 북마크랑 책임 나눠야함
-    async orFindTagAndBookmarks() {
-        
+    async orFindTagAndBookmarks(
+        @AuthUser() userId:number,
+        @Query('tags') tags: string
+    ) {
+        //tags -> 태그1OR태그2
+        const tagArr = tags.split('OR') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"OR"')
+        const {bookmarks} = await this.tagsService.getTagAllBookmarksOR(userId, tagArr)
+        return bookmarks
     }
     
     @Post('/')
