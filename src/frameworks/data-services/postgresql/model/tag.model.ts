@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Bookmark, Bookmarks_Tags, User, Users_Tags } from "./";
+import { Bookmark, Bookmarks_Tags } from "./";
 
 
 @Entity()
@@ -13,18 +13,12 @@ export class Tag {
     @ApiProperty({ description: '태그' })
     tag: string;
 
-    
     @OneToMany(
         ()=>Bookmarks_Tags,
-        bookmarks_tags => bookmarks_tags.bookmark
+        bookmarks_tags => bookmarks_tags.bookmark,
+        {onDelete:"CASCADE"}
     )
     bookmarks:Bookmark[]
-
-    @OneToMany(
-        ()=>Users_Tags,
-        users_tags => users_tags.user
-    )
-    users:User[]
 
     @CreateDateColumn({type: "timestamp"})
     @ApiProperty({ description: '생성날짜' })

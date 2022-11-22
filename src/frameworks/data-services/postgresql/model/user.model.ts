@@ -2,7 +2,7 @@ import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import * as bcrypt from "bcrypt"
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Bookmark, Tag, Users_Tags } from "./";
+import { Bookmark } from "./";
 
 export enum UserType {
     BASIC = 'BASIC',
@@ -46,11 +46,6 @@ export class User {
     )
     bookmarks:Bookmark[]
 
-    @OneToMany(
-        ()=>Users_Tags,
-        users_tags => users_tags.tag
-    )
-    tags:Tag[]
     
     @CreateDateColumn()
     @ApiProperty({ description: '가입날짜' })
@@ -60,6 +55,8 @@ export class User {
     @ApiProperty({ description: '수정날짜' })
     updatedAt: Date;
 
+
+//서비스로 옮기고 거기서 불러오기 -> 그러면 의존방향이 옳지 않음.
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword():Promise<void>{

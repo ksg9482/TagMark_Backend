@@ -13,6 +13,12 @@ import { ConfigModule } from '@nestjs/config';
 import { validate } from './utils/validate/env.validation';
 import { Bookmarks_Tags } from './tags/entities/bookmarks_tags.entity';
 import { Users_Tags } from './tags/entities/users_tags.entity';
+import { DataServicesModule } from './services/data-services/data-services.module';
+import { UserUsecasesModule } from './use-cases/user';
+import { BookmarkUsecasesModule } from './use-cases/bookmark';
+import { TagUsecasesModule } from './use-cases/tag';
+import { BookmarkController, TagController, UserController } from './controllers';
+
 
 @Module({
   imports: [
@@ -22,35 +28,45 @@ import { Users_Tags } from './tags/entities/users_tags.entity';
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
-    AuthModule, 
-    JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY,
-      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
-    }),
-    TypeOrmModule.forRoot({
-      type: "postgres",
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      synchronize: process.env.NODE_ENV !== 'production', 
-      logging: process.env.NODE_ENV !== 'production',
-      //useUTC:true,
-      entities: [
-        User, 
-        Bookmark,
-        Tag,
-        Users_Tags,
-        Bookmarks_Tags
-      ]
-    }),
-    UsersModule, 
-    BookmarksModule, 
-    TagsModule, 
-    UtilsModule, 
+    // AuthModule, 
+    // JwtModule.forRoot({
+    //   privateKey: process.env.PRIVATE_KEY,
+    //   refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
+    // }),
+    // TypeOrmModule.forRoot({
+    //   type: "postgres",
+    //   host: process.env.DB_HOST,
+    //   port: Number(process.env.DB_PORT),
+    //   username: process.env.DB_USERNAME,
+    //   password: process.env.DB_PASSWORD,
+    //   database: process.env.DB_NAME,
+    //   synchronize: false,//process.env.NODE_ENV !== 'production', 
+    //   logging: process.env.NODE_ENV !== 'production',
+    //   migrations:["dist/migration/*{.ts,.js}"],
+    //   migrationsTableName:"migrations",
+    //   //useUTC:true,
+    //   entities: [
+    //     User, 
+    //     Bookmark,
+    //     Tag,
+    //     Users_Tags,
+    //     Bookmarks_Tags
+    //   ]
+    // }),
+    // UsersModule, 
+    // BookmarksModule, 
+    // TagsModule, 
+    // UtilsModule, 
+    DataServicesModule,
+    UserUsecasesModule,
+    BookmarkUsecasesModule,
+    TagUsecasesModule,
   ],
-  controllers: [],
+  controllers: [
+    UserController,
+    BookmarkController,
+    TagController
+  ],
   providers: [],
 })
 export class AppModule {}

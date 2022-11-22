@@ -13,26 +13,22 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
         this._repository = repository;
     }
 
-    getAll(): Promise<T[]> {
-        console.log('getAll')
+    async getAll(): Promise<T[]> {
         return this._repository.find()
     }
 
-    get(id: any): Promise<T> {
+    async get(id: any): Promise<T> {
         return this._repository.findOne(id)
     }
 
-    create(item: T): Promise<T> {
-        console.log('호출')
-        console.log(item)
+    async create(item: T): Promise<T> {
         return this._repository.save(this._repository.create(item))
     }
 
-    update(id: number, item: T) {
-        return this._repository
+    async update(id: number, item: T) {
     }
 
-    delete(id: any) {
+    async delete(id: any) {
         return this._repository.delete(id)
     }
 }

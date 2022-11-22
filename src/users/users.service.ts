@@ -27,22 +27,24 @@ export class UsersService {
     }
 
     async createAccount(signUpInputDto: Partial<SignUpInputDto>): Promise<SignUpOutputDto> {
-        console.log(this.users)
-        const usercheck = await this.findByEmail(signUpInputDto.email);
+        const {email, nickname, password} = signUpInputDto
+        const usercheck = await this.findByEmail(email);
         if (usercheck) {
             throw new Error('Email is aleady exist');
         };
-        
-        const user = await this.users.save(
-            this.users.create({
-                email: signUpInputDto.email,
-                password: signUpInputDto.password,
-                nickname: signUpInputDto.nickname
-            })
-        );
+        const createdUser = this.users.create({
+            email: email,
+            password: password,
+            nickname: nickname
+        })
+        const user = await this.userSave(createdUser)
         const userData = this.deleteProperty(user, 'password');
         return { user: userData }
-    }
+    };
+
+    private async userSave(user:any) {
+        return await this.users.save(user)
+    };
 
     async login(loginInputDto: LoginInputDto): Promise<LoginOutputDto> {
         const user = await this.users.findOne({

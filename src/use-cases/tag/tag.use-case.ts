@@ -16,7 +16,7 @@ export class TagUseCases {
         }
     }
 
-    getUserById(id:any): Promise<User> {
-        return this.dataService.users.get(id);
-    }
+    // getUserById(id:any): Promise<User> {
+    //     return this.dataService.users.get(id);
+    // }
 }
