@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 import { InternalServerErrorException } from "@nestjs/common";
 import { ApiProperty } from "@nestjs/swagger";
 import { Bookmark, Tag } from "./";
@@ -15,14 +15,28 @@ export class Bookmarks_Tags {
         bookmark => bookmark.tags,
         {onDelete:"CASCADE"}
     )
+    @JoinColumn({
+        name: 'bookmarkId',
+        referencedColumnName:'id'
+    })
     bookmark:Bookmark
+    
+    @Column()
+    bookmarkId:number
 
     @ManyToOne(
         () => Tag,
         tag => tag.bookmarks,
         {onDelete:"CASCADE"}
     )
+    @JoinColumn({
+        name: 'tagId',
+        referencedColumnName:'id'
+    })
     tag:Tag
+    
+    @Column()
+    tagId:number
 
     @CreateDateColumn({type: "timestamp"})
     @ApiProperty({ description: '생성날짜' })

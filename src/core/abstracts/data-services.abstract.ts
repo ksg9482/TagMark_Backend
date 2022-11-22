@@ -1,8 +1,10 @@
+import { Repository } from 'typeorm';
 import { User, Bookmark, Tag } from '../entities';
 import { GenericRepository } from './generic-repository.abstract';
+import { UserRepository } from './user-repository.abstract';
 
 export abstract class DataServices {
-  abstract users: GenericRepository<User>;
+  abstract users: UserRepository<User>;
 
   abstract bookmarks: GenericRepository<Bookmark>;
 

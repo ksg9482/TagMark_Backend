@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Domain } from 'domain';
 import { DataServices } from 'src/core/abstracts';
-import { Bookmark, Bookmarks_Tags, Tag, User, Users_Tags } from './model';
+import { Bookmark, Bookmarks_Tags, Tag, User} from './model';
 import { PostgresqlDataServices } from './postgresql-data-services.service';
 
 @Module({
@@ -27,14 +27,13 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
       Tag,
       Domain,
       Bookmark,
-      Users_Tags,
       Bookmarks_Tags
     ])
   ],
   providers: [
     {
-      provide: DataServices,
-      useClass: PostgresqlDataServices
+      provide: DataServices, //추상클래스
+      useClass: PostgresqlDataServices //사용할 구현체
     }
   ],
   exports: [DataServices]

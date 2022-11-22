@@ -1,9 +1,11 @@
+import { Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { User } from "src/core/entities";
 
 
 export class BookmarkUseCases {
     constructor(
+        @Inject(DataServices)
         private dataService: DataServices,
     ) {}
 
@@ -16,7 +18,7 @@ export class BookmarkUseCases {
         }
     }
 
-    getUserById(id:any): Promise<User> {
-        return this.dataService.users.get(id);
-    }
+    // getUserById(id:any): Promise<User> {
+    //     return this.dataService.users.get(id);
+    // }
 }

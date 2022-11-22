@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Bookmarks_Tags, Domain, Tag, User } from "./";
+import { Bookmarks_Tags, Tag, User } from "./";
 
 @Entity()
 export class Bookmark {
@@ -8,37 +8,23 @@ export class Bookmark {
     @ApiProperty({ description: 'id' })
     id: number;
 
-    @ManyToOne(
-        () => Domain,
-        domain => domain.domain
-    )
-    @JoinColumn()
-    domain: Domain
-
-    // @JoinColumn({
-    //     name:'domain_id',
-    //     referencedColumnName:'id'
-    // })
-    // domain_id:number
-
-    @Column({unique:true})
-    @ApiProperty({ description: 'URL 패스 & 세부사항' })
-    path: string;
+    @Column()
+    @ApiProperty({ description: 'URL' })
+    url: string;
 
     @ManyToOne(
         () => User,
         user => user.bookmarks,
         {onDelete:"CASCADE"},
     )
-    @JoinColumn()
+    @JoinColumn({
+        name: 'userId',
+        referencedColumnName:'id'
+    })
     user:User;
 
-    // @JoinColumn({
-    //     name:'user_id',
-    //     referencedColumnName:'id'
-    // })
-    // @ApiProperty({ description: '작성한 사용자의 id', type:"number" })
-    // user_id:number;
+    @Column()
+    userId: number
 
     @OneToMany(
         ()=>Bookmarks_Tags,
