@@ -1,30 +1,130 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { CreateUserDto, CreateUserResponseDto } from "src/core/dtos";
-import { UserFactoryService, UserUseCases } from "src/use-cases/user";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { AuthUser } from "src/auth/auth-user.decorator";
+import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
+import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/deletel-bookmark.dto";
+import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
+import { TagUseCases } from "src/use-cases/tag";
 
 @Controller('api/bookmark')
 export class BookmarkController {
     constructor(
-        private userUseCases:UserUseCases,
-        private userFactoryService:UserFactoryService
+        private bookmarkUseCases:BookmarkUseCases,
+        private bookmarkFactoryService:BookmarkFactoryService,
+        private tagUseCases:TagUseCases
     ) {}
 
+    // @Post('/')
+    // async createBookmark(
+    //     @Body() createBookmarkDto: CreateBookmarkDto
+    // ): Promise<any> {
+    //     const createBookmarkResponse = new CreateBookmarkResponseDto();
+    //     try {
+    //         const user = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
+    //         const createdBookmark = await this.bookmarkUseCases.createBookmark(user);
+
+    //         createBookmarkResponse.success = true;
+    //         createBookmarkResponse.createdBookmark = createdBookmark;
+
+    //     } catch (error) {
+    //         createBookmarkResponse.success = false;
+    //     }
+
+    //     return createBookmarkResponse;
+    // }
     @Post('/')
-    async createUser(
-        @Body() userDto: CreateUserDto
-    ): Promise<any> {
-        const createUserResponse = new CreateUserResponseDto();
+    async createBookmark(
+        //@AuthUser() userId:number,
+        @Body(new ValidationPipe()) createBookmarkDto: CreateBookmarkDto//CreateBookmarkDto
+    ) {
+        const createBookmarkResponse = new CreateBookmarkResponseDto();
+        const userId = 1
         try {
-            const user = this.userFactoryService.createNewUser(userDto);
-            const createdUser = await this.userUseCases.createUser(user);
+            //이거 만들어야됨
+            const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tags)
 
-            createUserResponse.success = true;
-            createUserResponse.createdUser = createdUser;
+            const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
+            const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
+            await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
 
+            createBookmarkResponse.success = true;
+            createBookmarkResponse.createdBookmark = createdBookmark;
         } catch (error) {
-            createUserResponse.success = false;
+            createBookmarkResponse.success = false;
+            console.log(error)
         }
+        return createBookmarkResponse;
+    }
 
-        return createUserResponse;
+    @Get('/mybookmark')
+    async getUserAllBookmark(
+        @AuthUser() userId:number,
+    ) {
+        const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto()
+        try {
+            //const userId = 1
+            const { bookmarks } = await this.bookmarkUseCases.getUserAllBookmarks(userId);
+            getUserAllBookmarkResponse.success = true;
+            getUserAllBookmarkResponse.bookmarks = bookmarks;
+        } catch (error) {
+            getUserAllBookmarkResponse.success = false;
+            console.log(error)
+        }
+        return getUserAllBookmarkResponse;
+    }
+
+    
+
+    @Patch('/:id')
+    async editBookmark(
+        @AuthUser() userId:number,
+        @Param('id', ParseIntPipe) bookmarkId: number,
+        @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto
+    ) {
+        //const userId = 1
+        const editBookmarkResponse = new EditBookmarkResponseDto()
+        try {
+            
+            const changeUrl = editBookmarkDto.changeUrl;
+            const deleteTag = editBookmarkDto.deleteTag?.length > 0 ? editBookmarkDto.deleteTag : null;
+            const addTag = editBookmarkDto.addTag?.length > 0 ? editBookmarkDto.addTag : null;
+            
+            if(deleteTag || addTag) {
+                if(deleteTag) {
+                    const {message, deleteCount} = await this.tagUseCases.deleteTag(userId,bookmarkId,deleteTag)
+                }
+                if(addTag) {
+                    const tags = await this.tagUseCases.getTagsByNames(addTag)
+                    const result = await this.tagUseCases.attachTag(userId,bookmarkId, tags)
+                    console.log(result)
+                }
+            }
+            if(changeUrl) {
+                await this.bookmarkUseCases.editBookmarkUrl(userId, bookmarkId, editBookmarkDto.changeUrl)
+            }
+            editBookmarkResponse.success = true;
+            editBookmarkResponse.message = 'Updated';
+        } catch (error) {
+            editBookmarkResponse.success = false;
+            console.log(error)
+        }
+        return editBookmarkResponse
+    }
+
+    @Delete('/:id')
+    async deleteBookmark(
+        @AuthUser() userId:number,
+        @Param('id', ParseIntPipe) bookmarkId: number
+    ) {
+        const deleteBookmarkResponse = new DeleteBookmarkResponseDto()
+        try {
+            //const userId = 1
+            const result = await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId)
+            deleteBookmarkResponse.success = true;
+            deleteBookmarkResponse.message = 'deleted'
+        } catch (error) {
+            deleteBookmarkResponse.success = false;
+            console.log(error)
+        }
+        return deleteBookmarkResponse;
     }
 }
