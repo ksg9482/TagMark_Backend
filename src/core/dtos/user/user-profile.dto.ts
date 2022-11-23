@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsNumber, IsObject } from "class-validator";
 import { User } from "src/core/entities";
+import { BaseResponseDto } from "../common/base-response.dto";
 
 
 export class UserProfileDto {
@@ -8,7 +9,7 @@ export class UserProfileDto {
     userId: number
 }
 
-export class UserProfileResponseDto {
+export class UserProfileResponseDto extends BaseResponseDto {
     success: boolean;
 
     user: User;

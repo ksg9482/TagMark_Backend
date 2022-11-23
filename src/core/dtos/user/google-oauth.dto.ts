@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString } from "class-validator";
 import { User } from "src/core/entities";
+import { BaseResponseDto } from "../common/base-response.dto";
 
 export class GoogleOauthDto {
     @IsString()
@@ -7,7 +8,7 @@ export class GoogleOauthDto {
     accessToken: string
 };
 
-export class GoogleOauthResponseDto {
+export class GoogleOauthResponseDto extends BaseResponseDto {
     success: boolean;
 
     user: User;

@@ -1,7 +1,7 @@
 import { User } from "../entities";
 import { GenericRepository } from "./generic-repository.abstract";
 
-export abstract class UserRepository<T> extends GenericRepository<T> {
-    abstract checkPassword(password: string): Promise<boolean>
-    abstract getByEmail(email: string): Promise<T>;
+export abstract class UserRepository extends GenericRepository<User> {
+    abstract getByEmail(email: string): Promise<User>;
+    abstract create(item: Partial<User>): Promise<User> 
 }

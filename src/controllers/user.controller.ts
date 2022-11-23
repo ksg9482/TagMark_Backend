@@ -53,10 +53,10 @@ export class UserController {
             loginResponse.user = user;
             loginResponse.accessToken = accessToken;
             //이건 쿠키로 넣던가 안줘야함
-            loginResponse.refreshToken = refreshToken;
+            //loginResponse.refreshToken = refreshToken;
         } catch (error) {
             //로거로 로깅
-            //loginResponse.error = error.message
+            loginResponse.error = error.message
             loginResponse.success = false;
         };
         return loginResponse;
@@ -70,9 +70,11 @@ export class UserController {
         const editUserResponse = new EditUserResponseDto();
         try {
             const editUser = await this.userUseCases.editUser(userId, editUserDto);
-
+            console.log(editUser)
             editUserResponse.success = true;
+            editUserResponse.message = 'updated';
         } catch (error) {
+            console.log(error)
             editUserResponse.success = false;
         };
         return editUserResponse;
@@ -87,6 +89,7 @@ export class UserController {
             const deleteUser = await this.userUseCases.deleteUser(userId);
 
             deleteUserResponse.success = true;
+            deleteUserResponse.message = 'deleted';
         } catch (error) {
             deleteUserResponse.success = false;
         };
@@ -94,29 +97,32 @@ export class UserController {
     };
 
     //auth로 이동
+    //쿠키에서 꺼내거나 DB비교
     @Get('/refresh')
     async refresh(
         @Headers('accessToken') oldAccessToken: string
     ): Promise<RefreshTokenResponseDto> {
         const refreshTokenResponse = new RefreshTokenResponseDto();
         try {
-            const refreshToken = await this.userUseCases.refresh();
+            const newAccessToken = await this.userUseCases.refresh(oldAccessToken);
 
             refreshTokenResponse.success = true;
-            refreshTokenResponse.accessToken
+            refreshTokenResponse.accessToken = newAccessToken;
         } catch (error) {
             refreshTokenResponse.success = false;
         }
         return refreshTokenResponse;
     };
 
+    //설정, 검증필요
     @Post('/google')
     async googleOauth(
         @Body() googleOauthDto: GoogleOauthDto
     ): Promise<GoogleOauthResponseDto> {
         const googleOauthResponse = new GoogleOauthResponseDto();
         try {
-            const googleOauth = await this.userUseCases.googleOauth();
+            //이걸로 만든 유저데이터를 create에 넣는다. 그걸로 로그인
+            const googleOauth = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
 
             googleOauthResponse.success = true;
             googleOauthResponse.user

@@ -1,26 +1,33 @@
+import { HttpService } from "@nestjs/axios";
 import { Inject } from "@nestjs/common";
 import { DataServices, } from "src/core/abstracts";
 import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/core/dtos";
-import { User } from "src/core/entities";
+import { User, UserRole, UserType } from "src/core/entities";
+import { JwtService } from "src/jwt/jwt.service";
+import { UtilsService } from "src/utils/utils.service";
 
 export class UserUseCases {
     constructor(
         @Inject(DataServices) //상속을 시키든 주입을 하든 해야하는데 아무것도 없으면 서비스는 당연히 undefined나온다. 왜? 참조할게 없으니까. 
-        private dataServices: DataServices, //데이터서비스부터 undefined
+        private readonly dataServices: DataServices, //데이터서비스부터 undefined
+        private readonly utilServices: UtilsService,
+        private readonly jwtService: JwtService,
+        private readonly httpService: HttpService
     ) { };
     // getAllUsers(): Promise<User[]> {
     //     return this.dataServices.users.getAll()
     // }
     async createUser(createUserDto: CreateUserDto): Promise<User> {
         const user = createUserDto;
-        const userCheck = await this.findByEmail(user.email);
-        if(userCheck){
+
+        if(await this.findByEmail(user.email)){
             throw new Error('이미 가입된 이메일 입니다.');
         };
+
         const createdUser = await this.dataServices.users.create(user);
         Reflect.deleteProperty(createdUser, "password")
+        
         return createdUser;
-
     };
 
     async login(loginDto:LoginDto) {
@@ -29,23 +36,25 @@ export class UserUseCases {
         if(!user){
             throw new Error('아이디가 없습니다.');
         };
-        if(!this.checkPassword(password)) {
+        
+        if(!await this.checkPassword(password, user)) {
             throw new Error('잘못된 비밀번호 입니다.')
         }
+
         Reflect.deleteProperty(user, "password")
-        const accessToken = 'accessToken';
-        const refreshToken = 'refreshToken';
+        const accessToken = this.jwtService.sign(user);
+        const refreshToken = this.jwtService.refresh(user);
         return {user, accessToken, refreshToken}
     };
 
-    private async checkPassword(password: string):Promise<boolean>{
-        //비크립트 비교
-        return true
+    private async checkPassword(password: string, user: User):Promise<boolean>{
+        return await this.utilServices.checkPassword(password, user)
     }
 
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
         const user = await this.dataServices.users.get(userId);
+        console.log(user)
         if(!user){
             throw new Error('아이디가 없습니다.');
         };
@@ -68,12 +77,43 @@ export class UserUseCases {
         return deleteUser
     };
 
-    async refresh() {
+    async refresh(refreshToken: string) {
+        const verifyToken = this.jwtService.refreshVerify(refreshToken);
+        if (!verifyToken) {
+            throw new Error('Token expire');
+        };
+        
+        const user = await this.dataServices.users.get(verifyToken['id']);
+        const newAccessToken = this.jwtService.sign(user);
 
+        return newAccessToken;
     };
 
-    async googleOauth() {
-
+    async googleOauth(accessToken: string) {
+        const getGoogleUserData = async (accessToken: string) => {
+            const getUserInfo = await this.httpService.axiosRef.get(`https://www.googleapis.com/oauth2/v1/userinfo`
+            + `?access_token=${accessToken}`)
+            if (!getUserInfo) {
+              throw new Error('Google OAuth get user info fail')
+            }
+            return getUserInfo;
+          };
+      
+          const setGoogleUserForm = (userData)=> {
+            const userForm = {
+              email: userData.email,
+              password: userData.id,
+              nickname: "익명",
+              type: UserType.GOOGLE,
+              role: UserRole.USER
+            };
+            return userForm;
+          };
+      
+          const googleUserInfo = await getGoogleUserData(accessToken);
+          const googleUser = setGoogleUserForm(googleUserInfo);
+      
+          return googleUser;
     };
 
     protected async findByEmail(email:string):Promise<User> {

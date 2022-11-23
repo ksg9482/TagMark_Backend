@@ -9,7 +9,7 @@ export enum UserRole {
 }
 export class User {
 
-    //id: number;
+    id: number;
 
     email: string;
 
@@ -21,7 +21,7 @@ export class User {
 
     type: UserType
 
-    //createdAt: Date;
+    createdAt: Date;
 
-    //updatedAt: Date;
+    updatedAt: Date;
 }
