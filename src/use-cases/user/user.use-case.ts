@@ -54,7 +54,6 @@ export class UserUseCases {
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
         const user = await this.dataServices.users.get(userId);
-        console.log(user)
         if(!user){
             throw new Error('아이디가 없습니다.');
         };

@@ -1,12 +1,13 @@
-import { Repository } from 'typeorm';
-import { User, Bookmark, Tag } from '../entities';
+import { Tag } from '../entities';
+import { BookmarkRepository } from './bookmark-repository.abstract';
 import { GenericRepository } from './generic-repository.abstract';
+import { TagRepository } from './tag-repository.abstract';
 import { UserRepository } from './user-repository.abstract';
 
 export abstract class DataServices {
   abstract users: UserRepository;
 
-  abstract bookmarks: GenericRepository<Bookmark>;
+  abstract bookmarks: BookmarkRepository;
 
-  abstract tags: GenericRepository<Tag>;
+  abstract tags: TagRepository;//GenericRepository<Tag>;
 }

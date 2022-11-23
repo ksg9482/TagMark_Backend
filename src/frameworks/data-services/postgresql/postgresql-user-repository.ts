@@ -1,9 +1,7 @@
-import { Repository } from 'typeorm'
-import { GenericRepository } from "src/core";
+import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { PostgresqlGenericRepository } from './postgresql-generic-repository';
-import { UserRepository } from 'src/core/abstracts/user-repository.abstract';
+import { UserRepository } from 'src/core/abstracts';
 import { User } from './model';
 
 @Injectable()
