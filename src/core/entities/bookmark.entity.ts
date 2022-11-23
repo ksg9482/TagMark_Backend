@@ -9,10 +9,9 @@ export class Bookmark {
     
     id: number;
 
-
-    //user_id: number;
-
-    //tags:Tag[]
+    url: string;
+    
+    userId: number;
     
     createdAt: Date;
 

@@ -28,11 +28,11 @@ import { BookmarkController, TagController, UserController } from './controllers
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
-    // AuthModule, 
-    // JwtModule.forRoot({
-    //   privateKey: process.env.PRIVATE_KEY,
-    //   refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
-    // }),
+    AuthModule, 
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
+      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
+    }),
     // TypeOrmModule.forRoot({
     //   type: "postgres",
     //   host: process.env.DB_HOST,
@@ -56,7 +56,7 @@ import { BookmarkController, TagController, UserController } from './controllers
     // UsersModule, 
     // BookmarksModule, 
     // TagsModule, 
-    // UtilsModule, 
+    UtilsModule, 
     DataServicesModule,
     UserUsecasesModule,
     BookmarkUsecasesModule,

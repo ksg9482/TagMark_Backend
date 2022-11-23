@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { DataServices } from 'src/core';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UsersService } from 'src/users/users.service';
 enum AuthorizationType {
   Bearer = 'Bearer'
 }
@@ -9,7 +8,7 @@ enum AuthorizationType {
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly usersService: UsersService
+    private readonly dataService: DataServices
   ) { }
   async canActivate(
     context: ExecutionContext,
@@ -28,12 +27,12 @@ export class AuthGuard implements CanActivate {
       const accessToken = getToken(request);
       if(accessToken) {
         const decoded = this.jwtService.verify(accessToken);
-        const { user } = await this.usersService.findById(decoded['id']);
+        await this.dataService.users.get(decoded['id'])
+        const user  = await this.dataService.users.get(decoded['id'])//await this.usersService.findById(decoded['id']);
         if (!user) {
           return false;
         };
         Reflect.deleteProperty(user, 'password');
-        
         request.userId = user.id;
         return true;
       } else {
@@ -60,7 +59,7 @@ export class AuthGuard implements CanActivate {
       // }
       
       // return false;
-      return true
+      return true;
     }
   }
 }

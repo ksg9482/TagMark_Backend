@@ -29,6 +29,10 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     }
 
     async delete(id: any) {
+        console.log(id)
+        if(id){
+            return false
+        }
         return this._repository.delete(id)
     }
 }

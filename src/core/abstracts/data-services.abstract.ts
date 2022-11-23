@@ -4,7 +4,7 @@ import { GenericRepository } from './generic-repository.abstract';
 import { UserRepository } from './user-repository.abstract';
 
 export abstract class DataServices {
-  abstract users: UserRepository<User>;
+  abstract users: UserRepository;
 
   abstract bookmarks: GenericRepository<Bookmark>;
 
