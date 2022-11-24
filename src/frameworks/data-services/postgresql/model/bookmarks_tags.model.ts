@@ -1,5 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Timestamp } from "typeorm";
-import { InternalServerErrorException } from "@nestjs/common";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Bookmark, Tag } from "./";
 
@@ -8,7 +7,6 @@ export class Bookmarks_Tags {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
     id: number;
-
     
     @ManyToOne(
         () => Bookmark,

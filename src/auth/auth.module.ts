@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { PostgresqlDataServicesModule } from 'src/frameworks/data-services/postgresql/postgresql-data-services.module';
 import { JwtModule } from 'src/jwt/jwt.module';
+import { DataServicesModule } from 'src/services/data-services/data-services.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 @Module({
-    imports: [JwtModule, PostgresqlDataServicesModule],
+    imports: [JwtModule, DataServicesModule],
     providers: [
         {
             provide: APP_GUARD,

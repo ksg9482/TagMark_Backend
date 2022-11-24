@@ -28,7 +28,7 @@ export class PostgresqlUserRepository extends PostgresqlGenericRepository<User> 
     };
 
     async get(id: number): Promise<User> {
-        return this.userRepository.findOne({where:{id:id}})
+        return await this.userRepository.findOne({where:{id:id}})
     }
 
     
