@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { DataServices } from 'src/core';
+import { Request } from 'express';
+import { DataServices } from 'src/core/abstracts';
 import { JwtService } from 'src/jwt/jwt.service';
 enum AuthorizationType {
   Bearer = 'Bearer'
@@ -27,8 +28,7 @@ export class AuthGuard implements CanActivate {
       const accessToken = getToken(request);
       if(accessToken) {
         const decoded = this.jwtService.verify(accessToken);
-        await this.dataService.users.get(decoded['id'])
-        const user  = await this.dataService.users.get(decoded['id'])//await this.usersService.findById(decoded['id']);
+        const user  = await this.dataService.users.get(decoded['id'])
         if (!user) {
           return false;
         };
@@ -54,9 +54,9 @@ export class AuthGuard implements CanActivate {
       // if(request.url.split('/')[1] === 'users' /*&& allowMap[request.url.split('/')[2]]*/) {
       //   return true;
       // }
-      // if(error.name === 'TokenExpiredError') {
-      //   throw new Error('expire_token')
-      // }
+      if(error.name === 'TokenExpiredError') {
+        return true;
+      }
       
       // return false;
       return true;

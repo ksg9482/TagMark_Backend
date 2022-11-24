@@ -1,10 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Bookmark, Bookmarks_Tags } from "./";
+import { Tag as TagAbstract } from "src/core"
 
 
 @Entity()
-export class Tag {
+export class Tag implements TagAbstract {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
     id: number;

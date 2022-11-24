@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Bookmarks_Tags, Tag, User } from "./";
-
+import { Bookmark as BookmarkAbstract } from "src/core"
 @Entity()
-export class Bookmark {
+export class Bookmark implements BookmarkAbstract {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
     id: number;

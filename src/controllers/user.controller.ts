@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Headers, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Patch, Post, Req, Res, ValidationPipe } from "@nestjs/common";
+import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
 import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
@@ -23,7 +24,7 @@ export class UserController {
 
     @Post('/')
     async createUser(
-        @Body() userDto: CreateUserDto
+        @Body(new ValidationPipe()) userDto: CreateUserDto
     ): Promise<CreateUserResponseDto> {
         const createUserResponse = new CreateUserResponseDto();
         try {
@@ -43,12 +44,14 @@ export class UserController {
 
     @Post('/login')
     async login(
-        @Body(new ValidationPipe()) loginDto: LoginDto
+        @Body(new ValidationPipe()) loginDto: LoginDto,
+        @Res({passthrough:true}) res:Response
     ): Promise<LoginResponseDto> {
         const loginResponse = new LoginResponseDto();
         try {
             const {user, accessToken, refreshToken} = await this.userUseCases.login(loginDto);
 
+            res.cookie('refreshToken', refreshToken)
             loginResponse.success = true;
             loginResponse.user = user;
             loginResponse.accessToken = accessToken;
@@ -70,12 +73,12 @@ export class UserController {
         const editUserResponse = new EditUserResponseDto();
         try {
             const editUser = await this.userUseCases.editUser(userId, editUserDto);
-            console.log(editUser)
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {
             console.log(error)
             editUserResponse.success = false;
+            editUserResponse.error = error.message;
         };
         return editUserResponse;
     };
@@ -100,15 +103,19 @@ export class UserController {
     //쿠키에서 꺼내거나 DB비교
     @Get('/refresh')
     async refresh(
-        @Headers('accessToken') oldAccessToken: string
+        @Headers('cookie') cookie: string,
+        @Req() req: Request, //cookie parser 안되는지 확인
     ): Promise<RefreshTokenResponseDto> {
         const refreshTokenResponse = new RefreshTokenResponseDto();
+        const refreshToken = cookie.split('=')[1]
         try {
-            const newAccessToken = await this.userUseCases.refresh(oldAccessToken);
+            const newAccessToken = await this.userUseCases.refresh(refreshToken);
 
             refreshTokenResponse.success = true;
             refreshTokenResponse.accessToken = newAccessToken;
         } catch (error) {
+            console.log(error)
+            refreshTokenResponse.error = error.message;
             refreshTokenResponse.success = false;
         }
         return refreshTokenResponse;

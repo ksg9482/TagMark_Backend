@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import { Inject } from "@nestjs/common";
-import { DataServices, } from "src/core/abstracts";
+import { DataServices } from "src/core/abstracts";
 import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/core/dtos";
 import { User, UserRole, UserType } from "src/core/entities";
 import { JwtService } from "src/jwt/jwt.service";
@@ -77,12 +77,12 @@ export class UserUseCases {
     };
 
     async refresh(refreshToken: string) {
-        const verifyToken = this.jwtService.refreshVerify(refreshToken);
-        if (!verifyToken) {
+        const verifyRefreshToken = this.jwtService.refreshVerify(refreshToken);
+        if (!verifyRefreshToken) {
             throw new Error('Token expire');
         };
         
-        const user = await this.dataServices.users.get(verifyToken['id']);
+        const user = await this.dataServices.users.get(verifyRefreshToken['id']);
         const newAccessToken = this.jwtService.sign(user);
 
         return newAccessToken;

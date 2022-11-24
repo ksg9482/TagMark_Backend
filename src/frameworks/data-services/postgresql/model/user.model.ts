@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import * as bcrypt from "bcrypt"
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Bookmark } from "./";
-
+import { User as UserAbstract } from "src/core"
 export enum UserType {
     BASIC = 'BASIC',
     KAKAO = 'KAKAO',
@@ -15,7 +15,7 @@ export enum UserRole {
 }
 
 @Entity()
-export class User {
+export class User implements UserAbstract {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
     id: number;
