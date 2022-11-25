@@ -13,7 +13,8 @@ export class PostgresqlUserRepository extends PostgresqlGenericRepository<User> 
     ){
         super(repository);
         this.userRepository = repository;
-    };
+    }
+;
     
     async getByEmail(email: string): Promise<User> {
         return await this.userRepository.createQueryBuilder("user").select(`*`).where('("user"."email" = :email)',{email:email}).limit(1).getRawOne() as User

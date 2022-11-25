@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
 import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
+import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
 
 @Controller('api/user')
@@ -13,14 +14,21 @@ export class UserController {
     ) { };
 
     @Get('/')
-    async findAllUser() {
+    async findAllUser(
+        @AuthUser() userId: number
+    ): Promise<UserProfileResponseDto>  {
+        const userProfileResponse = new UserProfileResponseDto();
         try {
-
-            //return this.userUseCases.getAllUsers()
+            const user = await this.userUseCases.me(userId);
+            userProfileResponse.success = true;
+            userProfileResponse.user = user;
         } catch (error) {
-            return error;
+            console.log(error)
+            userProfileResponse.success = false;
         }
+        return userProfileResponse;
     };
+
 
     @Post('/')
     async createUser(
@@ -106,6 +114,7 @@ export class UserController {
         @Headers('cookie') cookie: string,
         @Req() req: Request, //cookie parser 안되는지 확인
     ): Promise<RefreshTokenResponseDto> {
+        //console.log(req.cookies)
         const refreshTokenResponse = new RefreshTokenResponseDto();
         const refreshToken = cookie.split('=')[1]
         try {

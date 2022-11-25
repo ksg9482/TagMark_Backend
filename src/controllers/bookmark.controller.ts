@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
-import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/deletel-bookmark.dto";
+import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/delete-bookmark.dto";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
 import { TagUseCases } from "src/use-cases/tag";
 
@@ -39,15 +39,20 @@ export class BookmarkController {
         const createBookmarkResponse = new CreateBookmarkResponseDto();
         const userId = 1
         try {
-            //이거 만들어야됨
-            const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tags)
-
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
-            await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
-
+            let createdTags:Array<any>;
+            //이거 만들어야됨
+            if(createBookmarkDto.tags.length >= 0){
+                //['여행', '개발']
+                const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tags)
+                createdTags = tags;
+                //[{id:14, name: '여행'}, {id:36, name: '개발'}]
+                await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
+            }
+            const addTags = {...createdBookmark, tags:createdTags || []}
             createBookmarkResponse.success = true;
-            createBookmarkResponse.createdBookmark = createdBookmark;
+            createBookmarkResponse.createdBookmark = addTags;
         } catch (error) {
             createBookmarkResponse.success = false;
             console.log(error)
@@ -62,7 +67,7 @@ export class BookmarkController {
         const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto()
         try {
             //const userId = 1
-            const { bookmarks } = await this.bookmarkUseCases.getUserAllBookmarks(userId);
+            const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(userId);
             getUserAllBookmarkResponse.success = true;
             getUserAllBookmarkResponse.bookmarks = bookmarks;
         } catch (error) {
@@ -107,7 +112,7 @@ export class BookmarkController {
             editBookmarkResponse.success = false;
             console.log(error)
         }
-        return editBookmarkResponse
+        return editBookmarkResponse;
     }
 
     @Delete('/:id')
@@ -120,7 +125,7 @@ export class BookmarkController {
             //const userId = 1
             const result = await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId)
             deleteBookmarkResponse.success = true;
-            deleteBookmarkResponse.message = 'deleted'
+            deleteBookmarkResponse.message = 'Deleted'
         } catch (error) {
             deleteBookmarkResponse.success = false;
             console.log(error)

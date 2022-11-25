@@ -47,16 +47,23 @@ export class UserUseCases {
         return {user, accessToken, refreshToken}
     };
 
+    async me(userId:number) {
+        const user = await this.findById(userId);
+        Reflect.deleteProperty(user, "password")
+        return user
+    }
+
     private async checkPassword(password: string, user: User):Promise<boolean>{
         return await this.utilServices.checkPassword(password, user)
     }
 
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
-        const user = await this.dataServices.users.get(userId);
-        if(!user){
-            throw new Error('아이디가 없습니다.');
-        };
+        const user = await this.findById(userId);
+        //const user = await this.dataServices.users.get(userId);
+        // if(!user){
+        //     throw new Error('아이디가 없습니다.');
+        // };
         if (changeNickname) {
             user.nickname = changeNickname
         }
@@ -68,10 +75,11 @@ export class UserUseCases {
     };
 
     async deleteUser(userId:number) {
-        const user = await this.dataServices.users.get(userId);
-        if(!user){
-            throw new Error('아이디가 없습니다.');
-        };
+        const user = await this.findById(userId);
+        //const user = await this.dataServices.users.get(userId);
+        // if(!user){
+        //     throw new Error('아이디가 없습니다.');
+        // };
         const deleteUser = await this.dataServices.users.delete(userId);
         return deleteUser
     };
@@ -82,7 +90,8 @@ export class UserUseCases {
             throw new Error('Token expire');
         };
         
-        const user = await this.dataServices.users.get(verifyRefreshToken['id']);
+        const user = await this.findById(verifyRefreshToken['id']);
+        //const user = await this.dataServices.users.get(verifyRefreshToken['id']);
         const newAccessToken = this.jwtService.sign(user);
 
         return newAccessToken;
@@ -116,11 +125,16 @@ export class UserUseCases {
     };
 
     protected async findByEmail(email:string):Promise<User> {
-        return await this.dataServices.users.getByEmail(email)
+        const user = await this.dataServices.users.getByEmail(email)
+        return user;
     }
 
     protected async findById(id:number):Promise<User> {
-        return await this.dataServices.users.get(id)
+        const user = await this.dataServices.users.get(id);
+        if(!user){
+            throw new Error('아이디가 없습니다.');
+        };
+        return user;
     }
 
 
