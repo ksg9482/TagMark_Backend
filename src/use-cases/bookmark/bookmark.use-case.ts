@@ -52,7 +52,7 @@ export class BookmarkUseCases {
             }
             return bookmark
         })
-        return {bookmarks: bookmarksForm}
+        return bookmarksForm
     }
 
    

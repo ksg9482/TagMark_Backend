@@ -6,8 +6,8 @@ import { BaseResponseDto } from "../common/base-response.dto";
 export class CreateTagDto {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: 'URL '})
-  tag: string;
+  //@ApiProperty({ description: 'URL '})
+  tag: string ;
 };
 
 export class CreateTagResponseDto extends BaseResponseDto {
