@@ -47,286 +47,281 @@ describe('AppController (e2e)', () => {
 
 
 
-  const userParams = { email: 'test@test.com', password: '123456' };
-  const userResponseData = {
+  const userParamsOne = { email: 'test1@test.com', password: '123456' };
+  const userParamsTwo = { email: 'test2@test.com', password: '123456' };
+  const userParamsThree = { email: 'test3@test.com', password: '123456' };
+  const userResponseDataOne = {
     success: true,
     createdUser: {
-      id: 1,
-      email: "test@test.com",
-      nickname: "익명",
-      role: "USER",
-      type: "BASIC"
+      id: 1, email: "test1@test.com", nickname: "익명", role: "USER", type: "BASIC"
     }
   };
 
   describe('user e2e', () => {
     describe('/ (post)', () => {
       it('정상적인 데이터를 전송하면 회원가입한다.', async () => {
-        const keys = ["id", "email", "nickname", "role", "type"]
-        await privateTest().post('/api/user')
-          .send(userParams)
-          .expect(201)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(userResponseData.success);
-            for (let key of keys) {
-              expect(resp.body.createdUser[key]).toEqual(userResponseData.createdUser[key]);
-            };
-          });
+        const result = await privateTest().post('/api/user').send(userParamsOne)
 
+        expect(result.status).toBe(201)
+        expect(result.body.success).toBe(true);
+        expect(result.body.createdUser["email"]).toBe(userResponseDataOne.createdUser["email"]);
       });
     });
 
     describe('/login (post)', () => {
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
-        const keys = ["id", "email", "nickname", "role", "type"]
-        await privateTest().post('/api/user/login')
-          .send(userParams)
-          .expect(201)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(userResponseData.success);
-            expect(typeof resp.body.accessToken === 'string').toBeTruthy();
-            for (let key of keys) {
-              expect(resp.body.user[key]).toEqual(userResponseData.createdUser[key]);
-            };
+        const result = await privateTest().post('/api/user/login').send(userParamsOne)
 
-            accessToken = resp.body.accessToken;
-            refreshToken = resp.header["set-cookie"][0].split(';')[0]
-          });
+        expect(result.status).toBe(201)
+        expect(result.body.success).toBe(true);
+        expect(typeof result.body.accessToken === 'string').toBeTruthy();
+        expect(result.body.user["email"]).toBe(userResponseDataOne.createdUser["email"]);
+
+        accessToken = result.body.accessToken;
+        refreshToken = result.header["set-cookie"][0].split(';')[0]
       });
     });
 
     describe('/ (get)', () => {
       it('로그인한 유저의 정보를 반환한다', async () => {
         const keys = ["id", "email", "nickname", "role", "type"]
-        await privateTest().get('/api/user', accessToken)
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toBe(userResponseData.success);
-            for (let key of keys) {
-              expect(resp.body.user[key]).toEqual(userResponseData.createdUser[key]);
-            };
-          });
+        const result = await privateTest().get('/api/user', accessToken);
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(result.body.user["email"]).toBe(userResponseDataOne.createdUser["email"]);
       });
     });
 
     describe('/ (patch)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 변경된다', async () => {
         const changeParams = { changeNickname: 'changed-nickname' };
-        await privateTest().patch('/api/user', accessToken)
-          .send(changeParams)
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toBe(userResponseData.success);
-            expect(resp.body.message).toBe('updated');
-          });
+        const result = await privateTest().patch('/api/user', accessToken).send(changeParams)
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('updated');
 
 
-        await privateTest().get('/api/user', accessToken)
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toBe(userResponseData.success);
-            expect(resp.body.user['nickname']).toEqual(changeParams.changeNickname);
-          });
+        const userCheck = await privateTest().get('/api/user', accessToken)
+        expect(userCheck.status).toBe(200)
+        expect(userCheck.body.success).toBe(true);
+        expect(userCheck.body.user['nickname']).toBe(changeParams.changeNickname);
       });
     });
 
     describe('/refresh (get)', () => {
       it('액세스 토큰을 전송하면 새로운 액세스 토큰을 반환한다', async () => {
-        await privateTest().get('/api/user/refresh', accessToken)
-          .set("Cookie", [refreshToken])
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toBe(userResponseData.success);
-            expect(typeof resp.body.accessToken === 'string').toBeTruthy();
-            expect(accessToken !== resp.body.accessToken).toBeTruthy();
-          });
+        const result = await privateTest().get('/api/user/refresh', accessToken).set("Cookie", [refreshToken])
+        const newAccessToken = result.body.accessToken;
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(typeof newAccessToken === 'string').toBeTruthy();
+        expect(accessToken !== newAccessToken).toBeTruthy();
       });
     });
   });
 
+  const bookmarkParamsOne = { url: 'https://www.test1.com', tags: ['여행', '요리'] };
+  const bookmarkParamsTwo = { url: 'https://www.test2.com', tags: ['인도', '카레'] };
+  const bookmarkParamsThree = { url: 'https://www.test3.com', tags: ['카레', '요리'] };
+  const bookmarkResponseDataOne = {
+    success: true,
+    createdBookmark: {
+      id: 1,
+      url: bookmarkParamsOne.url,
+      userId: userResponseDataOne.createdUser.id,
+      tags: [{ id: 1, tag: "여행" }, { id: 2, tag: "요리" }]
+    }
+  }
+
   //이거 분리할 수 있을까?
   describe('bookmark e2e', () => {
-    const bookmarkParams = { url: 'https://www.test.com', tags: ['여행', '요리'] };
-    const bookmarkResponseData = {
-      success: true,
-      createdBookmark: {
-        id: 1,
-        url: bookmarkParams.url,
-        userId: userResponseData.createdUser.id,
-        tags: [
-          { id: 1, tag: "여행" },
-          { id: 2, tag: "요리" }
-        ]
-        //tags: []
-      }
-    }
+
 
     describe('/ (post)', () => {
       it('정상적인 데이터를 전송하면 북마크를 생성한다.', async () => {
-        const keys = ["id", "url", "tags"]
-        await privateTest().post('/api/bookmark',accessToken)
-          //.send({ url: bookmarkParams.url })
-          .send(bookmarkParams)
-          //.then((resp) => { return console.log(resp) })
-          .expect(201)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            for (let key of keys) {
-              if(key === "tags"){
-                expect(resp.body.createdBookmark[key][0]['tag']).toEqual(bookmarkResponseData.createdBookmark[key][0]['tag']);
-              }
-              else {
-                expect(resp.body.createdBookmark[key]).toEqual(bookmarkResponseData.createdBookmark[key]);
-              };
-            };
-          });
+        const result = await privateTest().post('/api/bookmark', accessToken).send(bookmarkParamsOne);
+
+        const createBookmarkTwo = await privateTest().post('/api/bookmark', accessToken).send(bookmarkParamsTwo)
+        const createBookmarkThree = await privateTest().post('/api/bookmark', accessToken).send(bookmarkParamsThree)
+        
+        expect(result.status).toBe(201)
+        expect(result.body.success).toBe(true);
+        expect(result.body.createdBookmark["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
+        expect(result.body.createdBookmark["url"]).toBe(bookmarkResponseDataOne.createdBookmark["url"]);
       });
+
     });
 
     //여기선 날짜가 같이 안나옴. 이걸로 양식 통일
     describe('/mybookmark (post)', () => {
       it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
         const keys = ["id", "url", "tags"]
-        await privateTest().get('/api/bookmark/mybookmark',accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            for (let key of keys) {
-              if(key === "tags"){
-                expect(resp.body.bookmarks[0][key][0]['tag']).toEqual(bookmarkResponseData.createdBookmark[key][0]['tag']);
-              }
-              else {
-                expect(resp.body.bookmarks[0][key]).toEqual(bookmarkResponseData.createdBookmark[key]);
-              };
-            };
-          });
+        const result = await privateTest().get('/api/bookmark/mybookmark', accessToken)
+
+        const bookmarkArr = result.body.bookmarks
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(bookmarkArr[bookmarkArr.length-1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
+        expect(bookmarkArr[bookmarkArr.length-1]["url"]).toBe(bookmarkResponseDataOne.createdBookmark["url"]);
+
       });
     });
 
     describe('/:id (patch)', () => {
-      const bookmarkId = bookmarkResponseData.createdBookmark.id
+      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
       it('정상적인 데이터를 전송하면 북마크를 변경한다.', async () => {
-        await privateTest().patch(`/api/bookmark/${bookmarkId}`, accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .send({changeUrl:"https://www.test-change.com"})
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            expect(resp.body.message).toEqual('Updated');
-            
-          });
+        const result = await privateTest().patch(`/api/bookmark/${bookmarkId}`, accessToken).send({ changeUrl: "https://www.test-change.com" })
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('Updated');
       });
     });
 
-    describe('/:id (delete)', () => {
-      const bookmarkId = bookmarkResponseData.createdBookmark.id
-      it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
-        await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            expect(resp.body.message).toEqual('Deleted');
-            
-          });
-      });
-    });
+    // describe('/:id (delete)', () => {
+    //   const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
+    //   it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
+    //     const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
+    //       //.then((resp) => { return console.log(resp) })
+    //       expect(result.status).toBe(200)
+    //       .expect(resp => {
+    //         expect(result.body.success).toBe(true);
+    //         expect(result.body.message).toBe('Deleted');
+
+    //       });
+    //   });
+    // });
 
   });
 
 
   //ToDo
   describe('tag e2e', () => {
-    const bookmarkParams = { url: 'https://www.test.com', tags: ['여행', '요리'] };
-    const bookmarkResponseData = {
+    const tagParams = { tag: '유원지' };
+    const tagResponseData = {
       success: true,
-      createdBookmark: {
-        id: 1,
-        url: bookmarkParams.url,
-        userId: userResponseData.createdUser.id,
-        tags: [
-          { id: 1, tag: "여행" },
-          { id: 2, tag: "요리" }
-        ]
-        //tags: []
+      createdTag: {
+        id: 5,
+        tag: '유원지'
       }
     }
 
     describe('/ (post)', () => {
-      it('정상적인 데이터를 전송하면 북마크를 생성한다.', async () => {
-        const keys = ["id", "url", "tags"]
-        await privateTest().post('/api/bookmark',accessToken)
-          //.send({ url: bookmarkParams.url })
-          .send(bookmarkParams)
-          //.then((resp) => { return console.log(resp) })
-          .expect(201)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            for (let key of keys) {
-              if(key === "tags"){
-                expect(resp.body.createdBookmark[key][0]['tag']).toEqual(bookmarkResponseData.createdBookmark[key][0]['tag']);
-              }
-              else {
-                expect(resp.body.createdBookmark[key]).toEqual(bookmarkResponseData.createdBookmark[key]);
-              };
-            };
-          });
+      it('정상적인 데이터를 전송하면 태그를 생성한다.', async () => {
+        const result = await privateTest().post('/api/tag', accessToken).send(tagParams);
+
+        expect(result.status).toBe(201);
+        expect(result.body.success).toBe(tagResponseData.success);
+        expect(result.body.createdTag['tag']).toBe(tagResponseData.createdTag['tag']);
       });
     });
 
-    //여기선 날짜가 같이 안나옴. 이걸로 양식 통일
-    describe('/mybookmark (post)', () => {
-      it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
-        const keys = ["id", "url", "tags"]
-        await privateTest().get('/api/bookmark/mybookmark',accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            for (let key of keys) {
-              if(key === "tags"){
-                expect(resp.body.bookmarks[0][key][0]['tag']).toEqual(bookmarkResponseData.createdBookmark[key][0]['tag']);
-              }
-              else {
-                expect(resp.body.bookmarks[0][key]).toEqual(bookmarkResponseData.createdBookmark[key]);
-              };
-            };
-          });
+    describe('/all (get)', () => {
+      it('작성된 모든 태그를 반환한다.', async () => {
+        const targetTags = ['여행', '요리', '인도', '카레', '유원지'] 
+        const result = await privateTest().get('/api/tag/all', accessToken)
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(tagResponseData.success);
+
+        const tags: Array<any> = result.body.tags;
+        tags.forEach((tag, i) => {
+          expect(tag['tag']).toBe(targetTags[i])
+        })
       });
     });
 
-    describe('/:id (patch)', () => {
-      const bookmarkId = bookmarkResponseData.createdBookmark.id
-      it('정상적인 데이터를 전송하면 북마크를 변경한다.', async () => {
-        await privateTest().patch(`/api/bookmark/${bookmarkId}`, accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .send({changeUrl:"https://www.test-change.com"})
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            expect(resp.body.message).toEqual('Updated');
-            
-          });
+    describe('/ (get)', () => {
+      it('유저가 작성한 모든 태그를 반환한다.', async () => {
+        const targetTags = ['여행', '요리', '인도', '카레', '유원지']
+        const result = await privateTest().get('/api/tag', accessToken)
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(tagResponseData.success);
+
+        const tags: Array<any> = result.body.tags;
+        tags.forEach((tag, i) => {
+          expect(tag['tag']).toBe(targetTags[i])
+        })
       });
     });
 
-    describe('/:id (delete)', () => {
-      const bookmarkId = bookmarkResponseData.createdBookmark.id
-      it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
-        await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
-          //.then((resp) => { return console.log(resp) })
-          .expect(200)
-          .expect(resp => {
-            expect(resp.body.success).toEqual(bookmarkResponseData.success);
-            expect(resp.body.message).toEqual('Deleted');
-            
-          });
+    describe('/search-and (get)', () => {
+
+      it('태그 전부를 만족하는 북마크를 전부 반환한다.', async () => {
+        const query = encodeURI('?tags=여행+요리')
+        const result = await privateTest().get(`/api/tag/search-and${query}`, accessToken)
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+
+        const bookmarks = result.body.bookmarks;
+        expect(bookmarks[0]["url"]).toBe('https://www.test-change.com');
+        expect(bookmarks[0]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
+      });
+
+
+
+
+    });
+
+    describe('/search-or (get)', () => {
+
+      it('태그 일부를 만족하는 북마크를 전부 반환한다.', async () => {
+        const query = encodeURI('?tags=여행+요리')
+        const result = await privateTest().get(`/api/tag/search-or${query}`, accessToken)
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+
+        const bookmarks:Array<any> = result.body.bookmarks;
+        expect(bookmarks.length).toBe(2);
+        expect(bookmarks[bookmarks.length-1]["url"]).toBe('https://www.test-change.com');
+        expect(bookmarks[bookmarks.length-1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
       });
     });
 
+    //내꺼 북마크에 있는 태그 바꾸는 건 이미 있다. 이건 태그 그 자체 변경. 이거 공개해야 하는가?
+    // describe('/:id (patch)', () => {
+    //   const tagResponseData = {
+    //     success: true,
+    //     bookmarks: [
+    //       {
+    //         id: 1,
+    //         url: 'https://www.test-change.com', //위에서 바꿨음
+    //         userId: userResponseDataOne.createdUser.id,
+    //         tags: [
+    //           { id: 1, tag: "여행" },
+    //           { id: 2, tag: "요리" }
+    //         ]
+    //       }
+    //     ]
+    //   };
+    //   const tagId = tagResponseData.bookmarks[0].tags[1].id
+    //   it('정상적인 데이터를 전송하면 태그를 변경한다.', async () => {
+    //     const result = await privateTest().patch(`/api/tag/${tagId}`, accessToken)
+    //       //.then((resp) => { return console.log(resp) })
+    //       .send({ changeTag: "한식" })
+    //       expect(result.status).toBe(200)
+    //       .expect(resp => {
+    //         expect(result.body.success).toBe(tagResponseData.success);
+    //         expect(result.body.message).toBe('Updated');
+    //       });
+    //   });
+    // })
   });
 
+  describe('/:bookmark_id (delete)', () => {
+    const query = 1
+    const tagIds = [1, 2]
+    it('북마크에 담긴 태그를 제거해야 한다', async () => {
+      const result = await privateTest().delete(`/api/tag/${query}?tag_ids=${tagIds}`, accessToken)
+      expect(result.status).toBe(200)
+      expect(result.body.success).toBe(true);
+      expect(result.body.message).toBe('Deleted');
+
+    })
+  })
 
 
 
@@ -338,11 +333,11 @@ describe('AppController (e2e)', () => {
   afterAll(async () => {
     // describe('/ (delete)', () => {
     //   it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
-    //     await privateTest().delete('/api/user', accessToken)
-    //       .expect(200)
+    //     const result = await privateTest().delete('/api/user', accessToken)
+    //       expect(result.status).toBe(200)
     //       .expect(resp => {
-    //         expect(resp.body.success).toBe(createdUser.success);
-    //         expect(resp.body.message).toBe('deleted');
+    //         expect(result.body.success).toBe(createdUser.success);
+    //         expect(result.body.message).toBe('deleted');
     //       });
     //   });
     // });

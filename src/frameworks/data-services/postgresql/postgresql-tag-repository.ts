@@ -16,7 +16,9 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         this.TagRepository = repository;
     };
 
-
+    async get(id: any): Promise<Tag> {
+        return await this.TagRepository.findOne({where:{id:id}})
+    }
     async create(item: Partial<Tag>): Promise<Tag> {
         return await this.TagRepository.save(this.TagRepository.create(item))
     }
@@ -39,8 +41,8 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 
     async findByTagNames(tagNames: string[]): Promise<Tag[]> {
         const tags: Tag[] = await this.TagRepository.createQueryBuilder("tag")
-        .where("tag.tag IN (:...tags)", { "tags": tagNames })
-        .getMany();
+            .where("tag.tag IN (:...tags)", { "tags": tagNames })
+            .getMany();
         return tags
     }
     async getTagsByIds(tagId: number[]) {
@@ -58,9 +60,9 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             //2. sql문으로 하기. 서브쿼리+파라미터로 하면 대량처리 될지도? 
             //const check = await this.bookmarksTags.findOne({ where: { bookmarkId: bookmarkId, tagId: tag.id } });
             const check = await this.TagRepository.createQueryBuilder()
-            .from('bookmarks_tags', 'bookmarks_tags')
-            .where('bookmarks_tags."bookmarkId" = (:bookmarkId) and bookmarks_tags."tagId" = (:tagId)',{bookmarkId:bookmarkId,tagId: tag.id})
-            .getRawOne()
+                .from('bookmarks_tags', 'bookmarks_tags')
+                .where('bookmarks_tags."bookmarkId" = (:bookmarkId) and bookmarks_tags."tagId" = (:tagId)', { bookmarkId: bookmarkId, tagId: tag.id })
+                .getRawOne()
             if (check) {
                 arr.push(check)
                 return;
@@ -70,10 +72,10 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             //     tagId: tag.id
             // }))
             const attachTag = await this.TagRepository.createQueryBuilder()
-            .insert()
-            .into('bookmarks_tags')
-            .values({bookmarkId: bookmarkId, tagId: tag.id})
-            .execute()
+                .insert()
+                .into('bookmarks_tags')
+                .values({ bookmarkId: bookmarkId, tagId: tag.id })
+                .execute()
             arr.push(attachTag)
         })
         // const attachTag = await this.bookmarksTags.save(this.bookmarksTags.create({
@@ -109,37 +111,47 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 
     async getUserAllTags(userId: number): Promise<Tag[]> {
         const tags: Tag[] = await this.TagRepository.createQueryBuilder('tag')
-            .select(`tag.*`)
+            .select(`DISTINCT tag.*`)
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId}`)
+            .where(`bookmark."userId" = ${userId} OR bookmark."userId" IS NULL`)
+            .orderBy('tag.id','ASC')
             .getRawMany()
         return tags
     }
 
     //반환이 북마크면 북마크로 가는게 좋지 않을까?
     async getTagSeatchOR(userId: number, tags: string[]): Promise<Bookmark[]> {
+        const addDot = tags.map((tag) => { return `'${tag}'` })
+        
         const bookmarks: Bookmark[] = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${tags}))`)
+            .where(`bookmark."userId" = ${userId} and ("bookmark"."id" in (      
+	            SELECT DISTINCT "bookmark"."id" AS "ids" 
+	            FROM "tag" "tag" 
+	            LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
+	            LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
+	            WHERE bookmark."userId" = 1 and ("tag"."tag" in (${addDot}))
+            ))`)
             .groupBy(`bookmark.id`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .getRawMany()
+            //console.log(bookmarks)
         return bookmarks
     }
     async getTagSearchAND(userId: number, tags: string[]): Promise<Bookmark[]> {
-        const getTagAllBookmarksANDInputDto = ['여행', '야시장']
+        const addDot = tags.map((tag) => { return `'${tag}'` })
         const bookmarks: Bookmark[] = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${tags}))`)
+            .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
             .groupBy(`bookmark.id`)
-            .having(`count("bookmark"."id") > ${getTagAllBookmarksANDInputDto.length - 1}`)
+            .having(`count("bookmark"."id") > ${tags.length - 1}`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .getRawMany()
         return bookmarks

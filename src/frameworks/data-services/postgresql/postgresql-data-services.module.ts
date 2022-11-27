@@ -19,7 +19,7 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
         database: config.get('DB_NAME'),
         synchronize: config.get('NODE_ENV') !== 'production',
         //logging: config.get('NODE_ENV') !== 'production',
-        logging: false,
+        logging: true,
         entities:[__dirname + './../../**/*.model{.ts,.js}'],
       })
     }),

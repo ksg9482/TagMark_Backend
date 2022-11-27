@@ -44,10 +44,8 @@ export class BookmarkController {
             let createdTags:Array<any>;
             //이거 만들어야됨
             if(createBookmarkDto.tags.length >= 0){
-                //['여행', '개발']
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tags)
                 createdTags = tags;
-                //[{id:14, name: '여행'}, {id:36, name: '개발'}]
                 await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
             }
             const addTags = {...createdBookmark, tags:createdTags || []}
@@ -95,7 +93,7 @@ export class BookmarkController {
             
             if(deleteTag || addTag) {
                 if(deleteTag) {
-                    const {message, deleteCount} = await this.tagUseCases.deleteTag(userId,bookmarkId,deleteTag)
+                    const {message, deleteCount} = await this.tagUseCases.detachTag(userId,bookmarkId,deleteTag)
                 }
                 if(addTag) {
                     const tags = await this.tagUseCases.getTagsByNames(addTag)

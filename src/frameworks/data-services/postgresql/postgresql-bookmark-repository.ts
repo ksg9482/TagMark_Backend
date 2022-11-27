@@ -49,7 +49,6 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         .groupBy("bookmark.id")
         .orderBy('bookmark."createdAt"', 'DESC')
         .getRawMany()
-        console.log(bookmarks[0].tags)
         return bookmarks
     }
 }

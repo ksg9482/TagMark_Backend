@@ -73,11 +73,13 @@ export class TagController {
         //tags -> 태그1+태그2
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split('+') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split(' ') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            
             const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr)
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.bookmarks = bookmarks
         } catch (error) {
+            console.log(error)
             getSearchTagsResponseDto.success = false;
         }
         return getSearchTagsResponseDto;
@@ -92,7 +94,7 @@ export class TagController {
         //tags -> 태그1OR태그2
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split('+') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split(' ') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
             const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr)
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.bookmarks = bookmarks
@@ -123,7 +125,7 @@ export class TagController {
 
     //북마크 안에있는 태그를 지움. 근데 이 id가 북마크인지 태그인지 직관적으로 알 수 있을까?
     @Delete('/:bookmark_id')
-    async deleteTag(
+    async detachTag(
         @AuthUser() userId:number,
         @Param('bookmark_id', ParseIntPipe) bookmarkId: number,
         @Query('tag_ids') tagIds: number[]
@@ -132,7 +134,7 @@ export class TagController {
         try {
             //const userId = 1
             //태그를 진짜 지우는게 아니라 연결을 끊는다. bookmarks_tags. detach로 하면 될까?
-            const result = await this.tagUseCases.deleteTag(userId, bookmarkId, tagIds)
+            const result = await this.tagUseCases.detachTag(userId, bookmarkId, tagIds)
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';
         } catch (error) {
