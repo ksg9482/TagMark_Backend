@@ -2,9 +2,11 @@ import { Body, Controller, Delete, Get, Headers, Patch, Post, Req, Res, Validati
 import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
+import { LogoutResponseDto } from "src/core/dtos/user/logout.dto";
 import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
 import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
+import { secure } from "src/utils/secure";
 
 @Controller('api/user')
 export class UserController {
@@ -14,9 +16,9 @@ export class UserController {
     ) { };
 
     @Get('/')
-    async findAllUser(
+    async findUserData(
         @AuthUser() userId: number
-    ): Promise<UserProfileResponseDto>  {
+    ): Promise<UserProfileResponseDto> {
         const userProfileResponse = new UserProfileResponseDto();
         try {
             const user = await this.userUseCases.me(userId);
@@ -53,11 +55,17 @@ export class UserController {
     @Post('/login')
     async login(
         @Body(new ValidationPipe()) loginDto: LoginDto,
-        @Res({passthrough:true}) res:Response
+        @Res({ passthrough: true }) res: Response
     ): Promise<LoginResponseDto> {
         const loginResponse = new LoginResponseDto();
         try {
-            const {user, accessToken, refreshToken} = await this.userUseCases.login(loginDto);
+            const secureWrap = secure().wrapper()
+            const loginData = {
+                ...loginDto, 
+                email:secureWrap.decryptWrapper(loginDto.email), 
+                password:secureWrap.decryptWrapper(loginDto.password)
+            }
+            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
 
             res.cookie('refreshToken', refreshToken)
             loginResponse.success = true;
@@ -106,6 +114,22 @@ export class UserController {
         };
         return deleteUserResponse;
     };
+
+    @Get('logout')
+    async logOut(
+        @AuthUser() userId: number,
+        @Res({ passthrough: true }) res: Response
+    ): Promise<LogoutResponseDto> {
+        const logOutResponse = new LogoutResponseDto();
+        try {
+            res.clearCookie('refreshToken')
+            logOutResponse.success = true
+            logOutResponse.message = 'logout'
+        } catch (error) {
+            logOutResponse.success = false
+        }
+        return logOutResponse
+    }
 
     //auth로 이동
     //쿠키에서 꺼내거나 DB비교
