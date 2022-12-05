@@ -10,7 +10,7 @@ export class JwtService {
         ) {}
 
         sign(userData: any): string {
-            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'10s'})
+            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'7d'})
             
             
         }

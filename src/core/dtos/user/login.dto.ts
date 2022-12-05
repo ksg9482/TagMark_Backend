@@ -13,7 +13,7 @@ export class LoginDto {
 };
 
 export class LoginResponseDto extends BaseResponseDto {
-    user: User
+    user: User|string
 
     accessToken: string;
 

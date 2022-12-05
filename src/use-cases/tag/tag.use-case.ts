@@ -112,7 +112,11 @@ export class TagUseCases {
 
     async getUserAllTags(userId: number): Promise<Tag[]> {
         const tags = await this.dataService.tags.getUserAllTags(userId)
-        return tags
+        const countForm = tags.map((tag)=>{
+            return {...tag, count:Number(tag['count'])}
+        })
+        console.log(countForm)
+        return countForm
     };
 
     //반환이 북마크면 북마크로 가는게 좋지 않을까?

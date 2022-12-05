@@ -55,6 +55,11 @@ export class BookmarkUseCases {
         return bookmarksForm
     }
 
+    async getUserBookmarkCount(userId:number) {
+        const {count} = await this.dataService.bookmarks.getcount(userId)
+        return count
+    }
+
    
 
     //첫 로그인 연동시. DB동기화, 이미 있는거 없는 거 구분.

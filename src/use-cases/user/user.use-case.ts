@@ -48,6 +48,7 @@ export class UserUseCases {
     };
 
     async me(userId:number) {
+        console.log(userId)
         const user = await this.findById(userId);
         Reflect.deleteProperty(user, "password")
         return user

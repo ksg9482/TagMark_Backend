@@ -2,9 +2,11 @@ import { Body, Controller, Delete, Get, Headers, Patch, Post, Req, Res, Validati
 import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
+import { LogoutResponseDto } from "src/core/dtos/user/logout.dto";
 import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
 import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
+import { secure } from "src/utils/secure";
 
 @Controller('api/user')
 export class UserController {
@@ -14,14 +16,15 @@ export class UserController {
     ) { };
 
     @Get('/')
-    async findAllUser(
+    async findUserData(
         @AuthUser() userId: number
-    ): Promise<UserProfileResponseDto>  {
+    ): Promise<UserProfileResponseDto> {
         const userProfileResponse = new UserProfileResponseDto();
         try {
+            const secureWrap = secure().wrapper()
             const user = await this.userUseCases.me(userId);
             userProfileResponse.success = true;
-            userProfileResponse.user = user;
+            userProfileResponse.user = secureWrap.encryptWrapper(JSON.stringify(user));
         } catch (error) {
             console.log(error)
             userProfileResponse.success = false;
@@ -36,8 +39,21 @@ export class UserController {
     ): Promise<CreateUserResponseDto> {
         const createUserResponse = new CreateUserResponseDto();
         try {
-            const user = this.userFactoryService.createNewUser(userDto);
+            const secureWrap = secure().wrapper()
+            let signupData = {
+                ...userDto, 
+                email:secureWrap.decryptWrapper(userDto.email),
+                password:secureWrap.decryptWrapper(userDto.password)
+            }
+            if(userDto.nickname) {
+                signupData = {
+                    ...signupData, 
+                    nickname:secureWrap.decryptWrapper(userDto.nickname)
+                }
+            }
+            const user = this.userFactoryService.createNewUser(signupData);
             const createdUser = await this.userUseCases.createUser(user);
+            
 
             createUserResponse.success = true;
             createUserResponse.createdUser = createdUser;
@@ -53,16 +69,23 @@ export class UserController {
     @Post('/login')
     async login(
         @Body(new ValidationPipe()) loginDto: LoginDto,
-        @Res({passthrough:true}) res:Response
+        @Res({ passthrough: true }) res: Response
     ): Promise<LoginResponseDto> {
         const loginResponse = new LoginResponseDto();
         try {
-            const {user, accessToken, refreshToken} = await this.userUseCases.login(loginDto);
+            const secureWrap = secure().wrapper()
+            const loginData = {
+                ...loginDto, 
+                email:secureWrap.decryptWrapper(loginDto.email), 
+                password:secureWrap.decryptWrapper(loginDto.password)
+            }
+            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
 
-            res.cookie('refreshToken', refreshToken)
+            res.cookie('refreshToken', secureWrap.encryptWrapper(refreshToken))
+            res.cookie('accessToken', secureWrap.encryptWrapper(accessToken))
             loginResponse.success = true;
-            loginResponse.user = user;
-            loginResponse.accessToken = accessToken;
+            loginResponse.user = secureWrap.encryptWrapper(JSON.stringify(user));
+            loginResponse.accessToken = secureWrap.encryptWrapper(accessToken);
             //이건 쿠키로 넣던가 안줘야함
             //loginResponse.refreshToken = refreshToken;
         } catch (error) {
@@ -80,7 +103,13 @@ export class UserController {
     ): Promise<EditUserResponseDto> {
         const editUserResponse = new EditUserResponseDto();
         try {
-            const editUser = await this.userUseCases.editUser(userId, editUserDto);
+            const secureWrap = secure().wrapper()
+            const editData = {
+                ...editUserDto, 
+                changeNickname:secureWrap.decryptWrapper(editUserDto.changeNickname), 
+                changePassword:secureWrap.decryptWrapper(editUserDto.changePassword)
+            }
+            const editUser = await this.userUseCases.editUser(userId, editData);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {
@@ -106,6 +135,23 @@ export class UserController {
         };
         return deleteUserResponse;
     };
+
+    @Get('logout')
+    async logOut(
+        @AuthUser() userId: number,
+        @Res({ passthrough: true }) res: Response
+    ): Promise<LogoutResponseDto> {
+        const logOutResponse = new LogoutResponseDto();
+        try {
+            res.clearCookie('refreshToken')
+            res.clearCookie('accessToken')
+            logOutResponse.success = true
+            logOutResponse.message = 'logout'
+        } catch (error) {
+            logOutResponse.success = false
+        }
+        return logOutResponse
+    }
 
     //auth로 이동
     //쿠키에서 꺼내거나 DB비교
