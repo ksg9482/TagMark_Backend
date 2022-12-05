@@ -51,4 +51,12 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         .getRawMany()
         return bookmarks
     }
+    async getcount(userId: number): Promise<any> {
+        const bookmarkCount = await this.bookmarkRepository.createQueryBuilder('bookmark')
+        .select(`COUNT("bookmark".id)`)
+        .where(`"userId" = ${userId}`)
+        .getRawMany()
+        
+        return bookmarkCount[0]
+    }
 }

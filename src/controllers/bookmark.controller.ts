@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Valida
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
 import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/delete-bookmark.dto";
+import { GetUserBookmarkCountResponseDto } from "src/core/dtos/bookmark/get-user-bookmark-count.dto";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
 import { TagUseCases } from "src/use-cases/tag";
 
@@ -31,6 +32,7 @@ export class BookmarkController {
 
     //     return createBookmarkResponse;
     // }
+    //페이지네이션 적용한 것도 만들어야 함
     @Post('/')
     async createBookmark(
         //@AuthUser() userId:number,
@@ -58,7 +60,7 @@ export class BookmarkController {
         return createBookmarkResponse;
     }
 
-    @Get('/mybookmark')
+    @Get('/')
     async getUserAllBookmark(
         @AuthUser() userId:number,
     ) {
@@ -74,6 +76,26 @@ export class BookmarkController {
         }
         return getUserAllBookmarkResponse;
     }
+
+    //유저정보, 북마크 카운트, 태그 카운트 분리.
+    //특히 태그는 태그 분석결과 넘겨줘야 함
+    @Get('/count')
+    async getUserBookmarkCount(
+        @AuthUser() userId:number,
+    ) {
+        const getUserAllBookmarkResponse = new GetUserBookmarkCountResponseDto()
+        try {
+            //const userId = 1
+            const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
+            getUserAllBookmarkResponse.success = true;
+            getUserAllBookmarkResponse.count = Number(count);
+        } catch (error) {
+            getUserAllBookmarkResponse.success = false;
+            console.log(error)
+        }
+        return getUserAllBookmarkResponse;
+    }
+
 
     
 

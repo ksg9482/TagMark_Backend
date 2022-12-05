@@ -62,6 +62,22 @@ export class TagController {
         }
         return getUserAllTagsResponse;
     };
+    //[{tag1:12},{tag2:4}...]
+    @Get('/count')
+    async getUserTagCount(
+        @AuthUser() userId:number,
+    ) {
+        const getUserAllTagsResponse = new GetUserAllTagsResponseDto()
+        try {
+            const tags = await this.tagUseCases.getUserAllTags(userId);
+            getUserAllTagsResponse.success = true;
+            getUserAllTagsResponse.tags = tags;
+        } catch (error) {
+            getUserAllTagsResponse.success = false;
+            console.log(error)
+        }
+        return getUserAllTagsResponse;
+    };
 
     //'태그에 해당하는 북마크를 반환. 찾는게 태그니 태그책임? 결과가 북마크니 북마크 책임? 단순히 태그랑 북마크로 나눠놓은게 도메인영역을 자꾸 침범한다.
     //검색용. 배열이용. AND검색. 태그에 해당하는 모든 북마크. 태그랑 북마크랑 책임 나눠야함

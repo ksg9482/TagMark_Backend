@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { DataServices } from 'src/core/abstracts';
 import { JwtService } from 'src/jwt/jwt.service';
+import { secure } from 'src/utils/secure';
 enum AuthorizationType {
   Bearer = 'Bearer'
 }
@@ -14,11 +15,12 @@ export class AuthGuard implements CanActivate {
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
+    const secureWrap = secure().wrapper()
     const request = context.switchToHttp().getRequest();
     const getToken = (req: any) => {
       const authorization = req.headers.authorization.split(' ');
       const type = authorization[0];
-      const accessToken = authorization[1];
+      const accessToken = secureWrap.decryptWrapper(authorization[1]);
       if (type === AuthorizationType.Bearer) {
         return accessToken;
       }
@@ -39,6 +41,7 @@ export class AuthGuard implements CanActivate {
         throw false;
       }
     } catch (error) {
+      console.log(error)
       // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === 'login') {
       //   return true;
       // }

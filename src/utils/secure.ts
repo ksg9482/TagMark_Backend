@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js'
+import *as CryptoJS from 'crypto-js';
 export const secure = () => {
     const SECRET_KEY = process.env.CRYPTOJS_SECRET_KEY;
     const encrypt = (message:string) => {
@@ -6,14 +6,8 @@ export const secure = () => {
         return encrypted.toString()
     }
     const decrypt = (data:string) => {
-        try {
-            console.log('decrypt',CryptoJS )
-            const decrypted = CryptoJS.AES.decrypt(data, SECRET_KEY)
+        const decrypted = CryptoJS.AES.decrypt(data, SECRET_KEY)
         return decrypted.toString(CryptoJS.enc.Utf8)
-        } catch (error) {
-            console.log(error )
-        }
-        
     }
     const setItem = (key:string, item:string) => {
         localStorage.setItem(key,encrypt(item))
@@ -42,7 +36,6 @@ export const secure = () => {
     const decryptWrapper = (encryptStr:string) => {
         try {
             const decrypted = decrypt(encryptStr)
-            console.log('decryptWrapper',decrypted)
             return decrypt(encryptStr)
         } catch (error) {
             return '이거에러'//encryptStr

@@ -21,9 +21,10 @@ export class UserController {
     ): Promise<UserProfileResponseDto> {
         const userProfileResponse = new UserProfileResponseDto();
         try {
+            const secureWrap = secure().wrapper()
             const user = await this.userUseCases.me(userId);
             userProfileResponse.success = true;
-            userProfileResponse.user = user;
+            userProfileResponse.user = secureWrap.encryptWrapper(JSON.stringify(user));
         } catch (error) {
             console.log(error)
             userProfileResponse.success = false;
@@ -38,8 +39,21 @@ export class UserController {
     ): Promise<CreateUserResponseDto> {
         const createUserResponse = new CreateUserResponseDto();
         try {
-            const user = this.userFactoryService.createNewUser(userDto);
+            const secureWrap = secure().wrapper()
+            let signupData = {
+                ...userDto, 
+                email:secureWrap.decryptWrapper(userDto.email),
+                password:secureWrap.decryptWrapper(userDto.password)
+            }
+            if(userDto.nickname) {
+                signupData = {
+                    ...signupData, 
+                    nickname:secureWrap.decryptWrapper(userDto.nickname)
+                }
+            }
+            const user = this.userFactoryService.createNewUser(signupData);
             const createdUser = await this.userUseCases.createUser(user);
+            
 
             createUserResponse.success = true;
             createUserResponse.createdUser = createdUser;
@@ -67,10 +81,11 @@ export class UserController {
             }
             const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
 
-            res.cookie('refreshToken', refreshToken)
+            res.cookie('refreshToken', secureWrap.encryptWrapper(refreshToken))
+            res.cookie('accessToken', secureWrap.encryptWrapper(accessToken))
             loginResponse.success = true;
-            loginResponse.user = user;
-            loginResponse.accessToken = accessToken;
+            loginResponse.user = secureWrap.encryptWrapper(JSON.stringify(user));
+            loginResponse.accessToken = secureWrap.encryptWrapper(accessToken);
             //이건 쿠키로 넣던가 안줘야함
             //loginResponse.refreshToken = refreshToken;
         } catch (error) {
@@ -88,7 +103,13 @@ export class UserController {
     ): Promise<EditUserResponseDto> {
         const editUserResponse = new EditUserResponseDto();
         try {
-            const editUser = await this.userUseCases.editUser(userId, editUserDto);
+            const secureWrap = secure().wrapper()
+            const editData = {
+                ...editUserDto, 
+                changeNickname:secureWrap.decryptWrapper(editUserDto.changeNickname), 
+                changePassword:secureWrap.decryptWrapper(editUserDto.changePassword)
+            }
+            const editUser = await this.userUseCases.editUser(userId, editData);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {
@@ -123,6 +144,7 @@ export class UserController {
         const logOutResponse = new LogoutResponseDto();
         try {
             res.clearCookie('refreshToken')
+            res.clearCookie('accessToken')
             logOutResponse.success = true
             logOutResponse.message = 'logout'
         } catch (error) {

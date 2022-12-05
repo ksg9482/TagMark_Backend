@@ -12,5 +12,5 @@ export class UserProfileDto {
 export class UserProfileResponseDto extends BaseResponseDto {
     success: boolean;
 
-    user: User;
+    user: User | string;
 }
