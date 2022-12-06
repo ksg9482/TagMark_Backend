@@ -51,7 +51,7 @@ export class UserController {
                     nickname:secureWrap.decryptWrapper(userDto.nickname)
                 }
             }
-            const user = this.userFactoryService.createNewUser(signupData);
+            const user = this.userFactoryService.createNewUser(userDto);
             const createdUser = await this.userUseCases.createUser(user);
             
 
@@ -80,12 +80,15 @@ export class UserController {
                 password:secureWrap.decryptWrapper(loginDto.password)
             }
             const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
-
-            res.cookie('refreshToken', secureWrap.encryptWrapper(refreshToken))
-            res.cookie('accessToken', secureWrap.encryptWrapper(accessToken))
+            const encrytedToken = {
+                accessToken: secureWrap.encryptWrapper(accessToken),
+                refreshToken: secureWrap.encryptWrapper(refreshToken)
+            }
+            res.cookie('refreshToken', encrytedToken.refreshToken)
+            res.cookie('accessToken', encrytedToken.accessToken)
             loginResponse.success = true;
             loginResponse.user = secureWrap.encryptWrapper(JSON.stringify(user));
-            loginResponse.accessToken = secureWrap.encryptWrapper(accessToken);
+            loginResponse.accessToken = encrytedToken.accessToken;
             //이건 쿠키로 넣던가 안줘야함
             //loginResponse.refreshToken = refreshToken;
         } catch (error) {
@@ -109,7 +112,7 @@ export class UserController {
                 changeNickname:secureWrap.decryptWrapper(editUserDto.changeNickname), 
                 changePassword:secureWrap.decryptWrapper(editUserDto.changePassword)
             }
-            const editUser = await this.userUseCases.editUser(userId, editData);
+            const editUser = await this.userUseCases.editUser(userId, editUserDto);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {

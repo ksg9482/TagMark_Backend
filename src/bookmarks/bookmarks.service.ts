@@ -20,10 +20,10 @@ export class BookmarksService {
     async getUserAllBookmarks(userId:number) {
         const tagProperty = (/*entityName:string,properties:string[]*/) => {
             const name = 'tag'
-            const test = ['id', 'name']
+            const test = ['id', 'tag']
             return `'id', "tag"."id",'tag', "tag"."tag"`
         }
-        console.log(tagProperty())
+        //console.log(tagProperty())
         const bookmarks:Bookmark[] = await this.bookmarks.createQueryBuilder('bookmark')
         .select(`"bookmark".*`)
         .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')

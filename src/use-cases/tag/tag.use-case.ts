@@ -115,7 +115,7 @@ export class TagUseCases {
         const countForm = tags.map((tag)=>{
             return {...tag, count:Number(tag['count'])}
         })
-        console.log(countForm)
+        //console.log(countForm)
         return countForm
     };
 
