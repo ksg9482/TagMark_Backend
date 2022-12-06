@@ -37,7 +37,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
     async getUserAllBookmarks(userId:number): Promise<Bookmark[]> {
         const tagProperty = (/*entityName:string,properties:string[]*/) => {
             const name = 'tag'
-            const test = ['id', 'name']
+            const test = ['id', 'tag']
             return `'id', "tag"."id",'tag', "tag"."tag"`
         }
         const bookmarks = await this.bookmarkRepository.createQueryBuilder('bookmark')

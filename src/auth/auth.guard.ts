@@ -17,6 +17,7 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean> {
     const secureWrap = secure().wrapper()
     const request = context.switchToHttp().getRequest();
+    
     const getToken = (req: any) => {
       const authorization = req.headers.authorization.split(' ');
       const type = authorization[0];
@@ -25,7 +26,7 @@ export class AuthGuard implements CanActivate {
         return accessToken;
       }
     };
-    
+    //console.log(request.body)
     try {
       const accessToken = getToken(request);
       if(accessToken) {
@@ -34,6 +35,7 @@ export class AuthGuard implements CanActivate {
         if (!user) {
           return false;
         };
+        
         Reflect.deleteProperty(user, 'password');
         request.userId = user.id;
         return true;

@@ -28,10 +28,10 @@ export class BookmarksController {
 
     @Post('/')
     async createBookmark(
-        //@AuthUser() userId:number,
+        @AuthUser() userId:number,
         @Body(new ValidationPipe()) createBookmarkInputDto: CreateBookmarkInputDto
     ) {
-        const userId = 1
+        //console.log(userId,createBookmarkInputDto)
         try {
             const tagNames = createBookmarkInputDto.tags as unknown as string[]
             const tags = await this.tagsService.getTagsByNames(tagNames)
@@ -65,7 +65,7 @@ export class BookmarksController {
                 if(addTag) {
                     const tags = await this.tagsService.getTagsByNames(addTag)
                     const result = await this.tagsService.attachTag(userId,bookmarkId, tags)
-                    console.log(result)
+                    //console.log(result)
                 }
             }
             if(changeUrl) {

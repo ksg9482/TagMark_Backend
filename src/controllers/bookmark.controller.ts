@@ -108,7 +108,7 @@ export class BookmarkController {
         //const userId = 1
         const editBookmarkResponse = new EditBookmarkResponseDto()
         try {
-            
+            console.log('bookmark edit -', bookmarkId, editBookmarkDto)
             const changeUrl = editBookmarkDto.changeUrl;
             const deleteTag = editBookmarkDto.deleteTag?.length > 0 ? editBookmarkDto.deleteTag : null;
             const addTag = editBookmarkDto.addTag?.length > 0 ? editBookmarkDto.addTag : null;
@@ -120,7 +120,7 @@ export class BookmarkController {
                 if(addTag) {
                     const tags = await this.tagUseCases.getTagsByNames(addTag)
                     const result = await this.tagUseCases.attachTag(userId,bookmarkId, tags)
-                    console.log(result)
+                    //console.log(result)
                 }
             }
             if(changeUrl) {

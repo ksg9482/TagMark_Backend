@@ -41,7 +41,7 @@ export class BookmarkUseCases {
     async getUserAllBookmarks(userId:number) {
         const tagProperty = (/*entityName:string,properties:string[]*/) => {
             const name = 'tag'
-            const test = ['id', 'name']
+            const test = ['id', 'tag']
             return `'id', "tag"."id",'tag', "tag"."tag"`
         }
         //유저 아이디 넣으면 이거 나오게 하는게 나을듯
