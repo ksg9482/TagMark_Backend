@@ -24,7 +24,7 @@ export class User implements UserAbstract {
     @ApiProperty({ description: '이메일' })
     email: string;
 
-    @Column({select:false})
+    @Column()
     @ApiProperty({ description: '비밀번호' })
     password: string;
 

@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
 import { LogoutResponseDto } from "src/core/dtos/user/logout.dto";
+import { PasswordValidDto, PasswordValidResponseDto } from "src/core/dtos/user/password-valid.dto";
 import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
 import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
@@ -65,6 +66,30 @@ export class UserController {
 
         return createUserResponse;
     };
+
+    @Post('/valid')
+    async checkPassword(
+        @AuthUser() userId: number,
+        @Body(new ValidationPipe()) passwordValidDto: PasswordValidDto
+        ) {
+            const passwordValidResponse = new PasswordValidResponseDto();
+            const {password} = passwordValidDto
+            try {
+                const secureWrap = secure().wrapper()
+                console.log(secureWrap.decryptWrapper(password))
+                const createdUser = await this.userUseCases.passwordValid(userId,secureWrap.decryptWrapper(password));
+                
+    
+                passwordValidResponse.success = true;
+                passwordValidResponse.valid = createdUser;
+    
+            } catch (error) {
+                console.log(error)
+                passwordValidResponse.success = false;
+            }
+    
+            return passwordValidResponse;
+    }
 
     @Post('/login')
     async login(
