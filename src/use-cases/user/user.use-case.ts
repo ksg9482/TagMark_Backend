@@ -56,14 +56,17 @@ export class UserUseCases {
         Reflect.deleteProperty(user, "updatedAt")
         return user
     }
-
+    async passwordValid(userId:number, password: string) {
+        const user = await this.findById(userId);
+        const result = await this.checkPassword(password, user)
+        return result
+    }
     private async checkPassword(password: string, user: User):Promise<boolean>{
         return await this.utilServices.checkPassword(password, user)
     }
 
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
-        console.log(editUserDto)
         let user = await this.findById(userId);
         //const user = await this.dataServices.users.get(userId);
         // if(!user){
@@ -75,7 +78,6 @@ export class UserUseCases {
         if (changePassword) {
             user.password = changePassword
         }
-        console.log(user)
         const userUpadate = await this.dataServices.users.update(userId, user)
         return userUpadate
     };
