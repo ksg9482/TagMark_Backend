@@ -107,6 +107,7 @@ export class BookmarkController {
     ) {
         //const userId = 1
         const editBookmarkResponse = new EditBookmarkResponseDto()
+        console.log(editBookmarkDto)
         try {
             console.log('bookmark edit -', bookmarkId, editBookmarkDto)
             const changeUrl = editBookmarkDto.changeUrl;
