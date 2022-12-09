@@ -51,6 +51,9 @@ export class UserUseCases {
         //console.log(userId)
         const user = await this.findById(userId);
         Reflect.deleteProperty(user, "password")
+        Reflect.deleteProperty(user, "id")
+        Reflect.deleteProperty(user, "createdAt")
+        Reflect.deleteProperty(user, "updatedAt")
         return user
     }
 
@@ -60,7 +63,8 @@ export class UserUseCases {
 
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
-        const user = await this.findById(userId);
+        console.log(editUserDto)
+        let user = await this.findById(userId);
         //const user = await this.dataServices.users.get(userId);
         // if(!user){
         //     throw new Error('아이디가 없습니다.');
@@ -71,6 +75,7 @@ export class UserUseCases {
         if (changePassword) {
             user.password = changePassword
         }
+        console.log(user)
         const userUpadate = await this.dataServices.users.update(userId, user)
         return userUpadate
     };

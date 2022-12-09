@@ -105,14 +105,21 @@ export class UserController {
         @Body(new ValidationPipe()) editUserDto: EditUserDto
     ): Promise<EditUserResponseDto> {
         const editUserResponse = new EditUserResponseDto();
+        const changePassword = editUserDto.changePassword;
+        const changeNickname = editUserDto.changeNickname;
         try {
             const secureWrap = secure().wrapper()
-            const editData = {
-                ...editUserDto, 
-                changeNickname:secureWrap.decryptWrapper(editUserDto.changeNickname), 
-                changePassword:secureWrap.decryptWrapper(editUserDto.changePassword)
+            let editData = {
+                changeNickname:'',
+                changePassword:''
             }
-            const editUser = await this.userUseCases.editUser(userId, editUserDto);
+            if(changePassword?.length > 0){
+                editData['changePassword'] = secureWrap.decryptWrapper(editUserDto.changePassword)
+            }
+            if(changeNickname?.length > 0){
+                editData['changeNickname'] = secureWrap.decryptWrapper(editUserDto.changeNickname)
+            }
+            const editUser = await this.userUseCases.editUser(userId, editData);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {
