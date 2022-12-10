@@ -110,7 +110,7 @@ export class TagController {
     ) {
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split(' ') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split('\n') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
             const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr)
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.bookmarks = bookmarks
