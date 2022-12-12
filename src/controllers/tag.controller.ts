@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/core/dtos";
 import { GetAllTagsResponseDto } from "src/core/dtos/tag/get-all-tags.dto";
-import { GetSearchTagsResponseDto } from "src/core/dtos/tag/get-search-tags.dto copy";
+import { GetSearchTagsDto, GetSearchTagsResponseDto } from "src/core/dtos/tag/get-search-tags.dto copy";
 import { TagFactoryService, TagUseCases } from "src/use-cases/tag";
 
 @Controller('api/tag')
@@ -84,16 +84,20 @@ export class TagController {
     @Get('/search-and')
     async andFindTagAndBookmarks(
         @AuthUser() userId:number,
-        @Query('tags') tags: string
+        @Query('tags') tags: string,
+        @Query(new ValidationPipe({transform:true})) page: GetSearchTagsDto
     ) {
         //tags -> 태그1+태그2
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split(' ') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split('\n') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            console.log(tags,tagArr)
             
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr)
+            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page)
             getSearchTagsResponseDto.success = true;
-            getSearchTagsResponseDto.bookmarks = bookmarks
+            getSearchTagsResponseDto.totalCount = bookmarks.totalCount
+            getSearchTagsResponseDto.totalPage = bookmarks.totalPage
+            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
         } catch (error) {
             console.log(error)
             getSearchTagsResponseDto.success = false;
@@ -105,14 +109,17 @@ export class TagController {
     @Get('/search-or')
     async orFindTagAndBookmarks(
         @AuthUser() userId:number,
-        @Query('tags') tags: string
+        @Query('tags') tags: string,
+        @Query(new ValidationPipe({transform:true})) page: GetSearchTagsDto
     ) {
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split(' ') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr)
+            const tagArr = tags.split('\n') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page)
             getSearchTagsResponseDto.success = true;
-            getSearchTagsResponseDto.bookmarks = bookmarks
+            getSearchTagsResponseDto.totalCount = bookmarks.totalCount
+            getSearchTagsResponseDto.totalPage = bookmarks.totalPage
+            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
         } catch (error) {
             getSearchTagsResponseDto.success = false;
         }

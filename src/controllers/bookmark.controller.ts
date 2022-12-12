@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
+import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
 import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/delete-bookmark.dto";
 import { GetUserBookmarkCountResponseDto } from "src/core/dtos/bookmark/get-user-bookmark-count.dto";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
@@ -14,32 +14,14 @@ export class BookmarkController {
         private tagUseCases:TagUseCases
     ) {}
 
-    // @Post('/')
-    // async createBookmark(
-    //     @Body() createBookmarkDto: CreateBookmarkDto
-    // ): Promise<any> {
-    //     const createBookmarkResponse = new CreateBookmarkResponseDto();
-    //     try {
-    //         const user = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
-    //         const createdBookmark = await this.bookmarkUseCases.createBookmark(user);
-
-    //         createBookmarkResponse.success = true;
-    //         createBookmarkResponse.createdBookmark = createdBookmark;
-
-    //     } catch (error) {
-    //         createBookmarkResponse.success = false;
-    //     }
-
-    //     return createBookmarkResponse;
-    // }
+    
     //페이지네이션 적용한 것도 만들어야 함
     @Post('/')
     async createBookmark(
-        //@AuthUser() userId:number,
-        @Body(new ValidationPipe()) createBookmarkDto: CreateBookmarkDto//CreateBookmarkDto
+        @AuthUser() userId:number,
+        @Body(new ValidationPipe()) createBookmarkDto: CreateBookmarkDto
     ) {
         const createBookmarkResponse = new CreateBookmarkResponseDto();
-        const userId = 1
         try {
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
@@ -63,13 +45,19 @@ export class BookmarkController {
     @Get('/')
     async getUserAllBookmark(
         @AuthUser() userId:number,
+        @Query(new ValidationPipe({transform:true})) page: GetUserAllBookmarksDto
     ) {
         const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto()
+        
         try {
-            //const userId = 1
-            const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(userId);
+            const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(
+                userId,
+                page
+                );
             getUserAllBookmarkResponse.success = true;
-            getUserAllBookmarkResponse.bookmarks = bookmarks;
+            getUserAllBookmarkResponse.totalCount = bookmarks.totalCount
+            getUserAllBookmarkResponse.totalPage = bookmarks.totalPage
+            getUserAllBookmarkResponse.bookmarks = bookmarks.bookmarks;
         } catch (error) {
             getUserAllBookmarkResponse.success = false;
             console.log(error)
@@ -85,7 +73,6 @@ export class BookmarkController {
     ) {
         const getUserAllBookmarkResponse = new GetUserBookmarkCountResponseDto()
         try {
-            //const userId = 1
             const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
             getUserAllBookmarkResponse.success = true;
             getUserAllBookmarkResponse.count = Number(count);
@@ -105,7 +92,6 @@ export class BookmarkController {
         @Param('id', ParseIntPipe) bookmarkId: number,
         @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto
     ) {
-        //const userId = 1
         const editBookmarkResponse = new EditBookmarkResponseDto()
         try {
             console.log('bookmark edit -', bookmarkId, editBookmarkDto)
@@ -142,7 +128,6 @@ export class BookmarkController {
     ) {
         const deleteBookmarkResponse = new DeleteBookmarkResponseDto()
         try {
-            //const userId = 1
             const result = await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId)
             deleteBookmarkResponse.success = true;
             deleteBookmarkResponse.message = 'Deleted'

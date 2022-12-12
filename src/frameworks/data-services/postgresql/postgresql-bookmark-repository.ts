@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostgresqlGenericRepository } from './postgresql-generic-repository';
 import { BookmarkRepository } from 'src/core/abstracts';
 import { Bookmark } from './model';
+import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
 
 @Injectable()
 export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bookmark> implements BookmarkRepository  {
@@ -34,12 +35,13 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
     async getBookmarkByUrl(url: string): Promise<Bookmark> {
         return await this.bookmarkRepository.findOne({where:{url:url}});
     }
-    async getUserAllBookmarks(userId:number): Promise<Bookmark[]> {
+    async getUserAllBookmarks(userId:number, page:any): Promise<Page<Bookmark>> {
         const tagProperty = (/*entityName:string,properties:string[]*/) => {
             const name = 'tag'
             const test = ['id', 'tag']
             return `'id', "tag"."id",'tag', "tag"."tag"`
         }
+        const {count} = await this.getcount(userId)
         const bookmarks = await this.bookmarkRepository.createQueryBuilder('bookmark')
         .select(`"bookmark".*`)
         .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
@@ -48,8 +50,11 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         .where(`"userId" = ${userId}`)
         .groupBy("bookmark.id")
         .orderBy('bookmark."createdAt"', 'DESC')
+        .limit(page.take)
+        .offset(page.skip)
         .getRawMany()
-        return bookmarks
+    
+        return new Page<Bookmark>(Number(count), page.take, bookmarks)
     }
     async getcount(userId: number): Promise<any> {
         const bookmarkCount = await this.bookmarkRepository.createQueryBuilder('bookmark')
