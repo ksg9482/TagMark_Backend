@@ -1,6 +1,7 @@
 import { Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateTagDto, CreateTagResponseDto, EditTagDto } from "src/core/dtos";
+import { GetSearchTagsDto } from "src/core/dtos/tag/get-search-tags.dto copy";
 import { Bookmark, Tag } from "src/core/entities";
 
 
@@ -121,15 +122,14 @@ export class TagUseCases {
 
     //반환이 북마크면 북마크로 가는게 좋지 않을까?
     //or문 개선 필요. 북마크 태그 전부가 나오는게 아니라 태그에 해당하는 것만 나와서 일부만 나옴
-    async getTagAllBookmarksOR(userId: number, tags: string[]): Promise<Bookmark[]> {
-        const bookmarks: Bookmark[] = await this.dataService.tags.getTagSeatchOR(userId, tags)
-        
-        return bookmarks
+    async getTagAllBookmarksOR(userId: number, tags: string[], page: GetSearchTagsDto) {
+        const bookmarks = await this.dataService.tags.getTagSeatchOR(userId, tags, page);
+        return bookmarks;
     };
 
-    async getTagAllBookmarksAND(userId: number, tags: string[]): Promise<Bookmark[]> {
-        const bookmarks: Bookmark[] = await this.dataService.tags.getTagSearchAND(userId,tags)
-        return bookmarks
+    async getTagAllBookmarksAND(userId: number, tags: string[], page: GetSearchTagsDto) {
+        const bookmarks = await this.dataService.tags.getTagSearchAND(userId,tags, page);
+        return bookmarks;
     };
     
 }

@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostgresqlGenericRepository } from './postgresql-generic-repository';
 import { TagRepository } from 'src/core/abstracts';
 import { Tag, Bookmark, Bookmarks_Tags } from './model';
+import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
 
 @Injectable()
 export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> implements TagRepository {
@@ -130,10 +131,17 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     }
 
     //반환이 북마크면 북마크로 가는게 좋지 않을까?
-    async getTagSeatchOR(userId: number, tags: string[]): Promise<Bookmark[]> {
+    async getTagSeatchOR(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-
-        const bookmarks: Bookmark[] = await this.TagRepository.createQueryBuilder('tag')
+        const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
+        .select(`COUNT(bookmark.id)`)
+        .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
+        .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
+        .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
+        .groupBy(`bookmark.id`)
+        .orderBy(`bookmark."createdAt"`, 'DESC')
+        .getRawMany()
+        const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
@@ -147,13 +155,24 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             ))`)
             .groupBy(`bookmark.id`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
+            .limit(page.take)
+            .offset(page.skip)
             .getRawMany()
         //console.log(bookmarks)
-        return bookmarks
+        return new Page<Bookmark>(Number(bookmarkCount[0]['count']), page.take, bookmarks)
     }
-    async getTagSearchAND(userId: number, tags: string[]): Promise<Bookmark[]> {
+    async getTagSearchAND(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-        const bookmarks: Bookmark[] = await this.TagRepository.createQueryBuilder('tag')
+        const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
+        .select(`COUNT(bookmark.id)`)
+        .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
+        .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
+        .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
+        .groupBy(`bookmark.id`)
+        .having(`count("bookmark"."id") > ${tags.length - 1}`)
+        .orderBy(`bookmark."createdAt"`, 'DESC')
+        .getRawMany()
+        const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
@@ -162,8 +181,11 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             .groupBy(`bookmark.id`)
             .having(`count("bookmark"."id") > ${tags.length - 1}`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
+            .limit(page.take)
+            .offset(page.skip)
             .getRawMany()
-        return bookmarks
+            console.log(bookmarkCount)
+        return new Page<Bookmark>(Number(bookmarkCount[0]['count']), page.take, bookmarks)
     }
 
 }
