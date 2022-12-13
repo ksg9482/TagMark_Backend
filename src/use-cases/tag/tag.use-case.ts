@@ -123,12 +123,28 @@ export class TagUseCases {
     //반환이 북마크면 북마크로 가는게 좋지 않을까?
     //or문 개선 필요. 북마크 태그 전부가 나오는게 아니라 태그에 해당하는 것만 나와서 일부만 나옴
     async getTagAllBookmarksOR(userId: number, tags: string[], page: GetSearchTagsDto) {
-        const bookmarks = await this.dataService.tags.getTagSeatchOR(userId, tags, page);
+        const limit = page.getLimit()
+        const offset = page.getOffset()
+        const bookmarks = await this.dataService.tags.getTagSeatchOR(
+            userId, tags, 
+            {
+                take: limit,
+                skip: offset
+            }
+            );
         return bookmarks;
     };
 
     async getTagAllBookmarksAND(userId: number, tags: string[], page: GetSearchTagsDto) {
-        const bookmarks = await this.dataService.tags.getTagSearchAND(userId,tags, page);
+        const limit = page.getLimit()
+        const offset = page.getOffset()
+        const bookmarks = await this.dataService.tags.getTagSearchAND(
+            userId, tags, 
+            {
+                take: limit,
+                skip: offset
+            }
+            );
         return bookmarks;
     };
     

@@ -90,9 +90,7 @@ export class TagController {
         //tags -> 태그1+태그2
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split('\n') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
-            console.log(tags,tagArr)
-            
+            const tagArr = tags.split(',') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
             const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page)
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount
@@ -114,7 +112,7 @@ export class TagController {
     ) {
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split('\n') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split(',') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
             const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page)
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount
