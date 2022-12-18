@@ -38,6 +38,7 @@ export class UserController {
     async createUser(
         @Body(new ValidationPipe()) userDto: CreateUserDto
     ): Promise<CreateUserResponseDto> {
+        console.log(userDto)
         const createUserResponse = new CreateUserResponseDto();
         try {
             const secureWrap = secure().wrapper()
@@ -52,7 +53,7 @@ export class UserController {
                     nickname:secureWrap.decryptWrapper(userDto.nickname)
                 }
             }
-            const user = this.userFactoryService.createNewUser(userDto);
+            const user = this.userFactoryService.createNewUser(signupData);
             const createdUser = await this.userUseCases.createUser(user);
             
 
@@ -62,6 +63,7 @@ export class UserController {
         } catch (error) {
             console.log(error)
             createUserResponse.success = false;
+            createUserResponse.error = error.message
         }
 
         return createUserResponse;
