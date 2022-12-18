@@ -1,4 +1,4 @@
-import { Inject } from "@nestjs/common";
+import { HttpException, Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateBookmarkDto, GetUserAllBookmarksDto } from "src/core/dtos";
 import { Bookmark } from "src/core/entities";
@@ -103,9 +103,12 @@ export class BookmarkUseCases {
     }
 
     async findBookmark(userId: number, bookmarkId: number): Promise<Bookmark> {
+        
         const bookmark = await this.dataService.bookmarks.getUserBookmark(userId, bookmarkId);
+        
         if (!bookmark) {
-            throw new Error('Bookmark not found');
+            //throw new Error('Bookmark not found');
+            throw new HttpException('Bookmark not found', 401)
         };
         return bookmark;
     }

@@ -19,15 +19,25 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     
     const getToken = (req: any) => {
-      const authorization = req.headers.authorization.split(' ');
+      const authorization = req.headers.authorization?.split(' ');
+      if(!authorization) {
+        throw new Error('No Access Token')
+      }
       const type = authorization[0];
       const accessToken = secureWrap.decryptWrapper(authorization[1]);
       if (type === AuthorizationType.Bearer) {
         return accessToken;
       }
     };
-    //console.log(request.body)
     try {
+      console.log(request.body)
+      const caseMap = {
+        signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'}
+      }
+      //회원가입은 특별케이스
+      if(caseMap.signup()) {
+        return true;
+      }
       const accessToken = getToken(request);
       if(accessToken) {
         const decoded = this.jwtService.verify(accessToken);
@@ -43,13 +53,12 @@ export class AuthGuard implements CanActivate {
         throw false;
       }
     } catch (error) {
-      console.log(error)
+      console.log('에러 내용',error)
+      console.log(request.body)
       // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === 'login') {
       //   return true;
       // }
-      // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === '') {
-      //   return true;
-      // }
+      
       // const allowMap = {
       //   login:'login',
       //   refresh:'refresh',
