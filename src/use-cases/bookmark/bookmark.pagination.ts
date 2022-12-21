@@ -7,7 +7,7 @@ export class PageRequest {
   
     @IsString()
     @IsOptional()
-    pageSize?: number | 5;
+    pageSize?: number | 20;
 
     getOffset(): number {
       if (this.pageNo < 1 || !this.pageNo) {
@@ -15,7 +15,7 @@ export class PageRequest {
       }
   
       if (this.pageSize < 1 || !this.pageSize) {
-        this.pageSize = 5;
+        this.pageSize = 20;
       }
   
       return (Number(this.pageNo) - 1) * Number(this.pageSize);
@@ -23,7 +23,7 @@ export class PageRequest {
     
       getLimit(): number {
         if (this.pageSize < 1 || !this.pageSize) {
-          this.pageSize = 5;
+          this.pageSize = 20;
         }
         return Number(this.pageSize);
       }
