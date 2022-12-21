@@ -44,6 +44,7 @@ export class UserUseCases {
         Reflect.deleteProperty(user, "password")
         const accessToken = this.jwtService.sign(user);
         const refreshToken = this.jwtService.refresh(user);
+        console.log(user, accessToken, refreshToken)
         return {user, accessToken, refreshToken}
     };
 

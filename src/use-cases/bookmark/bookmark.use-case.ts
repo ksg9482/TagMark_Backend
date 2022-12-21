@@ -11,14 +11,6 @@ export class BookmarkUseCases {
         private dataService: DataServices,
     ) { }
 
-    // async createBookmark(bookmark: Bookmark):Promise<Bookmark> {
-    //     try {
-    //         const createdUser = await this.dataService.bookmarks.create(bookmark);
-    //         return createdUser
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    // }
     async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto): Promise<Bookmark> {
         const { tags, url } = createBookmarkDto;
         const bookmark = await this.dataService.bookmarks.getBookmarkByUrl(url)
@@ -107,8 +99,8 @@ export class BookmarkUseCases {
         const bookmark = await this.dataService.bookmarks.getUserBookmark(userId, bookmarkId);
         
         if (!bookmark) {
-            //throw new Error('Bookmark not found');
-            throw new HttpException('Bookmark not found', 401)
+            throw new Error('Bookmark not found');
+            //throw new HttpException('Bookmark not found', 401)
         };
         return bookmark;
     }
