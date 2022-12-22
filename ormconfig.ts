@@ -1,10 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import * as dotenv from 'dotenv';
-import { User } from './src/users/entities/user.entity';
-import { Bookmark } from './src/bookmarks/entities/bookmark.entity';
-import { Bookmarks_Tags } from './src/tags/entities/bookmarks_tags.entity';
-import { Tag } from './src/tags/entities/tag.entity';
+// import { User } from './src/users/entities/user.entity';
 
 dotenv.config();
 // const config: TypeOrmModuleOptions = {
@@ -28,7 +25,7 @@ const config: TypeOrmModuleOptions = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    entities: [User, Bookmark],
+    entities: [/*User*/],
     synchronize: false, 
     migrations: [__dirname + '/src/database/seeds/*ts'],
     //cli: { migrationsDir: 'src/migrations' },

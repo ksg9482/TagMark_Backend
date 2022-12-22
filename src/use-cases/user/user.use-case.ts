@@ -1,11 +1,12 @@
 import { HttpService } from "@nestjs/axios";
-import { Inject } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/core/dtos";
 import { User, UserRole, UserType } from "src/core/entities";
 import { JwtService } from "src/jwt/jwt.service";
 import { UtilsService } from "src/utils/utils.service";
 
+@Injectable()
 export class UserUseCases {
     constructor(
         @Inject(DataServices) //상속을 시키든 주입을 하든 해야하는데 아무것도 없으면 서비스는 당연히 undefined나온다. 왜? 참조할게 없으니까. 
@@ -14,13 +15,11 @@ export class UserUseCases {
         private readonly jwtService: JwtService,
         private readonly httpService: HttpService
     ) { };
-    // getAllUsers(): Promise<User[]> {
-    //     return this.dataServices.users.getAll()
-    // }
+    
     async createUser(createUserDto: CreateUserDto): Promise<User> {
-        const user = createUserDto;
-
-        if(await this.findByEmail(user.email)){
+        const {email} = createUserDto
+        const user = await this.findByEmail(email);
+        if(user){
             throw new Error('이미 가입된 이메일 입니다.');
         };
 
@@ -32,7 +31,7 @@ export class UserUseCases {
 
     async login(loginDto:LoginDto) {
         const {email, password} = loginDto;
-        const user = await this.dataServices.users.getByEmail(email);
+        const user = await this.findByEmail(email);
         if(!user){
             throw new Error('아이디가 없습니다.');
         };
@@ -44,12 +43,10 @@ export class UserUseCases {
         Reflect.deleteProperty(user, "password")
         const accessToken = this.jwtService.sign(user);
         const refreshToken = this.jwtService.refresh(user);
-        console.log(user, accessToken, refreshToken)
         return {user, accessToken, refreshToken}
     };
 
     async me(userId:number) {
-        //console.log(userId)
         const user = await this.findById(userId);
         Reflect.deleteProperty(user, "password")
         Reflect.deleteProperty(user, "id")
@@ -62,17 +59,12 @@ export class UserUseCases {
         const result = await this.checkPassword(password, user)
         return result
     }
-    private async checkPassword(password: string, user: User):Promise<boolean>{
-        return await this.utilServices.checkPassword(password, user)
-    }
+    
 
     async editUser(userId:number, editUserDto:EditUserDto) {
         const {changeNickname, changePassword} = editUserDto;
         let user = await this.findById(userId);
-        //const user = await this.dataServices.users.get(userId);
-        // if(!user){
-        //     throw new Error('아이디가 없습니다.');
-        // };
+        
         if (changeNickname) {
             user.nickname = changeNickname
         }
@@ -85,10 +77,7 @@ export class UserUseCases {
 
     async deleteUser(userId:number) {
         const user = await this.findById(userId);
-        //const user = await this.dataServices.users.get(userId);
-        // if(!user){
-        //     throw new Error('아이디가 없습니다.');
-        // };
+
         const deleteUser = await this.dataServices.users.delete(userId);
         return deleteUser
     };
@@ -144,10 +133,9 @@ export class UserUseCases {
             throw new Error('아이디가 없습니다.');
         };
         return user;
-    }
+    };
 
-
-    // getUserById(id:any): Promise<User> {
-    //     return this.dataServices.users.get(id);
-    // }
+    private async checkPassword(password: string, user: User):Promise<boolean>{
+        return await this.utilServices.checkPassword(password, user);
+    };
 }
