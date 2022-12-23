@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/core/dtos";
 import { User, UserRole, UserType } from "src/core/entities";
@@ -13,7 +13,8 @@ export class UserUseCases {
         private readonly dataServices: DataServices, //데이터서비스부터 undefined
         private readonly utilServices: UtilsService,
         private readonly jwtService: JwtService,
-        private readonly httpService: HttpService
+        private readonly httpService: HttpService,
+        @Inject(Logger) private readonly logger: LoggerService
     ) { };
     
     async createUser(createUserDto: CreateUserDto): Promise<User> {

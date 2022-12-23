@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/core/dtos";
 import { GetAllTagsResponseDto } from "src/core/dtos/tag/get-all-tags.dto";
@@ -9,7 +9,8 @@ import { TagFactoryService, TagUseCases } from "src/use-cases/tag";
 export class TagController {
     constructor(
         private tagUseCases:TagUseCases,
-        private tagFactoryService:TagFactoryService
+        private tagFactoryService:TagFactoryService,
+        @Inject(Logger) private readonly logger: LoggerService
     ) {};
 
 
@@ -26,7 +27,7 @@ export class TagController {
             createTagResponse.success = true;
             createTagResponse.createdTag = createdTag;
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             createTagResponse.success = false;
         }
         return createTagResponse;
@@ -40,7 +41,7 @@ export class TagController {
             getAllTagsResponse.success = true;
             getAllTagsResponse.tags = tags;
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             getAllTagsResponse.success = false;
         }
         return getAllTagsResponse;
@@ -58,7 +59,7 @@ export class TagController {
             getUserAllTagsResponse.tags = tags;
         } catch (error) {
             getUserAllTagsResponse.success = false;
-            console.log(error)
+            this.logger.debug(error)
         }
         return getUserAllTagsResponse;
     };
@@ -73,8 +74,8 @@ export class TagController {
             getUserAllTagsResponse.success = true;
             getUserAllTagsResponse.tags = tags;
         } catch (error) {
+            this.logger.debug(error)
             getUserAllTagsResponse.success = false;
-            console.log(error)
         }
         return getUserAllTagsResponse;
     };
@@ -97,7 +98,7 @@ export class TagController {
             getSearchTagsResponseDto.totalPage = bookmarks.totalPage
             getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             getSearchTagsResponseDto.success = false;
         }
         return getSearchTagsResponseDto;
@@ -119,6 +120,7 @@ export class TagController {
             getSearchTagsResponseDto.totalPage = bookmarks.totalPage
             getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
         } catch (error) {
+            this.logger.debug(error)
             getSearchTagsResponseDto.success = false;
         }
         return getSearchTagsResponseDto;
@@ -137,7 +139,7 @@ export class TagController {
             editTagResponseDto.success = true;
             editTagResponseDto.message = 'Updated';
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             editTagResponseDto.success = false;
         }
         return editTagResponseDto;
@@ -158,8 +160,8 @@ export class TagController {
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';
         } catch (error) {
+            this.logger.debug(error);
             deleteTagResponse.success = false;
-            console.log(error);
         }
         return deleteTagResponse;
     };

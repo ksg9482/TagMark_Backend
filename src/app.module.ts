@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
 import { JwtModule } from './jwt/jwt.module';
@@ -11,6 +11,7 @@ import { TagUsecasesModule } from './use-cases/tag';
 import { BookmarkController, TagController, UserController } from './controllers';
 
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,12 +20,12 @@ import { BookmarkController, TagController, UserController } from './controllers
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
-    AuthModule, 
+    AuthModule,
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
       refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
     }),
-    UtilsModule, 
+    UtilsModule,
     DataServicesModule,
     UserUsecasesModule,
     BookmarkUsecasesModule,
@@ -35,6 +36,6 @@ import { BookmarkController, TagController, UserController } from './controllers
     BookmarkController,
     TagController
   ],
-  providers: [],
+  providers: [Logger],
 })
-export class AppModule {}
+export class AppModule { }

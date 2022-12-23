@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
 import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/delete-bookmark.dto";
@@ -11,7 +11,8 @@ export class BookmarkController {
     constructor(
         private bookmarkUseCases:BookmarkUseCases,
         private bookmarkFactoryService:BookmarkFactoryService,
-        private tagUseCases:TagUseCases
+        private tagUseCases:TagUseCases,
+        @Inject(Logger) private readonly logger: LoggerService
     ) {}
 
     
@@ -36,8 +37,8 @@ export class BookmarkController {
             createBookmarkResponse.success = true;
             createBookmarkResponse.createdBookmark = addTags;
         } catch (error) {
+            Logger.error(error)
             createBookmarkResponse.success = false;
-            console.log(error)
         }
         return createBookmarkResponse;
     }
@@ -59,8 +60,8 @@ export class BookmarkController {
             getUserAllBookmarkResponse.totalPage = bookmarks.totalPage
             getUserAllBookmarkResponse.bookmarks = bookmarks.bookmarks;
         } catch (error) {
+            this.logger.debug(error)
             getUserAllBookmarkResponse.success = false;
-            console.log(error)
         }
         return getUserAllBookmarkResponse;
     }
@@ -77,8 +78,8 @@ export class BookmarkController {
             getUserAllBookmarkResponse.success = true;
             getUserAllBookmarkResponse.count = Number(count);
         } catch (error) {
+            this.logger.debug(error)
             getUserAllBookmarkResponse.success = false;
-            console.log(error)
         }
         return getUserAllBookmarkResponse;
     }
@@ -115,8 +116,8 @@ export class BookmarkController {
             editBookmarkResponse.success = true;
             editBookmarkResponse.message = 'Updated';
         } catch (error) {
+            this.logger.debug(error)
             editBookmarkResponse.success = false;
-            console.log(error)
         }
         return editBookmarkResponse;
     }
@@ -132,8 +133,8 @@ export class BookmarkController {
             deleteBookmarkResponse.success = true;
             deleteBookmarkResponse.message = 'Deleted'
         } catch (error) {
+            this.logger.debug(error)
             deleteBookmarkResponse.success = false;
-            console.log(error)
         }
         return deleteBookmarkResponse;
     }

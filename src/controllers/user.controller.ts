@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Patch, Post, Req, Res, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Inject, Logger, LoggerService, Patch, Post, Req, Res, ValidationPipe } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
@@ -13,7 +13,8 @@ import { secure } from "src/utils/secure";
 export class UserController {
     constructor(
         private userUseCases: UserUseCases,
-        private userFactoryService: UserFactoryService
+        private userFactoryService: UserFactoryService,
+        @Inject(Logger) private readonly logger: LoggerService
     ) { };
 
     @Get('/')
@@ -24,10 +25,11 @@ export class UserController {
         try {
             //const secureWrap = secure().wrapper()
             const user = await this.userUseCases.me(userId);
+            this.logger.log('유저데이터')
             userProfileResponse.success = true;
             userProfileResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             userProfileResponse.success = false;
         }
         return userProfileResponse;
@@ -61,7 +63,7 @@ export class UserController {
             createUserResponse.createdUser = createdUser;
 
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             createUserResponse.success = false;
             createUserResponse.error = error.message
         }
@@ -85,7 +87,7 @@ export class UserController {
                 passwordValidResponse.valid = createdUser;
     
             } catch (error) {
-                console.log(error)
+                this.logger.debug(error)
                 passwordValidResponse.success = false;
             }
     
@@ -120,7 +122,7 @@ export class UserController {
             //이건 쿠키로 넣던가 안줘야함
             //loginResponse.refreshToken = refreshToken;
         } catch (error) {
-            //로거로 로깅
+            this.logger.debug(error)
             loginResponse.error = error.message
             loginResponse.success = false;
         };
@@ -152,7 +154,7 @@ export class UserController {
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             editUserResponse.success = false;
             editUserResponse.error = error.message;
         };
@@ -170,6 +172,7 @@ export class UserController {
             deleteUserResponse.success = true;
             deleteUserResponse.message = 'deleted';
         } catch (error) {
+            this.logger.debug(error)
             deleteUserResponse.success = false;
         };
         return deleteUserResponse;
@@ -187,6 +190,7 @@ export class UserController {
             logOutResponse.success = true
             logOutResponse.message = 'logout'
         } catch (error) {
+            this.logger.debug(error)
             logOutResponse.success = false
         }
         return logOutResponse
@@ -208,7 +212,7 @@ export class UserController {
             refreshTokenResponse.success = true;
             refreshTokenResponse.accessToken = newAccessToken;
         } catch (error) {
-            console.log(error)
+            this.logger.debug(error)
             refreshTokenResponse.error = error.message;
             refreshTokenResponse.success = false;
         }
@@ -228,6 +232,7 @@ export class UserController {
             googleOauthResponse.success = true;
             googleOauthResponse.user
         } catch (error) {
+            this.logger.debug(error)
             googleOauthResponse.success = false;
         }
         return googleOauthResponse;
