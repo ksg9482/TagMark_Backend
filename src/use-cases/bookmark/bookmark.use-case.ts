@@ -105,9 +105,4 @@ export class BookmarkUseCases {
         return bookmark;
     }
 
-
-
-    // getUserById(id:any): Promise<User> {
-    //     return this.dataService.users.get(id);
-    // }
 }

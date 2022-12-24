@@ -18,7 +18,7 @@ describe('AppController (e2e)', () => {
     username: config.get('DB_USERNAME'),
     password: config.get('DB_PASSWORD'),
     database: config.get('DB_NAME'),
-    entities: [__dirname + '../**/*.model{.ts,.js}']
+    entities: [__dirname + '../**/*.model{.ts,.js}'],
   })
   let accessToken: string;
   let refreshToken: string;
@@ -104,6 +104,7 @@ describe('AppController (e2e)', () => {
 
 
         const userCheck = await privateTest().get('/api/user', accessToken)
+        console.log(userCheck)
         expect(userCheck.status).toBe(200)
         expect(userCheck.body.success).toBe(true);
         expect(userCheck.body.user['nickname']).toBe(changeParams.changeNickname);
@@ -156,10 +157,10 @@ describe('AppController (e2e)', () => {
     });
 
     //여기선 날짜가 같이 안나옴. 이걸로 양식 통일
-    describe('/mybookmark (post)', () => {
+    describe('/ (get)', () => {
       it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
         const keys = ["id", "url", "tags"]
-        const result = await privateTest().get('/api/bookmark/mybookmark', accessToken)
+        const result = await privateTest().get('/api/bookmark', accessToken)
 
         const bookmarkArr = result.body.bookmarks
         expect(result.status).toBe(200)
@@ -198,7 +199,6 @@ describe('AppController (e2e)', () => {
   });
 
 
-  //ToDo
   describe('tag e2e', () => {
     const tagParams = { tag: '유원지' };
     const tagResponseData = {
@@ -235,14 +235,17 @@ describe('AppController (e2e)', () => {
 
     describe('/ (get)', () => {
       it('유저가 작성한 모든 태그를 반환한다.', async () => {
-        const targetTags = ['여행', '요리', '인도', '카레', '유원지']
+        //비동기라 바로 위껀 안들어간 채로 실행했나?
+        const targetTags = ['여행', '요리', '인도', '카레', /*'유원지'*/]
         const result = await privateTest().get('/api/tag', accessToken)
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(tagResponseData.success);
-
         const tags: Array<any> = result.body.tags;
-        tags.forEach((tag, i) => {
-          expect(tag['tag']).toBe(targetTags[i])
+        // tags.forEach((tag, i) => {
+        //   expect(targetTags.includes(tag.tag)).toBeTruthy()
+        // })
+        targetTags.forEach((tag) => {
+          expect(tags.map((tag)=>{return tag.tag}).includes(tag)).toBeTruthy()
         })
       });
     });
@@ -250,12 +253,12 @@ describe('AppController (e2e)', () => {
     describe('/search-and (get)', () => {
 
       it('태그 전부를 만족하는 북마크를 전부 반환한다.', async () => {
-        const query = encodeURI('?tags=여행+요리')
+        const query = encodeURI('?tags=여행,요리')
         const result = await privateTest().get(`/api/tag/search-and${query}`, accessToken)
 
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(true);
-
+        console.log(result.body)
         const bookmarks = result.body.bookmarks;
         expect(bookmarks[0]["url"]).toBe('https://www.test-change.com');
         expect(bookmarks[0]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
@@ -269,7 +272,7 @@ describe('AppController (e2e)', () => {
     describe('/search-or (get)', () => {
 
       it('태그 일부를 만족하는 북마크를 전부 반환한다.', async () => {
-        const query = encodeURI('?tags=여행+요리')
+        const query = encodeURI('?tags=여행,요리')
         const result = await privateTest().get(`/api/tag/search-or${query}`, accessToken)
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(true);

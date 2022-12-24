@@ -1,5 +1,5 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { JwtModule } from 'src/jwt/jwt.module';
 import { DataServicesModule } from 'src/services/data-services/data-services.module';
 import { UtilsModule } from 'src/utils/utils.module';
@@ -8,7 +8,7 @@ import { UserUseCases } from './user.use-case';
 
 @Module({
     imports: [DataServicesModule, UtilsModule, HttpModule],
-    providers: [UserFactoryService, UserUseCases],
+    providers: [UserFactoryService, UserUseCases, Logger],
     exports: [UserFactoryService, UserUseCases]
 })
 export class UserUsecasesModule {}

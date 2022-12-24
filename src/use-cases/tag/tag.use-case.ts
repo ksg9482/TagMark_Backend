@@ -14,12 +14,9 @@ export class TagUseCases {
 
     async getAllTags(): Promise<Tag[]> {
         const tags = await this.dataService.tags.getAll()
-        return tags
-    }
+        return tags;
+    };
 
-
-
-    //배열로 받으면 bulk로 넣는거 구현
     async createTag(userId: number, createTagDto: CreateTagDto): Promise<Tag> {
         //책임을 분리해야 한다. 태그를 만든다. 태그를 검색한다. 북마크에 태그를 적용한다. 태그에 해당하는 북마크를 가져온다.
         //태그 검색&생성을 묶어서 함수화
@@ -56,20 +53,12 @@ export class TagUseCases {
             const createTags = tagFilter.map(tag => { return this.dataService.tags.createForm({ tag: tag }) })
             const insertBulk = await this.dataService.tags.insertBulk(createTags)
 
-            tags = [...tags, ...createTags]
-        }
+            tags = [...tags, ...createTags];
+        };
 
-        return tags
+        return tags;
     };
     
-    protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]) {
-        const tagArr = finedTagArr.map((tag) => {
-            return tag.tag;
-        });
-        return inputTagArr.filter(tag => !tagArr.includes(tag))
-    };
-
-
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
 
         //const tagCheck = await this.tags.createQueryBuilder()
@@ -148,4 +137,10 @@ export class TagUseCases {
         return bookmarks;
     };
     
+    protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]) {
+        const tagArr = finedTagArr.map((tag) => {
+            return tag.tag;
+        });
+        return inputTagArr.filter(tag => !tagArr.includes(tag))
+    };
 }

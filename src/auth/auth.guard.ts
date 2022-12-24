@@ -30,7 +30,7 @@ export class AuthGuard implements CanActivate {
       }
     };
     try {
-      console.log(request.body)
+      //console.log(request.body)
       const caseMap = {
         signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'}
       }
@@ -54,7 +54,7 @@ export class AuthGuard implements CanActivate {
       }
     } catch (error) {
       console.log('에러 내용',error)
-      console.log(request.body)
+      //console.log(request.body)
       // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === 'login') {
       //   return true;
       // }
