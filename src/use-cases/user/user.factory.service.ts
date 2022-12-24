@@ -9,8 +9,8 @@ export class UserFactoryService {
         newUser.email = createUserDto.email;
         newUser.password = createUserDto.password;
         newUser.nickname = createUserDto.nickname;
-        newUser.role = createUserDto.role;
-        newUser.type = createUserDto.type;
+        //newUser.role = createUserDto.role;
+        //newUser.type = createUserDto.type;
 
         return newUser;
     }

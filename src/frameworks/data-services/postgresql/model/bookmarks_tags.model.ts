@@ -20,6 +20,7 @@ export class Bookmarks_Tags {
     bookmark:Bookmark
     
     @Column()
+    @ApiProperty({ description: '태그가 작성된 북마크 아이디' })
     bookmarkId:number
 
     @ManyToOne(
@@ -34,6 +35,7 @@ export class Bookmarks_Tags {
     tag:Tag
     
     @Column()
+    @ApiProperty({ description: '북마크에 해당하는 태그 아이디' })
     tagId:number
 
     @CreateDateColumn({type: "timestamp"})

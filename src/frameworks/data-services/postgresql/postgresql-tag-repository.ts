@@ -133,18 +133,18 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     //반환이 북마크면 북마크로 가는게 좋지 않을까?
     async getTagSeatchOR(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-        const totalCount = async () => {
-            const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
-            .select(`COUNT(bookmark.id)`)
-        .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
-        .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-        .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
-        .groupBy(`bookmark.id`)
-        .orderBy(`bookmark."createdAt"`, 'DESC')
-        .getRawMany()
-            const temp = bookmarkCount[0]
-            return temp?.count ? Number(temp.count) : 0
-        };
+        // const totalCount = async () => {
+        //     const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
+        //     .select(`COUNT(bookmark.id)`)
+        // .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
+        // .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
+        // .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
+        // .groupBy(`bookmark.id`)
+        // .orderBy(`bookmark."createdAt"`, 'DESC')
+        // .getRawMany()
+        //     const temp = bookmarkCount[0]
+        //     return temp?.count ? Number(temp.count) : 0
+        // };
         const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
@@ -162,36 +162,46 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             .limit(page.take)
             .offset(page.skip)
             .getRawMany()
-        return new Page<Bookmark>(await totalCount(), page.take, bookmarks)
+        const count = bookmarks.length;
+        return new Page<Bookmark>(count, page.take, bookmarks)
     }
     async getTagSearchAND(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-        const totalCount = async () => {
-            const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
-            .select(`COUNT(bookmark.id)`)
-            .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
-            .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
-            .groupBy(`bookmark.id`)
-            .having(`count("bookmark"."id") > ${tags.length - 1}`)
-            .orderBy(`bookmark."createdAt"`, 'DESC')
-            .getRawMany()
-            const temp = bookmarkCount[0]
-            return temp?.count ? Number(temp.count) : 0
-        };
+        // const totalCount = async () => {
+        //     const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
+        //     .select(`COUNT(bookmark.id)`)
+        //     .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
+        //     .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
+        //     .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
+        //     .groupBy(`bookmark.id`)
+        //     .having(`count("bookmark"."id") > ${tags.length - 1}`)
+        //     .orderBy(`bookmark."createdAt"`, 'DESC')
+        //     .getRawMany()
+        //     const temp = bookmarkCount[0]
+        //     return temp?.count ? Number(temp.count) : 0
+        // };
         const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
+            .where(`bookmark."userId" = ${userId} and ("bookmark"."id" in (      
+	            SELECT bookmark.id 
+                FROM "tag" "tag" 
+                LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
+                LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
+                WHERE bookmark."userId" = 1 and ("tag"."tag" in (${addDot}))
+                GROUP BY bookmark.id
+                HAVING count(bookmark.id) > ${tags.length - 1}
+            ))`)
             .groupBy(`bookmark.id`)
-            .having(`count("bookmark"."id") > ${tags.length - 1}`)
+            //.having(`count("bookmark"."id") > ${tags.length - 1}`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .limit(page.take)
             .offset(page.skip)
             .getRawMany()
-        return new Page<Bookmark>(await totalCount(), page.take, bookmarks)
+        const count = bookmarks.length;
+        return new Page<Bookmark>(count, page.take, bookmarks)
     }
 
 }

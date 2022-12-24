@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Headers, Inject, Logger, LoggerService, Patch, Post, Req, Res, ValidationPipe } from "@nestjs/common";
+import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
@@ -9,6 +10,7 @@ import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
 import { secure } from "src/utils/secure";
 
+@ApiTags('User')
 @Controller('api/user')
 export class UserController {
     constructor(
@@ -17,6 +19,8 @@ export class UserController {
         @Inject(Logger) private readonly logger: LoggerService
     ) { };
 
+    @ApiOperation({ summary: '유저 데이터 반환 API', description: '유저 정보를 반환한다.' })
+    @ApiCreatedResponse({ description: '유저 데이터를 반환한다.', type: UserProfileResponseDto })
     @Get('/')
     async findUserData(
         @AuthUser() userId: number
@@ -35,7 +39,9 @@ export class UserController {
         return userProfileResponse;
     };
 
-
+    @ApiOperation({ summary: '유저 생성 API', description: '유저를 생성한다.' })
+    @ApiCreatedResponse({ description: '유저를 생성한다.', type: CreateUserResponseDto })
+    //@ApiBody({type:CreateUserDto})
     @Post('/')
     async createUser(
         @Body(new ValidationPipe()) userDto: CreateUserDto
@@ -71,6 +77,8 @@ export class UserController {
         return createUserResponse;
     };
 
+    @ApiOperation({ summary: '비밀번호의 정합 여부를 확인하는 API', description: '입력한 비밀번호가 DB에 저장된 비밀번호와 동일한지 확인한다.' })
+    @ApiCreatedResponse({ description: '정합여부를 boolean으로 반환한다.', type: PasswordValidResponseDto })
     @Post('/valid')
     async checkPassword(
         @AuthUser() userId: number,
@@ -94,6 +102,8 @@ export class UserController {
             return passwordValidResponse;
     }
 
+    @ApiOperation({ summary: '유저 로그인 API', description: '로그인 한다.' })
+    @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: LoginResponseDto })
     @Post('/login')
     async login(
         @Body(new ValidationPipe()) loginDto: LoginDto,
@@ -129,6 +139,8 @@ export class UserController {
         return loginResponse;
     };
 
+    @ApiOperation({ summary: '유저 데이터 수정 API', description: '유저 정보를 수정한다.' })
+    @ApiCreatedResponse({ description: '데이터를 수정하고 updated 메시지를 반환한다.', type: EditUserResponseDto })
     @Patch('/')
     async editUser(
         @AuthUser() userId: number,
@@ -161,6 +173,8 @@ export class UserController {
         return editUserResponse;
     };
 
+    @ApiOperation({ summary: '유저 데이터 삭제 API', description: '유저 정보를 삭제한다.' })
+    @ApiCreatedResponse({ description: '유저 데이터를 삭제하고 deleted 메시지를 반환한다.', type: DeleteUserResponseDto })
     @Delete('/')
     async deleteUser(
         @AuthUser() userId: number
@@ -178,6 +192,8 @@ export class UserController {
         return deleteUserResponse;
     };
 
+    @ApiOperation({ summary: '로그아웃 API', description: '로그아웃 한다.' })
+    @ApiCreatedResponse({ description: '로그아웃 한다.' })
     @Get('logout')
     async logOut(
         @AuthUser() userId: number,
@@ -198,6 +214,8 @@ export class UserController {
 
     //auth로 이동
     //쿠키에서 꺼내거나 DB비교
+    @ApiOperation({ summary: '새로운 access token를 발급하는 API', description: 'refresh 토큰을 통해 새로운 access token을 생성한다.' })
+    @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: RefreshTokenResponseDto })
     @Get('/refresh')
     async refresh(
         @Headers('cookie') cookie: string,
@@ -220,6 +238,8 @@ export class UserController {
     };
 
     //설정, 검증필요
+    @ApiOperation({ summary: 'Google 소셜 로그인 API', description: '소셜 로그인 한다.' })
+    @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: GoogleOauthResponseDto })
     @Post('/google')
     async googleOauth(
         @Body() googleOauthDto: GoogleOauthDto
