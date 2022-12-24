@@ -9,7 +9,5 @@ export class GoogleOauthDto {
 };
 
 export class GoogleOauthResponseDto extends BaseResponseDto {
-    success: boolean;
-
     user: User;
 };

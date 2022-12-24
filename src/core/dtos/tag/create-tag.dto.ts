@@ -6,10 +6,11 @@ import { BaseResponseDto } from "../common/base-response.dto";
 export class CreateTagDto {
   @IsString()
   @IsNotEmpty()
-  //@ApiProperty({ description: 'URL '})
+  @ApiProperty({ description: '생성할 태그 이름'})
   tag: string ;
 };
 
 export class CreateTagResponseDto extends BaseResponseDto {
+  @ApiProperty({ description: '생성된 태그'})
   createdTag: Tag;
 };

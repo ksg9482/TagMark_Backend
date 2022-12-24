@@ -1,3 +1,5 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsString } from "class-validator";
 import { BaseResponseDto } from "../common/base-response.dto";
 
 export class RefreshTokenDto {
@@ -5,7 +7,7 @@ export class RefreshTokenDto {
 };
 
 export class RefreshTokenResponseDto extends BaseResponseDto {
-    success: boolean;
-
+    @ApiProperty({ description: '새로운 JWT 액세스 토큰'})
+    @IsString()
     accessToken: string;
 };
