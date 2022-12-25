@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto } from "src/core/dtos";
-import { DeleteBookmarkResponseDto } from "src/core/dtos/bookmark/delete-bookmark.dto";
-import { GetUserBookmarkCountResponseDto } from "src/core/dtos/bookmark/get-user-bookmark-count.dto";
+import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto } from "src/controllers/dtos";
+import { DeleteBookmarkResponseDto } from "src/controllers/dtos/bookmark/delete-bookmark.dto";
+import { GetUserBookmarkCountResponseDto } from "src/controllers/dtos/bookmark/get-user-bookmark-count.dto";
+import { Tag } from "src/frameworks/data-services/postgresql/model";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
 import { TagUseCases } from "src/use-cases/tag";
 
@@ -30,10 +31,10 @@ export class BookmarkController {
         try {
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
-            let createdTags:Array<any>;
+            let createdTags:Array<Tag>;
             //이거 만들어야됨
-            if(createBookmarkDto.tags.length >= 0){
-                const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tags)
+            if(createBookmarkDto.tagNames.length >= 0){
+                const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
                 await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
             }

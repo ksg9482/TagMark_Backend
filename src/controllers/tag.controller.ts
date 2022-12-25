@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/core/dtos";
-import { GetAllTagsResponseDto } from "src/core/dtos/tag/get-all-tags.dto";
-import { GetSearchTagsDto, GetSearchTagsResponseDto } from "src/core/dtos/tag/get-search-tags.dto copy";
+import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/controllers/dtos";
+import { GetAllTagsResponseDto } from "src/controllers/dtos/tag/get-all-tags.dto";
+import { GetSearchTagsDto, GetSearchTagsResponseDto } from "src/controllers/dtos/tag/get-search-tags.dto copy";
 import { TagFactoryService, TagUseCases } from "src/use-cases/tag";
 
 @ApiTags('Tag')

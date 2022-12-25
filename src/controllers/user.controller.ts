@@ -2,11 +2,11 @@ import { Body, Controller, Delete, Get, Headers, Inject, Logger, LoggerService, 
 import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/core/dtos";
-import { LogoutResponseDto } from "src/core/dtos/user/logout.dto";
-import { PasswordValidDto, PasswordValidResponseDto } from "src/core/dtos/user/password-valid.dto";
-import { RefreshTokenResponseDto } from "src/core/dtos/user/refresh.dto";
-import { UserProfileResponseDto } from "src/core/dtos/user/user-profile.dto";
+import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/controllers/dtos";
+import { LogoutResponseDto } from "src/controllers/dtos/user/logout.dto";
+import { PasswordValidDto, PasswordValidResponseDto } from "src/controllers/dtos/user/password-valid.dto";
+import { RefreshTokenResponseDto } from "src/controllers/dtos/user/refresh.dto";
+import { UserProfileResponseDto } from "src/controllers/dtos/user/user-profile.dto";
 import { UserFactoryService, UserUseCases } from "src/use-cases/user";
 import { secure } from "src/utils/secure";
 

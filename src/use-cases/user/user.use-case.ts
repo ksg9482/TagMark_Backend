@@ -1,7 +1,7 @@
 import { HttpService } from "@nestjs/axios";
 import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
-import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/core/dtos";
+import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/controllers/dtos";
 import { User, UserRole, UserType } from "src/core/entities";
 import { JwtService } from "src/jwt/jwt.service";
 import { UtilsService } from "src/utils/utils.service";

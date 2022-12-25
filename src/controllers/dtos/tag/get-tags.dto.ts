@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray } from "class-validator";
-import { Tag } from "src/core/entities";
+import { Tag } from "src/frameworks/data-services/postgresql/model";
+//import { Tag } from "src/core/entities";
 import { BaseResponseDto } from "../common";
 
 export class GetTagsDto {
@@ -10,7 +11,7 @@ export class GetTagsDto {
 }
 
 export class GetTagsResponseDto extends BaseResponseDto {
-    @ApiProperty({ description: '태그 배열'})
+    @ApiProperty({ description: '태그 배열', type:[Tag]})
     @IsArray()
     tags: Tag[];
 }

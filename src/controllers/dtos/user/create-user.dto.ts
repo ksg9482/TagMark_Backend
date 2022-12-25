@@ -1,7 +1,8 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, OmitType } from "@nestjs/swagger";
 import { IsBoolean, IsDate, IsNotEmpty, IsObject, IsOptional, IsString } from "class-validator";
-import { User, UserRole, UserType } from "src/core/entities";
+import { ResponseUser, User } from "src/frameworks/data-services/postgresql/model";
+//import { User, UserRole, UserType } from "src/core/entities";
 import { BaseResponseDto } from "../common/base-response.dto";
 
 //걸리는점: 이 DTO는 CORE계층에 있는데 여기엔 추상만 쓰고 실제 구현은 프레임워크 계층에 넣는데 좋지 않을까?
@@ -30,5 +31,5 @@ export class CreateUserDto {
 export class CreateUserResponseDto extends BaseResponseDto {
   @ApiProperty({ description: '생성된 유저 데이터'})
   @IsObject()
-  createdUser: User;
+  createdUser: ResponseUser;
 };

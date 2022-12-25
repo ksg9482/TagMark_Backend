@@ -6,11 +6,11 @@ export class BaseResponseDto {
     @IsBoolean()
     success: boolean;
 
-    @ApiProperty({ description: '에러 데이터', nullable:true})
+    @ApiProperty({ description: '에러 데이터'})
     @IsOptional()
     error?: Error;
 
-    @ApiProperty({ description: '메시지', nullable:true})
+    @ApiProperty({ description: '메시지'})
     @IsString()
     @IsOptional()
     message?: string

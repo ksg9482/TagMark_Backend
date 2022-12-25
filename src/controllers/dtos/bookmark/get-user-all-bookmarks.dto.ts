@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber, IsString } from "class-validator";
-import { Bookmark } from "src/core/entities";
+import { Bookmark } from "src/frameworks/data-services/postgresql/model";
+//import { Bookmark } from "src/core/entities";
 import { PageRequest } from "src/use-cases/bookmark/bookmark.pagination";
 import { BaseResponseDto } from "../common";
 
@@ -15,7 +16,7 @@ export class GetUserAllBookmarksResponseDto extends BaseResponseDto {
     @IsNumber()
     totalCount:number;
 
-    @ApiProperty({ description: '북마크 배열'})
+    @ApiProperty({ description: '북마크 배열', type:[Bookmark]})
     @IsArray()
     bookmarks:Bookmark[];
 }
