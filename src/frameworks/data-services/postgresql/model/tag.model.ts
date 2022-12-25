@@ -19,7 +19,7 @@ export class Tag implements TagAbstract {
         bookmarks_tags => bookmarks_tags.bookmark,
         {onDelete:"CASCADE"}
     )
-    bookmarks:Bookmark[]
+    bookmarks?:Bookmark[]
 
     @CreateDateColumn({type: "timestamp"})
     @ApiProperty({ description: '생성날짜' })

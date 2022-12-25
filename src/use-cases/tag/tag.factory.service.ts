@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CreateTagDto } from "src/core/dtos";
+import { CreateTagDto } from "src/controllers/dtos";
 import { Tag } from "src/core/entities";
 
 @Injectable()

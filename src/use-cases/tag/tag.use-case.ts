@@ -1,7 +1,7 @@
 import { Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
-import { CreateTagDto, CreateTagResponseDto, EditTagDto } from "src/core/dtos";
-import { GetSearchTagsDto } from "src/core/dtos/tag/get-search-tags.dto copy";
+import { CreateTagDto, CreateTagResponseDto, EditTagDto } from "src/controllers/dtos";
+import { GetSearchTagsDto } from "src/controllers/dtos/tag/get-search-tags.dto copy";
 import { Bookmark, Tag } from "src/core/entities";
 
 

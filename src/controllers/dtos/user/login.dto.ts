@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
-import { User } from "src/core/entities";
+import { ResponseUser, User } from "src/frameworks/data-services/postgresql/model";
+//import { User } from "src/core/entities";
 import { BaseResponseDto } from "../common/base-response.dto";
 
 export class LoginDto {
@@ -18,7 +19,7 @@ export class LoginDto {
 export class LoginResponseDto extends BaseResponseDto {
     @ApiProperty({ description: '유저 데이터'})
     //이거 정리해야 됨
-    user: User|string
+    user: ResponseUser
 
     @ApiProperty({ description: 'JWT 액세스 토큰'})
     @IsString()

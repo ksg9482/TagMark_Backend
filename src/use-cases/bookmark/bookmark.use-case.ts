@@ -1,6 +1,6 @@
 import { HttpException, Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
-import { CreateBookmarkDto, GetUserAllBookmarksDto } from "src/core/dtos";
+import { CreateBookmarkDto, GetUserAllBookmarksDto } from "src/controllers/dtos";
 import { Bookmark } from "src/core/entities";
 import { Page } from "./bookmark.pagination";
 
@@ -12,7 +12,7 @@ export class BookmarkUseCases {
     ) { }
 
     async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto): Promise<Bookmark> {
-        const { tags, url } = createBookmarkDto;
+        const { tagNames, url } = createBookmarkDto;
         const bookmark = await this.dataService.bookmarks.getBookmarkByUrl(url)
         if (bookmark) {
             throw new Error('Bookmark is aleady exist')
@@ -21,7 +21,7 @@ export class BookmarkUseCases {
         const createdBookmark = await this.dataService.bookmarks.create({
             url: url,
             userId: userId,
-            tags: tags
+            tags: tagNames
         });
 
         return createdBookmark;

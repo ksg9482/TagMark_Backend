@@ -21,7 +21,7 @@ export class Bookmark implements BookmarkAbstract {
         name: 'userId',
         referencedColumnName:'id'
     })
-    user:User;
+    user?:User;
 
     @Column()
     @ApiProperty({ description: '북마크 생성한 유저 아이디' })
@@ -31,7 +31,8 @@ export class Bookmark implements BookmarkAbstract {
         ()=>Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.tag
     )
-    @ApiProperty({ description: '태그 배열' })
+    //그냥 부르면 [null]발생. lazy loading으로 불러오게 만듦.
+    @ApiProperty({ description: '태그 배열', type:()=>[Tag]})
     tags:Tag[]
     
     @CreateDateColumn({type: "timestamp"})

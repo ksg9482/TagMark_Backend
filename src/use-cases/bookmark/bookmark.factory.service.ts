@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CreateBookmarkDto } from "src/core/dtos";
+import { CreateBookmarkDto } from "src/controllers/dtos";
 import { Bookmark } from "src/core/entities";
 
 @Injectable()
