@@ -10,7 +10,7 @@ export class JwtService {
         ) {}
 
         sign(userData: any): string {
-            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'7d'})
+            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'7d',algorithm:'HS256'})
             
             
         }
@@ -21,16 +21,16 @@ export class JwtService {
                     id: userData.id,
                 },
                 this.options.refreshPrivateKey,
-                {expiresIn:'1d'}
+                {expiresIn:'1d', algorithm:'HS256'}
             );
             return token;
         }
 
         verify(token: string) {
-            return jwt.verify(token, this.options.privateKey);
+            return jwt.verify(token, this.options.privateKey, {algorithms:['HS256']});
         }
 
         refreshVerify(token: string) {
-            return jwt.verify(token, this.options.refreshPrivateKey);
+            return jwt.verify(token, this.options.refreshPrivateKey, {algorithms:['HS256']});
         }
 }

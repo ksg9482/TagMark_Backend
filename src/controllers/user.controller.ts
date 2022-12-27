@@ -111,27 +111,26 @@ export class UserController {
     ): Promise<LoginResponseDto> {
         const loginResponse = new LoginResponseDto();
         try {
-            //const secureWrap = secure().wrapper()
+            const secureWrap = secure().wrapper()
             const loginData = {
                 ...loginDto, 
-                //email:secureWrap.decryptWrapper(loginDto.email), 
-                //password:secureWrap.decryptWrapper(loginDto.password)
+                email:secureWrap.decryptWrapper(loginDto.email), 
+                password:secureWrap.decryptWrapper(loginDto.password)
             }
-            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginDto);
-            // const encrytedToken = {
-            //     accessToken: secureWrap.encryptWrapper(accessToken),
-            //     refreshToken: secureWrap.encryptWrapper(refreshToken)
-            // }
-            // res.cookie('refreshToken', encrytedToken.refreshToken)
-            // res.cookie('accessToken', encrytedToken.accessToken)
-            res.cookie('refreshToken', refreshToken)
-            res.cookie('accessToken', accessToken)
+            console.log(loginData)
+            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
+            const encrytedToken = {
+                accessToken: secureWrap.encryptWrapper(accessToken),
+                refreshToken: secureWrap.encryptWrapper(refreshToken)
+            }
+             res.cookie('refreshToken', encrytedToken.refreshToken)
+             res.cookie('accessToken', encrytedToken.accessToken)
             loginResponse.success = true;
             loginResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
-            loginResponse.accessToken = accessToken//encrytedToken.accessToken;
-            //이건 쿠키로 넣던가 안줘야함
-            //loginResponse.refreshToken = refreshToken;
+            loginResponse.accessToken = encrytedToken.accessToken;
+            console.log(loginResponse)
         } catch (error) {
+            console.log(error)
             this.logger.debug(error)
             loginResponse.error = error.message
             loginResponse.success = false;

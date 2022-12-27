@@ -32,7 +32,6 @@ export class BookmarkController {
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
             let createdTags:Array<Tag>;
-            //이거 만들어야됨
             if(createBookmarkDto.tagNames.length >= 0){
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
