@@ -24,9 +24,12 @@ export class UserUseCases {
             throw new Error('이미 가입된 이메일 입니다.');
         };
 
-        const createdUser = await this.dataServices.users.create(user);
+        const createdUser = await this.dataServices.users.create(createUserDto);
         Reflect.deleteProperty(createdUser, "password")
-        
+        Reflect.deleteProperty(createdUser, "role")
+        Reflect.deleteProperty(createdUser, "type")
+        Reflect.deleteProperty(createdUser, "createdAt")
+        Reflect.deleteProperty(createdUser, "updatedAt")
         return createdUser;
     };
 
@@ -90,7 +93,6 @@ export class UserUseCases {
         };
         
         const user = await this.findById(verifyRefreshToken['id']);
-        //const user = await this.dataServices.users.get(verifyRefreshToken['id']);
         const newAccessToken = this.jwtService.sign(user);
 
         return newAccessToken;

@@ -9,28 +9,29 @@ export class JwtService {
         private readonly options: JwtModuleOptions,
         ) {}
 
+        //테스트용임. 1일로 바꾸고 리프레시는 7일이여야함
         sign(userData: any): string {
-            return jwt.sign({...userData}, this.options.privateKey,{expiresIn:'7d'})
-            
-            
-        }
+            return jwt.sign(
+                {...userData}, 
+                this.options.privateKey,
+                {expiresIn:'7d',algorithm:'HS256'}
+            );
+        };
 
         refresh(userData: any): string {
             const token = jwt.sign(
-                {
-                    id: userData.id,
-                },
+                {...userData},
                 this.options.refreshPrivateKey,
-                {expiresIn:'1d'}
+                {expiresIn:'1d', algorithm:'HS256'}
             );
             return token;
-        }
+        };
 
         verify(token: string) {
-            return jwt.verify(token, this.options.privateKey);
+            return jwt.verify(token, this.options.privateKey, {algorithms:['HS256']});
         }
 
         refreshVerify(token: string) {
-            return jwt.verify(token, this.options.refreshPrivateKey);
+            return jwt.verify(token, this.options.refreshPrivateKey, {algorithms:['HS256']});
         }
 }

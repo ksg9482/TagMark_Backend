@@ -35,26 +35,23 @@ export const secure = () => {
     }
     const decryptWrapper = (encryptStr:string) => {
         try {
-            const decrypted = decrypt(encryptStr)
-            return decrypt(encryptStr)
+            const result = decrypt(encryptStr)
+            if(!result) {throw false}
+            return result
         } catch (error) {
-            return '이거에러'//encryptStr
+            console.log(error)
+            return encryptStr;
         }
     }
-
 
     const wrapper = () => {
         return {
             encryptWrapper, decryptWrapper
         }
     }
-    //secure().local()
+
     return {
         local, wrapper
     }
-    //secure().wrapper()
-    //
 }
 
-
-// there is no need to stringify/parse you objects before and after storing.

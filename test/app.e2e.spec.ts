@@ -6,6 +6,7 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { secure } from 'src/utils/secure';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -57,10 +58,18 @@ describe('AppController (e2e)', () => {
     }
   };
 
+  const secureWrap = secure().wrapper()
+
   describe('user e2e', () => {
     describe('/ (post)', () => {
       it('정상적인 데이터를 전송하면 회원가입한다.', async () => {
-        const result = await privateTest().post('/api/user').send(userParamsOne)
+        let signupData = {
+          email: "",
+          password: ""
+      };
+        signupData.email = secureWrap.encryptWrapper(userParamsOne.email)
+        signupData.password = secureWrap.encryptWrapper(userParamsOne.password)
+        const result = await privateTest().post('/api/user').send(signupData)
 
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);
@@ -70,7 +79,13 @@ describe('AppController (e2e)', () => {
 
     describe('/login (post)', () => {
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
-        const result = await privateTest().post('/api/user/login').send(userParamsOne)
+        let loginData = {
+          email: "",
+          password: ""
+      };
+        loginData.email = secureWrap.encryptWrapper(userParamsOne.email)
+        loginData.password = secureWrap.encryptWrapper(userParamsOne.password)
+        const result = await privateTest().post('/api/user/login').send(loginData)
 
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);
@@ -78,7 +93,7 @@ describe('AppController (e2e)', () => {
         expect(result.body.user["email"]).toBe(userResponseDataOne.createdUser["email"]);
 
         accessToken = result.body.accessToken;
-        refreshToken = result.header["set-cookie"][0].split(';')[0]
+        refreshToken = decodeURIComponent(result.header["set-cookie"][0].split(';')[0])
       });
     });
 
@@ -104,7 +119,6 @@ describe('AppController (e2e)', () => {
 
 
         const userCheck = await privateTest().get('/api/user', accessToken)
-        console.log(userCheck)
         expect(userCheck.status).toBe(200)
         expect(userCheck.body.success).toBe(true);
         expect(userCheck.body.user['nickname']).toBe(changeParams.changeNickname);
@@ -124,9 +138,9 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  const bookmarkParamsOne = { url: 'https://www.test1.com', tags: ['여행', '요리'] };
-  const bookmarkParamsTwo = { url: 'https://www.test2.com', tags: ['인도', '카레'] };
-  const bookmarkParamsThree = { url: 'https://www.test3.com', tags: ['카레', '요리'] };
+  const bookmarkParamsOne = { url: 'https://www.test1.com', tagNames: ['여행', '요리'] };
+  const bookmarkParamsTwo = { url: 'https://www.test2.com', tagNames: ['인도', '카레'] };
+  const bookmarkParamsThree = { url: 'https://www.test3.com', tagNames: ['카레', '요리'] };
   const bookmarkResponseDataOne = {
     success: true,
     createdBookmark: {
@@ -258,7 +272,6 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(true);
-        console.log(result.body)
         const bookmarks = result.body.bookmarks;
         expect(bookmarks[0]["url"]).toBe('https://www.test-change.com');
         expect(bookmarks[0]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);

@@ -11,13 +11,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule,
     winstonLogger
   );
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
     origin: 'http://localhost:3000',
     credentials: true
   });
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new HttpExceptionFilter);
   setupSwagger(app)
   await app.listen(process.env.PORT || 8080);
 }

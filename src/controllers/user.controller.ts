@@ -46,24 +46,24 @@ export class UserController {
     async createUser(
         @Body(new ValidationPipe()) userDto: CreateUserDto
     ): Promise<CreateUserResponseDto> {
-        //console.log(userDto)
+        
         const createUserResponse = new CreateUserResponseDto();
         try {
-            //const secureWrap = secure().wrapper()
+            const secureWrap = secure().wrapper()
             let signupData = {
                 ...userDto, 
-                //email:secureWrap.decryptWrapper(userDto.email),
-                //password:secureWrap.decryptWrapper(userDto.password)
+                email:secureWrap.decryptWrapper(userDto.email),
+                password:secureWrap.decryptWrapper(userDto.password)
             }
             if(userDto.nickname) {
                 signupData = {
                     ...signupData, 
-                    //nickname:secureWrap.decryptWrapper(userDto.nickname)
+                    nickname:secureWrap.decryptWrapper(userDto.nickname)
                 }
             }
-            const user = this.userFactoryService.createNewUser(userDto);
-            const createdUser = await this.userUseCases.createUser(user);
+            const user = this.userFactoryService.createNewUser(signupData);
             
+            const createdUser = await this.userUseCases.createUser(user);
 
             createUserResponse.success = true;
             createUserResponse.createdUser = createdUser;
@@ -111,27 +111,24 @@ export class UserController {
     ): Promise<LoginResponseDto> {
         const loginResponse = new LoginResponseDto();
         try {
-            //const secureWrap = secure().wrapper()
+            const secureWrap = secure().wrapper()
             const loginData = {
                 ...loginDto, 
-                //email:secureWrap.decryptWrapper(loginDto.email), 
-                //password:secureWrap.decryptWrapper(loginDto.password)
+                email:secureWrap.decryptWrapper(loginDto.email), 
+                password:secureWrap.decryptWrapper(loginDto.password)
             }
-            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginDto);
-            // const encrytedToken = {
-            //     accessToken: secureWrap.encryptWrapper(accessToken),
-            //     refreshToken: secureWrap.encryptWrapper(refreshToken)
-            // }
-            // res.cookie('refreshToken', encrytedToken.refreshToken)
-            // res.cookie('accessToken', encrytedToken.accessToken)
-            res.cookie('refreshToken', refreshToken)
-            res.cookie('accessToken', accessToken)
+            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
+            const encrytedToken = {
+                accessToken: secureWrap.encryptWrapper(accessToken),
+                refreshToken: secureWrap.encryptWrapper(refreshToken)
+            }
+             res.cookie('refreshToken', encrytedToken.refreshToken)
+             res.cookie('accessToken', encrytedToken.accessToken)
             loginResponse.success = true;
             loginResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
-            loginResponse.accessToken = accessToken//encrytedToken.accessToken;
-            //이건 쿠키로 넣던가 안줘야함
-            //loginResponse.refreshToken = refreshToken;
+            loginResponse.accessToken = encrytedToken.accessToken;
         } catch (error) {
+            console.log(error)
             this.logger.debug(error)
             loginResponse.error = error.message
             loginResponse.success = false;
@@ -221,12 +218,14 @@ export class UserController {
         @Headers('cookie') cookie: string,
         @Req() req: Request, //cookie parser 안되는지 확인
     ): Promise<RefreshTokenResponseDto> {
-        //console.log(req.cookies)
+        
         const refreshTokenResponse = new RefreshTokenResponseDto();
         const refreshToken = cookie.split('=')[1]
         try {
-            const newAccessToken = await this.userUseCases.refresh(refreshToken);
-
+            const secureWrap = secure().wrapper()
+            const decrypted = secureWrap.decryptWrapper(refreshToken);
+            const newAccessToken = await this.userUseCases.refresh(decrypted);
+            
             refreshTokenResponse.success = true;
             refreshTokenResponse.accessToken = newAccessToken;
         } catch (error) {
