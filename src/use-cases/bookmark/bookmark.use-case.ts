@@ -1,4 +1,4 @@
-import { HttpException, Inject } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateBookmarkDto, GetUserAllBookmarksDto } from "src/controllers/dtos";
 import { Bookmark } from "src/core/entities";
@@ -10,12 +10,12 @@ export class BookmarkUseCases {
         @Inject(DataServices)
         private dataService: DataServices,
     ) { }
-
+    //2가지 역할임. 분리. url로 찾기, 저장
     async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto): Promise<Bookmark> {
         const { tagNames, url } = createBookmarkDto;
         const bookmark = await this.dataService.bookmarks.getBookmarkByUrl(url)
         if (bookmark) {
-            throw new Error('Bookmark is aleady exist')
+            throw new HttpException('Bookmark is aleady exist', HttpStatus.BAD_REQUEST)
         }
         //이거 조인테이블에 저장하도록 바꿘야됨
         const createdBookmark = await this.dataService.bookmarks.create({
@@ -34,12 +34,7 @@ export class BookmarkUseCases {
     async getUserAllBookmarks(userId: number, page: GetUserAllBookmarksDto) {
         const limit = page.getLimit()
         const offset = page.getOffset()
-        const tagProperty = (/*entityName:string,properties:string[]*/) => {
-            const name = 'tag'
-            const test = ['id', 'tag']
-            return `'id', "tag"."id",'tag', "tag"."tag"`
-        }
-        //유저 아이디 넣으면 이거 나오게 하는게 나을듯
+        
         const bookmarks: Page<Bookmark> = await this.dataService.bookmarks.getUserAllBookmarks(
             userId,
             {
@@ -47,13 +42,15 @@ export class BookmarkUseCases {
                 skip: offset
             }
         );
-        const bookmarksForm = bookmarks.bookmarks.map((bookmark) => {
-            if (bookmark.tags[0].id === null) {
-                bookmark.tags = null
-            }
-            return bookmark
-        })
+        const bookmarksForm = bookmarks.bookmarks.map(this.bookmarkNullCheck)
         return {...bookmarks, bookmarks:bookmarksForm}
+    }
+    //맵에 이 함수를 적용시키느냐? 이 함수에 들어오면 맵을 돌려 반환하느냐?
+    protected bookmarkNullCheck(bookmark:Bookmark) {
+        if (!bookmark.tags[0]) {
+            bookmark.tags = null
+        }
+        return bookmark
     }
 
     async getUserBookmarkCount(userId: number) {
@@ -89,19 +86,18 @@ export class BookmarkUseCases {
     }
 
     async deleteBookmark(userId: number, bookmarkId: number) {
-        this.findBookmark(userId, bookmarkId)
+        await this.findBookmark(userId, bookmarkId)
         await this.dataService.bookmarks.delete(bookmarkId)
         return { message: 'Deleted' }
     }
 
     async findBookmark(userId: number, bookmarkId: number): Promise<Bookmark> {
-        
         const bookmark = await this.dataService.bookmarks.getUserBookmark(userId, bookmarkId);
         
         if (!bookmark) {
-            throw new Error('Bookmark not found');
-            //throw new HttpException('Bookmark not found', 401)
+            throw new HttpException('Bookmark not found', HttpStatus.BAD_REQUEST)
         };
+
         return bookmark;
     }
 

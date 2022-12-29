@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/controllers/dtos";
@@ -30,11 +30,11 @@ export class TagController {
             const createdTag = await this.tagUseCases.createTag(userId, createTagDto)
             createTagResponse.success = true;
             createTagResponse.createdTag = createdTag;
+            return createTagResponse;
         } catch (error) {
-            this.logger.debug(error)
-            createTagResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return createTagResponse;
     };
 
     @ApiOperation({ summary: '모든 태그를 반환하는 API', description: '모든 태그를 반환한다.' })
@@ -46,11 +46,11 @@ export class TagController {
             const tags = await this.tagUseCases.getAllTags();
             getAllTagsResponse.success = true;
             getAllTagsResponse.tags = tags;
+            return getAllTagsResponse;
         } catch (error) {
-            this.logger.debug(error)
-            getAllTagsResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getAllTagsResponse;
     };
 
     
@@ -65,11 +65,11 @@ export class TagController {
             const tags = await this.tagUseCases.getUserAllTags(userId);
             getUserAllTagsResponse.success = true;
             getUserAllTagsResponse.tags = tags;
+            return getUserAllTagsResponse;
         } catch (error) {
-            getUserAllTagsResponse.success = false;
-            this.logger.debug(error)
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getUserAllTagsResponse;
     };
     //[{tag1:12},{tag2:4}...] //이거 사실상 안쓰임.
     @ApiOperation({ summary: '유저가 생성한 태그의 갯수를 반환하는 API', description: '모든 태그의 갯수를 반환한다.' })
@@ -83,11 +83,11 @@ export class TagController {
             const tags = await this.tagUseCases.getUserAllTags(userId); //이거 안바꿨음
             getUserAllTagsResponse.success = true;
             getUserAllTagsResponse.tags = tags;
+            return getUserAllTagsResponse;
         } catch (error) {
-            this.logger.debug(error)
-            getUserAllTagsResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getUserAllTagsResponse;
     };
 
     //'태그에 해당하는 북마크를 반환. 찾는게 태그니 태그책임? 결과가 북마크니 북마크 책임? 단순히 태그랑 북마크로 나눠놓은게 도메인영역을 자꾸 침범한다.
@@ -111,11 +111,11 @@ export class TagController {
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount
             getSearchTagsResponseDto.totalPage = bookmarks.totalPage
             getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
+            return getSearchTagsResponseDto;
         } catch (error) {
-            this.logger.debug(error)
-            getSearchTagsResponseDto.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getSearchTagsResponseDto;
     };
 
     //검색용. 배열이용. OR검색. 태그에 해당하는 모든 북마크. 태그랑 북마크랑 책임 나눠야함
@@ -137,11 +137,11 @@ export class TagController {
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount
             getSearchTagsResponseDto.totalPage = bookmarks.totalPage
             getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
+            return getSearchTagsResponseDto;
         } catch (error) {
-            this.logger.debug(error)
-            getSearchTagsResponseDto.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getSearchTagsResponseDto;
     };
     
     @ApiOperation({ summary: '태그 데이터를 수정하는 API', description: '태그를 수정한다.' })
@@ -158,11 +158,11 @@ export class TagController {
             const editTag = await this.tagUseCases.editTag(userId, tagId, editTagDto);
             editTagResponseDto.success = true;
             editTagResponseDto.message = 'Updated';
+            return editTagResponseDto;
         } catch (error) {
-            this.logger.debug(error)
-            editTagResponseDto.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return editTagResponseDto;
     };
 
     //이것도 사실상 안쓰임? 북마크 수정할때 detachTag 불러와서 다 처리됨
@@ -184,10 +184,10 @@ export class TagController {
             const result = await this.tagUseCases.detachTag(userId, bookmarkId, tagIds)
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';
+            return deleteTagResponse;
         } catch (error) {
-            this.logger.debug(error);
-            deleteTagResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return deleteTagResponse;
     };
 }

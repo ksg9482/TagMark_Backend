@@ -6,7 +6,7 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { secure } from 'src/utils/secure';
+import {UtilsService} from 'src/utils/utils.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -57,8 +57,8 @@ describe('AppController (e2e)', () => {
       id: 1, email: "test1@test.com", nickname: "익명", role: "USER", type: "BASIC"
     }
   };
-
-  const secureWrap = secure().wrapper()
+  const util = new UtilsService();
+  const secureWrap = util.secure().wrapper()
 
   describe('user e2e', () => {
     describe('/ (post)', () => {

@@ -29,7 +29,6 @@ export class BookmarkController {
     ) {
         const createBookmarkResponse = new CreateBookmarkResponseDto();
         try {
-            console.log(createBookmarkDto)
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
             let createdTags: Array<Tag>;
@@ -38,18 +37,13 @@ export class BookmarkController {
                 createdTags = tags;
                 await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
             }
-            const addTags = { ...createdBookmark, tags: createdTags || [] }
+            const addTags = { ...createdBookmark, tags: createdTags || [] };
             createBookmarkResponse.success = true;
             createBookmarkResponse.createdBookmark = addTags;
             return createBookmarkResponse;
         } catch (error) {
-            Logger.error(error)
-            //어떤 form이 적당할까?
-            throw new HttpException({
-                message: 'SQL에러',
-                error: error.sqlMessage,
-            },
-                HttpStatus.FORBIDDEN)
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -61,7 +55,7 @@ export class BookmarkController {
         @AuthUser() userId: number,
         @Query(new ValidationPipe({ transform: true })) page: GetUserAllBookmarksDto
     ) {
-        const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto()
+        const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
 
         try {
             const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(
@@ -72,11 +66,11 @@ export class BookmarkController {
             getUserAllBookmarkResponse.totalCount = bookmarks.totalCount
             getUserAllBookmarkResponse.totalPage = bookmarks.totalPage
             getUserAllBookmarkResponse.bookmarks = bookmarks.bookmarks;
+            return getUserAllBookmarkResponse;
         } catch (error) {
-            this.logger.debug(error)
-            getUserAllBookmarkResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getUserAllBookmarkResponse;
     }
 
     //유저정보, 북마크 카운트, 태그 카운트 분리.
@@ -92,11 +86,11 @@ export class BookmarkController {
             const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
             getUserAllBookmarkResponse.success = true;
             getUserAllBookmarkResponse.count = Number(count);
+            return getUserAllBookmarkResponse;
         } catch (error) {
-            this.logger.debug(error)
-            getUserAllBookmarkResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return getUserAllBookmarkResponse;
     }
 
 
@@ -131,11 +125,11 @@ export class BookmarkController {
             }
             editBookmarkResponse.success = true;
             editBookmarkResponse.message = 'Updated';
+            return editBookmarkResponse;
         } catch (error) {
-            this.logger.debug(error)
-            editBookmarkResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return editBookmarkResponse;
     }
 
     @ApiOperation({ summary: '북마크를 제거하는 API', description: '북마크를 제거한다.' })
@@ -151,10 +145,10 @@ export class BookmarkController {
             const result = await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId)
             deleteBookmarkResponse.success = true;
             deleteBookmarkResponse.message = 'Deleted'
+            return deleteBookmarkResponse;
         } catch (error) {
-            this.logger.debug(error)
-            deleteBookmarkResponse.success = false;
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return deleteBookmarkResponse;
     }
 }

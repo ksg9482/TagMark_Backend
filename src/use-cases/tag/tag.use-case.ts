@@ -24,15 +24,10 @@ export class TagUseCases {
         if (tagCheck) {
             return tagCheck[0]
         }
-        // const createdTag = await this.dataService.tags.create(
-        //     this.tags.create({
-        //         tag: createTagInputDto.tag,
-        //     })
-        // );
+        
         const createdTag = await this.dataService.tags.create(createTagDto);
 
-
-        return createdTag
+        return createdTag;
     }
 
     async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
@@ -43,7 +38,7 @@ export class TagUseCases {
         return tags;
     };
 
-    async tagFindOrCreate(tagNames: string[]) {
+    protected async tagFindOrCreate(tagNames: string[]) {
         //find
         let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames)
 
@@ -60,9 +55,6 @@ export class TagUseCases {
     };
     
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
-
-        //const tagCheck = await this.tags.createQueryBuilder()
-        //const tag = await this.tags.find()
         const attach = await this.dataService.tags.attachTag(userId,bookmarkId,tags)
         return attach
     }
@@ -78,11 +70,6 @@ export class TagUseCases {
         }
         return { message: 'Updated' }
     }
-
-
-
-    
-
 
     async detachTag(userId: number, bookmarkId: number, tagId: number | number[]) {
         if (!Array.isArray(tagId)) {
@@ -105,7 +92,6 @@ export class TagUseCases {
         const countForm = tags.map((tag)=>{
             return {...tag, count:Number(tag['count'])}
         })
-        //console.log(countForm)
         return countForm
     };
 

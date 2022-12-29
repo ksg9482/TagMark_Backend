@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UtilsModule } from './utils/utils.module';
 import { JwtModule } from './jwt/jwt.module';
@@ -9,6 +9,9 @@ import { UserUsecasesModule } from './use-cases/user';
 import { BookmarkUsecasesModule } from './use-cases/bookmark';
 import { TagUsecasesModule } from './use-cases/tag';
 import { BookmarkController, TagController, UserController } from './controllers';
+import { LoggerMiddleware } from './logger/logger.middleware';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './utils/httpExceptionFilter';
 
 
 
@@ -36,6 +39,16 @@ import { BookmarkController, TagController, UserController } from './controllers
     BookmarkController,
     TagController
   ],
-  providers: [Logger],
+  providers: [
+    Logger,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    }
+  ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
