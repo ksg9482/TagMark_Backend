@@ -7,6 +7,7 @@ import { GetUserBookmarkCountResponseDto } from "src/controllers/dtos/bookmark/g
 import { Tag } from "src/frameworks/data-services/postgresql/model";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
 import { TagUseCases } from "src/use-cases/tag";
+import { SyncBookmarkDto, SyncBookmarkResponseDto } from "./dtos/bookmark/sync-bookmark.dto";
 
 @ApiTags('Bookmark')
 @Controller('api/bookmark')
@@ -46,6 +47,52 @@ export class BookmarkController {
             throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //일단 작성은 0개를 잡자. 다음 업그레이드에선 로컬과 db 차이점이 생기면 감지해서 반영하게.
+    //북마크 리스트를 통째로 보내면 여기서 처리하는게 나을까? 아니면 클라이언트에서 통째로 넣으면 북마크, 태그 분리하는 폼으로 보내게 해야할까? 
+    //로그인 때 일단 bookmark 카운트 받음. 0개면 이어서 api에 요청.
+    @Post('/sync')
+    async syncBookmark(
+        @AuthUser() userId: number,
+        @Body(new ValidationPipe()) loginsyncBookmarkDto: SyncBookmarkDto
+    ) {
+        const syncBookmarkResponse = new SyncBookmarkResponseDto();
+        try {
+            //const bulkcreatedBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
+            //북마크 배열, 태그이름 배열
+            //태그배열 부터 테이블에 넣기. 북마크랑 연결해야 되는데 그럴려면 태그id로 넣는게 좋다고 본다.
+            //만들든 가져오든 태그아이디, 태그이름 배열이 생성된다.
+            //북마크 태그들을 map -> DB 태그 배열로 갱신한다. 쿼리를 이름으로 하는거보다 id로 하는게 더 빠르다.
+            //아니면 클라이언트에서 태그 이름 보냄->아이디, 이름 배열 응답. 그걸로 갱신하고 북마크 싱크 요청이 나으려나?
+            //관건은 결국 총합시간이 얼마나 걸리느냐. 느린 http통신 여러번보단 줄이는게 더 빠를것 같다. 그러나 서버자원 문제가 있다.
+            const tagNames = loginsyncBookmarkDto.tagNames;
+           
+            const dbTags = await this.tagUseCases.getTagsByNames(tagNames)
+            //여기 유즈케이스로 보내야됨. 일단 북마크 배열 생성까지는 완료. 벌크 저장 로직필요
+            const syncedBookmarks = loginsyncBookmarkDto.bookmarks.map((bookmark) => {
+                const localTags = bookmark.tags;
+                const changedTags = localTags.map((localtag)=>{
+                    const targetTag = dbTags.find((dbTag)=>{
+                        return dbTag.tag === localtag.tag
+                    })
+                    
+                    return targetTag
+                })
+                
+                return {...bookmark, tags:changedTags}
+            })
+            
+            syncBookmarkResponse.success = true;
+            syncBookmarkResponse.message = 'synced';
+            syncBookmarkResponse.bookmarks = syncedBookmarks;
+            return syncBookmarkResponse;
+        } catch (error) {
+            this.logger.error(error);
+            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
     @ApiOperation({ summary: '해당 유저가 생성한 북마크를 반환하는 API', description: '유저가 생성한 모든 북마크를 반환한다.' })
     @ApiCreatedResponse({ description: '해당 유저가 생성한 북마크를 반환한다.', type: GetUserAllBookmarksResponseDto })

@@ -39,8 +39,8 @@ export class UserUseCases {
         if(!user){
             throw new HttpException('아이디가 없습니다.', HttpStatus.BAD_REQUEST);
         };
-        
-        if(!await this.checkPassword(password, user)) {
+        const passwordCheck = await this.checkPassword(password, user)
+        if(!passwordCheck) {
             throw new HttpException('잘못된 비밀번호 입니다.', HttpStatus.BAD_REQUEST);
         }
 
