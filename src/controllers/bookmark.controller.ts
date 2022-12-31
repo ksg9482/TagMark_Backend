@@ -4,9 +4,10 @@ import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateBookmarkDto, CreateBookmarkResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto } from "src/controllers/dtos";
 import { DeleteBookmarkResponseDto } from "src/controllers/dtos/bookmark/delete-bookmark.dto";
 import { GetUserBookmarkCountResponseDto } from "src/controllers/dtos/bookmark/get-user-bookmark-count.dto";
-import { Tag } from "src/frameworks/data-services/postgresql/model";
+import { Bookmark, Tag } from "src/frameworks/data-services/postgresql/model";
 import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
 import { TagUseCases } from "src/use-cases/tag";
+import { UtilsService } from "src/utils/utils.service";
 import { SyncBookmarkDto, SyncBookmarkResponseDto } from "./dtos/bookmark/sync-bookmark.dto";
 
 @ApiTags('Bookmark')
@@ -16,6 +17,7 @@ export class BookmarkController {
         private bookmarkUseCases: BookmarkUseCases,
         private bookmarkFactoryService: BookmarkFactoryService,
         private tagUseCases: TagUseCases,
+        private readonly utilServices: UtilsService,
         @Inject(Logger) private readonly logger: LoggerService
     ) { }
 
@@ -69,7 +71,8 @@ export class BookmarkController {
            
             const dbTags = await this.tagUseCases.getTagsByNames(tagNames)
             //여기 유즈케이스로 보내야됨. 일단 북마크 배열 생성까지는 완료. 벌크 저장 로직필요
-            const syncedBookmarks = loginsyncBookmarkDto.bookmarks.map((bookmark) => {
+            const syncedBookmarks:Bookmark[] = loginsyncBookmarkDto.bookmarks.map((bookmark) => {
+                const changedUrl = this.utilServices.secure().wrapper().decryptWrapper(bookmark.url)
                 const localTags = bookmark.tags;
                 const changedTags = localTags.map((localtag)=>{
                     const targetTag = dbTags.find((dbTag)=>{
@@ -78,10 +81,11 @@ export class BookmarkController {
                     
                     return targetTag
                 })
-                
-                return {...bookmark, tags:changedTags}
+                Reflect.deleteProperty(bookmark, 'id')
+                return {...bookmark, url:changedUrl, tags:changedTags, userId:userId}
             })
-            
+            const createdBookmarks = await this.bookmarkUseCases.syncBookmark(userId, syncedBookmarks)
+            console.log(createdBookmarks)
             syncBookmarkResponse.success = true;
             syncBookmarkResponse.message = 'synced';
             syncBookmarkResponse.bookmarks = syncedBookmarks;

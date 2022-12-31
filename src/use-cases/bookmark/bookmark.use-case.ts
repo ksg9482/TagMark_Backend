@@ -57,6 +57,7 @@ export class BookmarkUseCases {
         const { count } = await this.dataService.bookmarks.getcount(userId)
         return count
     }
+    
 
 /*
 처음에는 그냥 방어적으로 에러 나올만한 부분에 예외처리
@@ -96,6 +97,11 @@ ws 뒤에 was 놔두기
 
     //     return { bookmark: createdBookmark }
     // }
+
+    async syncBookmark(userId: number, bookmarks:Bookmark[]) {
+        const bookmarkInsert = await this.dataService.bookmarks.syncBookmark(userId, bookmarks)
+        return bookmarkInsert
+    }
 
     async editBookmarkUrl(userId: number, bookmarkId: number, changeUrl: string) {
         let bookmark = await this.findBookmark(userId, bookmarkId);

@@ -8,4 +8,5 @@ export abstract class BookmarkRepository extends GenericRepository<Bookmark> {
     abstract getBookmarkByUrl(url:string): Promise<Bookmark>
     abstract getUserAllBookmarks(userId:number, page:any): Promise<Page<Bookmark>>
     abstract getcount(userId: number):Promise<any>
+    abstract syncBookmark(userId: number, bookmarks:Bookmark[]):Promise<any>
 }
