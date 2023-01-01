@@ -18,21 +18,14 @@ export class TagUseCases {
     };
 
     async createTag(userId: number, createTagDto: CreateTagDto): Promise<Tag> {
-        //책임을 분리해야 한다. 태그를 만든다. 태그를 검색한다. 북마크에 태그를 적용한다. 태그에 해당하는 북마크를 가져온다.
-        //태그 검색&생성을 묶어서 함수화
-        const tagCheck = await this.getTagsByNames(createTagDto.tag)//await this.tags.findOne({ where: { tag: createTagInputDto.tag } })
+        const tagCheck = await this.getTagsByNames(createTagDto.tag)
         if (tagCheck) {
             return tagCheck[0]
         }
-        // const createdTag = await this.dataService.tags.create(
-        //     this.tags.create({
-        //         tag: createTagInputDto.tag,
-        //     })
-        // );
+        
         const createdTag = await this.dataService.tags.create(createTagDto);
 
-
-        return createdTag
+        return createdTag;
     }
 
     async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
@@ -43,13 +36,11 @@ export class TagUseCases {
         return tags;
     };
 
-    async tagFindOrCreate(tagNames: string[]) {
-        //find
+    protected async tagFindOrCreate(tagNames: string[]) {
         let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames)
 
         const tagFilter = this.tagFilter(tags, tagNames)
         if (tagFilter) {
-            //create
             const createTags = tagFilter.map(tag => { return this.dataService.tags.createForm({ tag: tag }) })
             const insertBulk = await this.dataService.tags.insertBulk(createTags)
 
@@ -60,29 +51,19 @@ export class TagUseCases {
     };
     
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
-
-        //const tagCheck = await this.tags.createQueryBuilder()
-        //const tag = await this.tags.find()
         const attach = await this.dataService.tags.attachTag(userId,bookmarkId,tags)
         return attach
     }
 
-    //내꺼 북마크에 있는 태그 바꾸는 건 이미 있다. 이건 태그 그 자체 변경. 이거 공개해야 하는가?
     async editTag(userId: number, tagId: number, editTagInputDto: EditTagDto) {
-        //바꾼태그가 이미 있음, 없어서 만들어야 함 구분
         const tag = await this.dataService.tags.get(tagId)
         const createdTag = await this.dataService.tags.update(tagId,{tag:editTagInputDto.changeTag})
-        const tagCheck = await this.getTagsByNames(editTagInputDto.changeTag)//await this.tags.findOne({ where: { tag: createTagInputDto.tag } })
+        const tagCheck = await this.getTagsByNames(editTagInputDto.changeTag)
         if (tagCheck) {
             return tagCheck[0]
         }
         return { message: 'Updated' }
     }
-
-
-
-    
-
 
     async detachTag(userId: number, bookmarkId: number, tagId: number | number[]) {
         if (!Array.isArray(tagId)) {
@@ -105,12 +86,9 @@ export class TagUseCases {
         const countForm = tags.map((tag)=>{
             return {...tag, count:Number(tag['count'])}
         })
-        //console.log(countForm)
         return countForm
     };
 
-    //반환이 북마크면 북마크로 가는게 좋지 않을까?
-    //or문 개선 필요. 북마크 태그 전부가 나오는게 아니라 태그에 해당하는 것만 나와서 일부만 나옴
     async getTagAllBookmarksOR(userId: number, tags: string[], page: GetSearchTagsDto) {
         const limit = page.getLimit()
         const offset = page.getOffset()

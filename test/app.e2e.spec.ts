@@ -6,8 +6,9 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { secure } from 'src/utils/secure';
+import {UtilsService} from 'src/utils/utils.service';
 
+//로그인 동기화 테스트 작성
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let usersRepository: Repository<User>
@@ -57,8 +58,8 @@ describe('AppController (e2e)', () => {
       id: 1, email: "test1@test.com", nickname: "익명", role: "USER", type: "BASIC"
     }
   };
-
-  const secureWrap = secure().wrapper()
+  const util = new UtilsService();
+  const secureWrap = util.secure().wrapper()
 
   describe('user e2e', () => {
     describe('/ (post)', () => {
@@ -151,7 +152,6 @@ describe('AppController (e2e)', () => {
     }
   }
 
-  //이거 분리할 수 있을까?
   describe('bookmark e2e', () => {
 
 
@@ -170,7 +170,7 @@ describe('AppController (e2e)', () => {
 
     });
 
-    //여기선 날짜가 같이 안나옴. 이걸로 양식 통일
+    
     describe('/ (get)', () => {
       it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
         const keys = ["id", "url", "tags"]
@@ -196,19 +196,17 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    // describe('/:id (delete)', () => {
-    //   const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
-    //   it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
-    //     const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
-    //       //.then((resp) => { return console.log(resp) })
-    //       expect(result.status).toBe(200)
-    //       .expect(resp => {
-    //         expect(result.body.success).toBe(true);
-    //         expect(result.body.message).toBe('Deleted');
-
-    //       });
-    //   });
-    // });
+    describe('/:id (delete)', () => {
+      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
+      it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
+        const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
+          
+          expect(result.status).toBe(200)
+          expect(result.body.success).toBe(true);
+          expect(result.body.message).toBe('Deleted');
+          
+      });
+    });
 
   });
 
@@ -249,15 +247,12 @@ describe('AppController (e2e)', () => {
 
     describe('/ (get)', () => {
       it('유저가 작성한 모든 태그를 반환한다.', async () => {
-        //비동기라 바로 위껀 안들어간 채로 실행했나?
-        const targetTags = ['여행', '요리', '인도', '카레', /*'유원지'*/]
+        const targetTags = ['여행', '요리', '인도', '카레', '유원지']
         const result = await privateTest().get('/api/tag', accessToken)
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(tagResponseData.success);
         const tags: Array<any> = result.body.tags;
-        // tags.forEach((tag, i) => {
-        //   expect(targetTags.includes(tag.tag)).toBeTruthy()
-        // })
+        
         targetTags.forEach((tag) => {
           expect(tags.map((tag)=>{return tag.tag}).includes(tag)).toBeTruthy()
         })
@@ -297,34 +292,31 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    //내꺼 북마크에 있는 태그 바꾸는 건 이미 있다. 이건 태그 그 자체 변경. 이거 공개해야 하는가?
-    // describe('/:id (patch)', () => {
-    //   const tagResponseData = {
-    //     success: true,
-    //     bookmarks: [
-    //       {
-    //         id: 1,
-    //         url: 'https://www.test-change.com', //위에서 바꿨음
-    //         userId: userResponseDataOne.createdUser.id,
-    //         tags: [
-    //           { id: 1, tag: "여행" },
-    //           { id: 2, tag: "요리" }
-    //         ]
-    //       }
-    //     ]
-    //   };
-    //   const tagId = tagResponseData.bookmarks[0].tags[1].id
-    //   it('정상적인 데이터를 전송하면 태그를 변경한다.', async () => {
-    //     const result = await privateTest().patch(`/api/tag/${tagId}`, accessToken)
-    //       //.then((resp) => { return console.log(resp) })
-    //       .send({ changeTag: "한식" })
-    //       expect(result.status).toBe(200)
-    //       .expect(resp => {
-    //         expect(result.body.success).toBe(tagResponseData.success);
-    //         expect(result.body.message).toBe('Updated');
-    //       });
-    //   });
-    // })
+    describe('/:id (patch)', () => {
+      const tagResponseData = {
+        success: true,
+        bookmarks: [
+          {
+            id: 1,
+            url: 'https://www.test-change.com', 
+            userId: userResponseDataOne.createdUser.id,
+            tags: [
+              { id: 1, tag: "여행" },
+              { id: 2, tag: "요리" }
+            ]
+          }
+        ]
+      };
+      const tagId = tagResponseData.bookmarks[0].tags[1].id
+      it('정상적인 데이터를 전송하면 태그를 변경한다.', async () => {
+        const result = await privateTest().patch(`/api/tag/${tagId}`, accessToken).send({ changeTag: "한식" })
+          
+        expect(result.status).toBe(200)
+          expect(result.body.success).toBe(tagResponseData.success);
+          expect(result.body.message).toBe('Updated');
+          
+      });
+    })
   });
 
   describe('/:bookmark_id (delete)', () => {
@@ -347,16 +339,14 @@ describe('AppController (e2e)', () => {
   */
 
   afterAll(async () => {
-    // describe('/ (delete)', () => {
-    //   it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
-    //     const result = await privateTest().delete('/api/user', accessToken)
-    //       expect(result.status).toBe(200)
-    //       .expect(resp => {
-    //         expect(result.body.success).toBe(createdUser.success);
-    //         expect(result.body.message).toBe('deleted');
-    //       });
-    //   });
-    // });
+    describe('/ (delete)', () => {
+      it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
+        const result = await privateTest().delete('/api/user', accessToken)
+          expect(result.status).toBe(200)
+          expect(result.body.success).toBe(true);
+          expect(result.body.message).toBe('deleted');
+      });
+    });
 
     await connectDB.dropDatabase()
     await app.close();

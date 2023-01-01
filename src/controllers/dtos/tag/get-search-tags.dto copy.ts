@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsNumber } from "class-validator";
 import { Bookmark } from "src/frameworks/data-services/postgresql/model";
-//import { Bookmark } from "src/core/entities";
 import { PageRequest } from "src/use-cases/bookmark/bookmark.pagination";
 import { BaseResponseDto } from "../common";
 

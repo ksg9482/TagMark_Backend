@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
+import { HttpException, HttpStatus, Inject, Injectable, Logger, LoggerService } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
 import { CreateUserDto, CreateUserResponseDto, EditUserDto, LoginDto } from "src/controllers/dtos";
 import { User, UserRole, UserType } from "src/core/entities";
@@ -9,8 +9,8 @@ import { UtilsService } from "src/utils/utils.service";
 @Injectable()
 export class UserUseCases {
     constructor(
-        @Inject(DataServices) //상속을 시키든 주입을 하든 해야하는데 아무것도 없으면 서비스는 당연히 undefined나온다. 왜? 참조할게 없으니까. 
-        private readonly dataServices: DataServices, //데이터서비스부터 undefined
+        @Inject(DataServices)  
+        private readonly dataServices: DataServices, 
         private readonly utilServices: UtilsService,
         private readonly jwtService: JwtService,
         private readonly httpService: HttpService,
@@ -21,13 +21,13 @@ export class UserUseCases {
         const {email} = createUserDto
         const user = await this.findByEmail(email);
         if(user){
-            throw new Error('이미 가입된 이메일 입니다.');
+            this.logger.error('이미 가입된 이메일 입니다.')
+            throw new HttpException('이미 가입된 이메일 입니다.', HttpStatus.BAD_REQUEST);
         };
 
         const createdUser = await this.dataServices.users.create(createUserDto);
         Reflect.deleteProperty(createdUser, "password")
         Reflect.deleteProperty(createdUser, "role")
-        Reflect.deleteProperty(createdUser, "type")
         Reflect.deleteProperty(createdUser, "createdAt")
         Reflect.deleteProperty(createdUser, "updatedAt")
         return createdUser;
@@ -37,11 +37,11 @@ export class UserUseCases {
         const {email, password} = loginDto;
         const user = await this.findByEmail(email);
         if(!user){
-            throw new Error('아이디가 없습니다.');
+            throw new HttpException('아이디가 없습니다.', HttpStatus.BAD_REQUEST);
         };
-        
-        if(!await this.checkPassword(password, user)) {
-            throw new Error('잘못된 비밀번호 입니다.')
+        const passwordCheck = await this.checkPassword(password, user)
+        if(!passwordCheck) {
+            throw new HttpException('잘못된 비밀번호 입니다.', HttpStatus.BAD_REQUEST);
         }
 
         Reflect.deleteProperty(user, "password")
@@ -53,7 +53,7 @@ export class UserUseCases {
     async me(userId:number) {
         const user = await this.findById(userId);
         Reflect.deleteProperty(user, "password")
-        Reflect.deleteProperty(user, "id")
+        Reflect.deleteProperty(user, "role")
         Reflect.deleteProperty(user, "createdAt")
         Reflect.deleteProperty(user, "updatedAt")
         return user
@@ -89,7 +89,7 @@ export class UserUseCases {
     async refresh(refreshToken: string) {
         const verifyRefreshToken = this.jwtService.refreshVerify(refreshToken);
         if (!verifyRefreshToken) {
-            throw new Error('Token expire');
+            throw new HttpException('Token expire', HttpStatus.BAD_REQUEST);
         };
         
         const user = await this.findById(verifyRefreshToken['id']);
@@ -103,7 +103,8 @@ export class UserUseCases {
             const getUserInfo = await this.httpService.axiosRef.get(`https://www.googleapis.com/oauth2/v1/userinfo`
             + `?access_token=${accessToken}`)
             if (!getUserInfo) {
-              throw new Error('Google OAuth get user info fail')
+                this.logger.error('Google OAuth get user info fail')
+              throw new HttpException('Google OAuth get user info fail', HttpStatus.BAD_REQUEST);
             }
             return getUserInfo;
           };
@@ -133,7 +134,7 @@ export class UserUseCases {
     protected async findById(id:number):Promise<User> {
         const user = await this.dataServices.users.get(id);
         if(!user){
-            throw new Error('아이디가 없습니다.');
+            throw new HttpException('아이디가 없습니다.', HttpStatus.BAD_REQUEST);
         };
         return user;
     };

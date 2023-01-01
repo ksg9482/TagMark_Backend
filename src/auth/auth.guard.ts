@@ -1,8 +1,8 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { Request } from 'express';
 import { DataServices } from 'src/core/abstracts';
 import { JwtService } from 'src/jwt/jwt.service';
-import { secure } from 'src/utils/secure';
+import { UtilsService } from 'src/utils/utils.service';
 enum AuthorizationType {
   Bearer = 'Bearer'
 }
@@ -10,12 +10,14 @@ enum AuthorizationType {
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly dataService: DataServices
+    private readonly dataService: DataServices,
+    private readonly utilServices: UtilsService,
+    @Inject(Logger) private readonly logger: LoggerService
   ) { }
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
-    const secureWrap = secure().wrapper()
+    const secureWrap = this.utilServices.secure().wrapper()
     const request = context.switchToHttp().getRequest();
     
     const getToken = (req: any) => {
@@ -30,11 +32,9 @@ export class AuthGuard implements CanActivate {
       }
     };
     try {
-      //console.log(request.body)
       const caseMap = {
         signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'}
       }
-      //회원가입은 특별케이스
       if(caseMap.signup()) {
         return true;
       }
@@ -53,7 +53,7 @@ export class AuthGuard implements CanActivate {
         throw false;
       }
     } catch (error) {
-      console.log('에러 내용',error)
+      this.logger.error(error)
       //console.log(request.body)
       // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === 'login') {
       //   return true;

@@ -18,8 +18,7 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
         synchronize: config.get('NODE_ENV') !== 'production',
-        //logging: config.get('NODE_ENV') !== 'production',
-        logging: false,
+        logging: config.get('NODE_ENV') !== 'production',
         entities:[__dirname + './../../**/*.model{.ts,.js}'],
       })
     }),

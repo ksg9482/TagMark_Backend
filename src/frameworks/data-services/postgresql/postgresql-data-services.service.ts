@@ -13,8 +13,8 @@ import { PostgresqlUserRepository } from './postgresql-user-repository';
 export class PostgresqlDataServices 
 implements DataServices, OnApplicationBootstrap 
 {
-    users: PostgresqlUserRepository;//PostgresqlGenericRepository<User>;
-    bookmarks: PostgresqlBookmarkRepository;//PostgresqlGenericRepository<Bookmark>;
+    users: PostgresqlUserRepository;
+    bookmarks: PostgresqlBookmarkRepository;
     tags: PostgresqlTagRepository;
 
     constructor(
@@ -27,8 +27,8 @@ implements DataServices, OnApplicationBootstrap
     ) {}
 
     
-    onApplicationBootstrap() { //모든 모듈이 초기화된 후 연결을 수신 대기하기 전에 호출
-        this.users = new PostgresqlUserRepository(this.UserRepository);//new PostgresqlGenericRepository<User>(this.UserRepository);
+    onApplicationBootstrap() { 
+        this.users = new PostgresqlUserRepository(this.UserRepository);
         this.bookmarks = new PostgresqlBookmarkRepository(this.BookmarkRepository);
         this.tags = new PostgresqlTagRepository(this.TagRepository);
         
