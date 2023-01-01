@@ -1,9 +1,10 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsOptional, IsString } from "class-validator";
 import { BaseResponseDto } from "../common";
 
 export class EditTagDto {
     @IsString()
-    //@ApiProperty({ description: '태그명'})
+    @ApiProperty({ description: '태그명'})
     changeTag: string;
 }
 

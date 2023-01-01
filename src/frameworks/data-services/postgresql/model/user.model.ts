@@ -56,7 +56,6 @@ export class User implements UserAbstract {
     updatedAt: Date;
 
 
-//서비스로 옮기고 거기서 불러오기 -> 그러면 의존방향이 옳지 않음.
     @BeforeInsert()
     @BeforeUpdate()
     async hashPassword?():Promise<void>{

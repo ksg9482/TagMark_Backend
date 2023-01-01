@@ -11,7 +11,6 @@ const dailyOptions = (level: string) => {
     datePattern: 'YYYY-MM-DD',
     dirname: logDir + `/${level}`,
     filename: `%DATE%.${level}.log`,
-    maxFiles: 30, //30일치 로그파일 저장
     zippedArchive: true, // 로그가 쌓이면 압축하여 관리
   };
 };
@@ -27,7 +26,7 @@ export const winstonLogger = WinstonModule.createLogger({
           : winston.format.combine(
               winston.format.timestamp(),
               utilities.format.nestLike('Tag-Mark', {
-                prettyPrint: true, // nest에서 제공하는 옵션. 로그 가독성을 높여줌
+                prettyPrint: true, 
               }),
             ),
     }),
@@ -35,10 +34,6 @@ export const winstonLogger = WinstonModule.createLogger({
     // info, warn, error 로그는 파일로 관리
     new winstonDaily(dailyOptions('info')),
     new winstonDaily(dailyOptions('warn')),
-    new winstonDaily(dailyOptions('error')),
-    new winstonDaily(dailyOptions('http')),
-    new winstonDaily(dailyOptions('verbose')),
-    new winstonDaily(dailyOptions('debug')),
-    new winstonDaily(dailyOptions('silly')),
+    new winstonDaily(dailyOptions('error'))
   ],
 });

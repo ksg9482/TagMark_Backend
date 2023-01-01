@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsObject } from "class-validator";
+import { IsNotEmpty, IsNumber } from "class-validator";
 import { ResponseUser, User } from "src/frameworks/data-services/postgresql/model";
-//import { User } from "src/core/entities";
 import { BaseResponseDto } from "../common/base-response.dto";
 
 

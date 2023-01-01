@@ -3,7 +3,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from 'src/jwt/jwt.module';
 import { DataServicesModule } from 'src/services/data-services/data-services.module';
 import { UtilsModule } from 'src/utils/utils.module';
-//import { UsersModule } from 'src/users/users.module';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 

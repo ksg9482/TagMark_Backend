@@ -9,5 +9,5 @@ export abstract class DataServices {
 
   abstract bookmarks: BookmarkRepository;
 
-  abstract tags: TagRepository;//GenericRepository<Tag>;
+  abstract tags: TagRepository;
 }

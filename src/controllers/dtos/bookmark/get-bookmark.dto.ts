@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsObject } from "class-validator";
 import { Bookmark } from "src/frameworks/data-services/postgresql/model";
-//import { Bookmark } from "src/core/entities";
 import { BaseResponseDto } from "../common";
 
 export class GetBookmarkDto {

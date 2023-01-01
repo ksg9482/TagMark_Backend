@@ -42,7 +42,7 @@ export class UserController {
 
     @ApiOperation({ summary: '유저 생성 API', description: '유저를 생성한다.' })
     @ApiCreatedResponse({ description: '유저를 생성한다.', type: CreateUserResponseDto })
-    //@ApiBody({type:CreateUserDto})
+    @ApiBody({type:CreateUserDto})
     @Post('/')
     async createUser(
         @Body(new ValidationPipe()) userDto: CreateUserDto
@@ -77,6 +77,7 @@ export class UserController {
 
     @ApiOperation({ summary: '비밀번호의 정합 여부를 확인하는 API', description: '입력한 비밀번호가 DB에 저장된 비밀번호와 동일한지 확인한다.' })
     @ApiCreatedResponse({ description: '정합여부를 boolean으로 반환한다.', type: PasswordValidResponseDto })
+    @ApiBody({type:PasswordValidDto})
     @Post('/valid')
     async checkPassword(
         @AuthUser() userId: number,
@@ -99,6 +100,7 @@ export class UserController {
 
     @ApiOperation({ summary: '유저 로그인 API', description: '로그인 한다.' })
     @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: LoginResponseDto })
+    @ApiBody({type:LoginDto})
     @Post('/login')
     async login(
         @Body(new ValidationPipe()) loginDto: LoginDto,
@@ -131,6 +133,7 @@ export class UserController {
 
     @ApiOperation({ summary: '유저 데이터 수정 API', description: '유저 정보를 수정한다.' })
     @ApiCreatedResponse({ description: '데이터를 수정하고 updated 메시지를 반환한다.', type: EditUserResponseDto })
+    @ApiBody({type:EditUserDto})
     @Patch('/')
     async editUser(
         @AuthUser() userId: number,
@@ -141,17 +144,13 @@ export class UserController {
         const changeNickname = editUserDto.changeNickname;
         try {
             //const secureWrap = this.utilServices.secure().wrapper()
-            let editData = {
-                changeNickname: '',
-                changePassword: ''
-            }
+            let editData = {}
             if (changePassword?.length > 0) {
                 editData['changePassword'] = editUserDto.changePassword//secureWrap.decryptWrapper(editUserDto.changePassword)
             }
             if (changeNickname?.length > 0) {
                 editData['changeNickname'] = editUserDto.changeNickname//secureWrap.decryptWrapper(editUserDto.changeNickname)
             }
-            //console.log(userId, editUserDto)
             const editUser = await this.userUseCases.editUser(userId, editUserDto);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
@@ -201,14 +200,12 @@ export class UserController {
         }
     }
 
-    //auth로 이동
-    //쿠키에서 꺼내거나 DB비교
+    
     @ApiOperation({ summary: '새로운 access token를 발급하는 API', description: 'refresh 토큰을 통해 새로운 access token을 생성한다.' })
     @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: RefreshTokenResponseDto })
     @Get('/refresh')
     async refresh(
-        @Headers('cookie') cookie: string,
-        @Req() req: Request, //cookie parser 안되는지 확인
+        @Headers('cookie') cookie: string
     ): Promise<RefreshTokenResponseDto> {
 
         const refreshTokenResponse = new RefreshTokenResponseDto();
@@ -230,13 +227,13 @@ export class UserController {
     //설정, 검증필요
     @ApiOperation({ summary: 'Google 소셜 로그인 API', description: '소셜 로그인 한다.' })
     @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: GoogleOauthResponseDto })
+    @ApiBody({type:GoogleOauthDto})
     @Post('/google')
     async googleOauth(
         @Body() googleOauthDto: GoogleOauthDto
     ): Promise<GoogleOauthResponseDto> {
         const googleOauthResponse = new GoogleOauthResponseDto();
         try {
-            //이걸로 만든 유저데이터를 create에 넣는다. 그걸로 로그인
             const googleOauth = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
 
             googleOauthResponse.success = true;

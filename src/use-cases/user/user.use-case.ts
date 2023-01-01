@@ -9,8 +9,8 @@ import { UtilsService } from "src/utils/utils.service";
 @Injectable()
 export class UserUseCases {
     constructor(
-        @Inject(DataServices) //상속을 시키든 주입을 하든 해야하는데 아무것도 없으면 서비스는 당연히 undefined나온다. 왜? 참조할게 없으니까. 
-        private readonly dataServices: DataServices, //데이터서비스부터 undefined
+        @Inject(DataServices)  
+        private readonly dataServices: DataServices, 
         private readonly utilServices: UtilsService,
         private readonly jwtService: JwtService,
         private readonly httpService: HttpService,
@@ -52,7 +52,6 @@ export class UserUseCases {
 
     async me(userId:number) {
         const user = await this.findById(userId);
-        Reflect.deleteProperty(user, "id")
         Reflect.deleteProperty(user, "password")
         Reflect.deleteProperty(user, "role")
         Reflect.deleteProperty(user, "createdAt")
@@ -110,7 +109,6 @@ export class UserUseCases {
             return getUserInfo;
           };
       
-          //어뎁터로 빼서 일반화 시키는게??
           const setGoogleUserForm = (userData)=> {
             const userForm = {
               email: userData.email,

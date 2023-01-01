@@ -56,10 +56,6 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
         const arr = []
         tags.forEach(async (tag) => {
-            //1. 입력된 태그들을 IN으로 일괄검색 -> 있는거 찾고 없는거 만들기 -> 태그배열생성
-            //1-2. 태그배열로 조인테이블에 유무확인. 있는거 넘기고 태그배열로 없는 거 일괄생성.
-            //2. sql문으로 하기. 서브쿼리+파라미터로 하면 대량처리 될지도? 
-            //const check = await this.bookmarksTags.findOne({ where: { bookmarkId: bookmarkId, tagId: tag.id } });
             const check = await this.TagRepository.createQueryBuilder()
                 .from('bookmarks_tags', 'bookmarks_tags')
                 .where('bookmarks_tags."bookmarkId" = (:bookmarkId) and bookmarks_tags."tagId" = (:tagId)', { bookmarkId: bookmarkId, tagId: tag.id })
@@ -68,10 +64,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
                 arr.push(check)
                 return;
             }
-            // const attachTag = await this.bookmarksTags.save(this.bookmarksTags.create({
-            //     bookmarkId: bookmarkId,
-            //     tagId: tag.id
-            // }))
+            
             const attachTag = await this.TagRepository.createQueryBuilder()
                 .insert()
                 .into('bookmarks_tags')
@@ -79,21 +72,13 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
                 .execute()
             arr.push(attachTag)
         })
-        // const attachTag = await this.bookmarksTags.save(this.bookmarksTags.create({
-        //     bookmarkId: bookmarkId,
-        //     tagId: tag.id
-        // }))
-        // const attachBulk = await this.TagRepository.createQueryBuilder()
-        //     .insert()
-        //     .into('bookmarks_tags')
-        //     .values(tags)
-        //     .execute()
-        return arr
+        
+        return arr;
     };
 
     async detachTag(bookmarkId: number, tagIds: number[]) {
         const deletedTag = await this.TagRepository
-            .createQueryBuilder(/*"bookmarks_tags"*/)
+            .createQueryBuilder()
             .delete()
             .from("bookmarks_tags", "bookmarks_tags")
             .where(`bookmarks_tags."bookmarkId" = ${bookmarkId} AND bookmarks_tags."tagId" IN (${tagIds})`)
@@ -111,14 +96,6 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     }
 
     async getUserAllTags(userId: number): Promise<Tag[]> {
-        // 이거 이댈 쓰면 모든 태그 리스트 반환함. 
-        // const tags: Tag[] = await this.TagRepository.createQueryBuilder('tag')
-        //     .select(`DISTINCT tag.*`)
-        //     .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
-        //     .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-        //     .where(`bookmark."userId" = ${userId} OR bookmark."userId" IS NULL`)
-        //     .orderBy('tag.id','ASC')
-        //     .getRawMany()
         const tags: Tag[] = await this.TagRepository.createQueryBuilder('tag')
             .select(`tag.*, COUNT(bookmark.id)`)
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
@@ -130,21 +107,9 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         return tags
     }
 
-    //반환이 북마크면 북마크로 가는게 좋지 않을까?
+   
     async getTagSeatchOR(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-        // const totalCount = async () => {
-        //     const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
-        //     .select(`COUNT(bookmark.id)`)
-        // .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
-        // .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-        // .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
-        // .groupBy(`bookmark.id`)
-        // .orderBy(`bookmark."createdAt"`, 'DESC')
-        // .getRawMany()
-        //     const temp = bookmarkCount[0]
-        //     return temp?.count ? Number(temp.count) : 0
-        // };
         const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
@@ -167,19 +132,6 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     }
     async getTagSearchAND(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
         const addDot = tags.map((tag) => { return `'${tag}'` })
-        // const totalCount = async () => {
-        //     const bookmarkCount = await this.TagRepository.createQueryBuilder('tag')
-        //     .select(`COUNT(bookmark.id)`)
-        //     .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
-        //     .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-        //     .where(`bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))`)
-        //     .groupBy(`bookmark.id`)
-        //     .having(`count("bookmark"."id") > ${tags.length - 1}`)
-        //     .orderBy(`bookmark."createdAt"`, 'DESC')
-        //     .getRawMany()
-        //     const temp = bookmarkCount[0]
-        //     return temp?.count ? Number(temp.count) : 0
-        // };
         const bookmarks = await this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.*`)
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
@@ -195,7 +147,6 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
                 HAVING count(bookmark.id) > ${tags.length - 1}
             ))`)
             .groupBy(`bookmark.id`)
-            //.having(`count("bookmark"."id") > ${tags.length - 1}`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .limit(page.take)
             .offset(page.skip)
