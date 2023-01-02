@@ -53,7 +53,6 @@ export class UtilsService {
                 if(!result) {throw false}
                 return result
             } catch (error) {
-                console.log(error)
                 return encryptStr;
             }
         }
