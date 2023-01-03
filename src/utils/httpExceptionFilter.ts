@@ -14,10 +14,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         winstonLogger.error('요청 url : ', request.url);
         winstonLogger.error('error 정보 : ', error);
         winstonLogger.error('발생 시간 : ', new Date().toISOString());
-        
         response.status(status).json({
             success: false,
-            message: error.message,
+            message: error//.message,
         });
     }
 }

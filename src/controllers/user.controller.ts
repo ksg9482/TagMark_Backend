@@ -30,7 +30,7 @@ export class UserController {
         try {
             //const secureWrap = this.utilServices.secure().wrapper()
             const user = await this.userUseCases.me(userId);
-            this.logger.log('유저데이터')
+            
             userProfileResponse.success = true;
             userProfileResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
             return userProfileResponse;
@@ -209,7 +209,8 @@ export class UserController {
     ): Promise<RefreshTokenResponseDto> {
 
         const refreshTokenResponse = new RefreshTokenResponseDto();
-        const refreshToken = cookie.split('=')[1]
+        const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
+        
         try {
             const secureWrap = this.utilServices.secure().wrapper()
             const decrypted = secureWrap.decryptWrapper(refreshToken);
@@ -230,14 +231,24 @@ export class UserController {
     @ApiBody({type:GoogleOauthDto})
     @Post('/google')
     async googleOauth(
-        @Body() googleOauthDto: GoogleOauthDto
+        @Body() googleOauthDto: GoogleOauthDto,
+        @Res({ passthrough: true }) res: Response
     ): Promise<GoogleOauthResponseDto> {
         const googleOauthResponse = new GoogleOauthResponseDto();
+        const secureWrap = this.utilServices.secure().wrapper()
         try {
-            const googleOauth = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
+            const {user, jwtAccessToken, jwtRefreshToken} = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
 
+            const encrytedToken = {
+                accessToken: secureWrap.encryptWrapper(jwtAccessToken),
+                refreshToken: secureWrap.encryptWrapper(jwtRefreshToken)
+            }
+            res.cookie('refreshToken', encrytedToken.refreshToken)
+            res.cookie('accessToken', encrytedToken.accessToken)
+            
             googleOauthResponse.success = true;
-            googleOauthResponse.user
+            googleOauthResponse.user = user
+            googleOauthResponse.accessToken = encrytedToken.accessToken;
             return googleOauthResponse;
         } catch (error) {
             this.logger.error(error);

@@ -24,7 +24,4 @@ export class LoginResponseDto extends BaseResponseDto {
     @ApiProperty({ description: 'JWT 액세스 토큰'})
     accessToken: string;
 
-    @IsString()
-    @ApiProperty({ description: 'JWT 리프레시 토큰'})
-    refreshToken: string;
 };
