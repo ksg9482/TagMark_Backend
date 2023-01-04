@@ -27,7 +27,6 @@ export class TagController {
         const createTagResponse = new CreateTagResponseDto();
         try {
             const tag = this.tagFactoryService.createNewTag(createTagDto);
-            //위의 태그는 의미있나?
             const createdTag = await this.tagUseCases.createTag(userId, tag)
             createTagResponse.success = true;
             createTagResponse.createdTag = createdTag;

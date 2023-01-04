@@ -74,7 +74,6 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
             .values(bookmarks)
             .execute();
             
-        //따로따로 넘겨주지 않는 이유는 태그 없으면 그 북마크는 연결 못시킴 -> 길이 안맞으니 미리 폼 만들어서 안정성 증가. 
         const bookmarkIdAndTagIdArr: any = createdBookmarks.identifiers;
         const completedBookmarks = bookmarks.map((bookmark, i) => {
             return { ...bookmark, id: bookmarkIdAndTagIdArr[i].id }

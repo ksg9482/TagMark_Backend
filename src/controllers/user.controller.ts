@@ -143,13 +143,12 @@ export class UserController {
         const changePassword = editUserDto.changePassword;
         const changeNickname = editUserDto.changeNickname;
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
-            let editData = {}
+            const secureWrap = this.utilServices.secure().wrapper()
             if (changePassword?.length > 0) {
-                editData['changePassword'] = editUserDto.changePassword//secureWrap.decryptWrapper(editUserDto.changePassword)
+                editUserDto.changePassword = secureWrap.decryptWrapper(editUserDto.changePassword)
             }
             if (changeNickname?.length > 0) {
-                editData['changeNickname'] = editUserDto.changeNickname//secureWrap.decryptWrapper(editUserDto.changeNickname)
+                editUserDto.changeNickname = secureWrap.decryptWrapper(editUserDto.changeNickname)
             }
             const editUser = await this.userUseCases.editUser(userId, editUserDto);
             editUserResponse.success = true;
@@ -184,7 +183,6 @@ export class UserController {
     @ApiCreatedResponse({ description: '로그아웃 한다.' })
     @Get('logout')
     async logOut(
-        @AuthUser() userId: number,
         @Res({ passthrough: true }) res: Response
     ): Promise<LogoutResponseDto> {
         const logOutResponse = new LogoutResponseDto();
@@ -225,7 +223,6 @@ export class UserController {
         }
     };
 
-    //설정, 검증필요
     @ApiOperation({ summary: 'Google 소셜 로그인 API', description: '소셜 로그인 한다.' })
     @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: GoogleOauthResponseDto })
     @ApiBody({type:GoogleOauthDto})

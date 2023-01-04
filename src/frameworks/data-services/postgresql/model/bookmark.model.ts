@@ -31,7 +31,7 @@ export class Bookmark implements BookmarkAbstract {
         ()=>Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.tag
     )
-    //그냥 부르면 [null]발생. lazy loading으로 불러오게 만듦.
+   
     @ApiProperty({ description: '태그 배열', type:()=>[Tag]})
     tags:Tag[]
     

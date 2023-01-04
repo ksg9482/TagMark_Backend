@@ -123,14 +123,14 @@ export class UserUseCases {
         
         const googleUser = setGoogleUserForm(googleUserInfo.data);
 
-        //회원 아닐시 가입부터.
+       
         let user = await this.findByEmail(googleUser.email);
         
         if (!user) {
             const createdUser = await this.createUser(googleUser)
             user = createdUser;
         };
-        //가입후 소셜로그인 진행
+        
 
         const jwtAccessToken = this.jwtService.sign(user);
         const jwtRefreshToken = this.jwtService.refresh(user);

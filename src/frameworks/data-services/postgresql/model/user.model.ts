@@ -78,7 +78,6 @@ export class User implements UserAbstract {
     }
 }
 
-//왜 omittype을 사용한 별도의 클래스를 만들었나? 응답할때는 password등의 property를 제거한 데이터를 전해주는데, dto에선 프로퍼티가 빠져도 빠진채로 보내는데 swagger가 생성한 문서에는 반영이 안되서 swagger적용+뭘보내는지 확실히 하기 위해
 export class ResponseUser extends OmitType(User, ['password' ,'role', 'type'] as const) {
 
 }
