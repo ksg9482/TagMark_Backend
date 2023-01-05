@@ -1,79 +1,57 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, HttpStatus, Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
 import { Request } from 'express';
 import { DataServices } from 'src/core/abstracts';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
-enum AuthorizationType {
-  Bearer = 'Bearer'
-}
+import { winstonLogger } from 'src/utils/winston.logger';
+import { AuthService } from './auth.service';
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly dataService: DataServices,
-    private readonly utilServices: UtilsService,
+    private readonly authServices: AuthService,
     @Inject(Logger) private readonly logger: LoggerService
   ) { }
   async canActivate(
     context: ExecutionContext,
   ): Promise<boolean> {
-    const secureWrap = this.utilServices.secure().wrapper()
     const request = context.switchToHttp().getRequest();
-    
-    const getToken = (req: any) => {
-      const authorization = req.headers.authorization?.split(' ');
-      if(!authorization) {
-        throw new Error('No Access Token')
-      }
-      const type = authorization[0];
-      const accessToken = secureWrap.decryptWrapper(authorization[1]);
-      if (type === AuthorizationType.Bearer) {
-        return accessToken;
-      }
-    };
     try {
+      
       const caseMap = {
         signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'}
-      }
+      };
       if(caseMap.signup()) {
         return true;
       }
-      const accessToken = getToken(request);
+      
+      const accessToken = this.authServices.getToken(request);
       if(accessToken) {
-        const decoded = this.jwtService.verify(accessToken);
-        const user  = await this.dataService.users.get(decoded['id'])
-        if (!user) {
-          return false;
+        const decoded = this.authServices.accessTokenDecode(accessToken);
+        const userInfo = await this.authServices.getUserInfo(decoded['id']);
+        if (!userInfo) {
+          this.logger.error('유저 정보가 없습니다.')
+          throw false;
         };
         
-        Reflect.deleteProperty(user, 'password');
-        request.userId = user.id;
+        request.userId = userInfo.id;
         return true;
       } else {
+        this.logger.error('엑세스 토큰이 없습니다.')
         throw false;
       }
     } catch (error) {
       this.logger.error(error)
-      //console.log(request.body)
-      // if(request.method === 'POST' && request.url.split('/')[1] === 'users' && request.url.split('/')[2] === 'login') {
-      //   return true;
-      // }
-      
-      // const allowMap = {
-      //   login:'login',
-      //   refresh:'refresh',
-      //   google:'google'
-      // }
-      
-      // if(request.url.split('/')[1] === 'users' /*&& allowMap[request.url.split('/')[2]]*/) {
-      //   return true;
-      // }
-      if(error.name === 'TokenExpiredError') {
-        return true;
+      if(request.url.split('/')[3] === 'refresh') {
+        return true
       }
       
-      // return false;
-      return true;
+      if(error.name === 'TokenExpiredError') {
+        throw new HttpException('TokenExpiredError', HttpStatus.BAD_REQUEST)
+      }
+      
+      this.logger.error('Auth Guard가 접근을 거부했습니다.')
+      return false;
     }
   }
 }

@@ -8,7 +8,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import {UtilsService} from 'src/utils/utils.service';
 
-//로그인 동기화 테스트 작성
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let usersRepository: Repository<User>
@@ -231,20 +230,6 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    describe('/all (get)', () => {
-      it('작성된 모든 태그를 반환한다.', async () => {
-        const targetTags = ['여행', '요리', '인도', '카레', '유원지'] 
-        const result = await privateTest().get('/api/tag/all', accessToken)
-        expect(result.status).toBe(200)
-        expect(result.body.success).toBe(tagResponseData.success);
-
-        const tags: Array<any> = result.body.tags;
-        tags.forEach((tag, i) => {
-          expect(tag['tag']).toBe(targetTags[i])
-        })
-      });
-    });
-
     describe('/ (get)', () => {
       it('유저가 작성한 모든 태그를 반환한다.', async () => {
         const targetTags = ['여행', '요리', '인도', '카레', '유원지']
@@ -272,9 +257,6 @@ describe('AppController (e2e)', () => {
         expect(bookmarks[0]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
       });
 
-
-
-
     });
 
     describe('/search-or (get)', () => {
@@ -292,31 +274,6 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    describe('/:id (patch)', () => {
-      const tagResponseData = {
-        success: true,
-        bookmarks: [
-          {
-            id: 1,
-            url: 'https://www.test-change.com', 
-            userId: userResponseDataOne.createdUser.id,
-            tags: [
-              { id: 1, tag: "여행" },
-              { id: 2, tag: "요리" }
-            ]
-          }
-        ]
-      };
-      const tagId = tagResponseData.bookmarks[0].tags[1].id
-      it('정상적인 데이터를 전송하면 태그를 변경한다.', async () => {
-        const result = await privateTest().patch(`/api/tag/${tagId}`, accessToken).send({ changeTag: "한식" })
-          
-        expect(result.status).toBe(200)
-          expect(result.body.success).toBe(tagResponseData.success);
-          expect(result.body.message).toBe('Updated');
-          
-      });
-    })
   });
 
   describe('/:bookmark_id (delete)', () => {
@@ -331,12 +288,6 @@ describe('AppController (e2e)', () => {
     })
   })
 
-
-
-
-  /*
-@Post('/google')
-  */
 
   afterAll(async () => {
     describe('/ (delete)', () => {

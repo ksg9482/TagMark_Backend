@@ -1,39 +1,45 @@
-import { utilities, WinstonModule } from "nest-winston";
 import * as winston from 'winston';
+import { WinstonModule } from 'nest-winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
 
 const env = process.env.NODE_ENV;
 const logDir = __dirname + '/../../../logs';
-
 const dailyOptions = (level: string) => {
   return {
     level,
     datePattern: 'YYYY-MM-DD',
     dirname: logDir + `/${level}`,
     filename: `%DATE%.${level}.log`,
-    zippedArchive: true, // 로그가 쌓이면 압축하여 관리
+    zippedArchive: true, 
   };
 };
-export const winstonLogger = WinstonModule.createLogger({
-  transports: [
-    new winston.transports.Console({
-      level: env === 'production' ? 'http' : 'silly',
-      // production 환경이라면 http, 개발환경이라면 모든 단계를 로그
-      format:
-        env === 'production'
-      // production 환경은 자원을 아끼기 위해 simple 포맷 사용
-          ? winston.format.simple() 
-          : winston.format.combine(
-              winston.format.timestamp(),
-              utilities.format.nestLike('Tag-Mark', {
-                prettyPrint: true, 
-              }),
-            ),
-    }),
+const baseFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.errors({ stack: true }),
+  winston.format((info) => {
+    info.level = info.level.toUpperCase();
+    return info;
+  })(),
+);
 
-    // info, warn, error 로그는 파일로 관리
+const splunkFormat = winston.format.combine(
+  baseFormat,
+  winston.format.json(),
+);
+
+const prettyFormat = winston.format.combine(
+  baseFormat,
+  winston.format.prettyPrint(),
+);
+
+export const winstonLogger = WinstonModule.createLogger({
+  level: process.env.LOG_LEVEL,
+  format: process.env.PRETTY_LOGS ? prettyFormat : splunkFormat,
+  transports: [
+    new winston.transports.Console(),
     new winstonDaily(dailyOptions('info')),
     new winstonDaily(dailyOptions('warn')),
     new winstonDaily(dailyOptions('error'))
   ],
+  
 });

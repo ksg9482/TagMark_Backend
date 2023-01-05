@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { ResponseUser, User } from "src/frameworks/data-services/postgresql/model";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsObject, IsString } from "class-validator";
+import { ResponseUser } from "src/frameworks/data-services/postgresql/model";
 import { BaseResponseDto } from "../common/base-response.dto";
 
 export class GoogleOauthDto {
@@ -9,5 +10,11 @@ export class GoogleOauthDto {
 };
 
 export class GoogleOauthResponseDto extends BaseResponseDto {
+    @IsObject()
+    @ApiProperty({ description: '유저 데이터'})
     user: ResponseUser;
+
+    @IsString()
+    @ApiProperty({ description: 'JWT 액세스 토큰'})
+    accessToken: string;
 };

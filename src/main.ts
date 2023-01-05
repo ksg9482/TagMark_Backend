@@ -9,9 +9,8 @@ import { winstonLogger } from './utils/winston.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: winstonLogger,
-  }
-  );
+    logger: winstonLogger
+  });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
     origin: 'http://localhost:3000',

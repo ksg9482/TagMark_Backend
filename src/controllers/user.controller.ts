@@ -28,11 +28,10 @@ export class UserController {
     ): Promise<UserProfileResponseDto> {
         const userProfileResponse = new UserProfileResponseDto();
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
             const user = await this.userUseCases.me(userId);
-            this.logger.log('유저데이터')
+            
             userProfileResponse.success = true;
-            userProfileResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
+            userProfileResponse.user = user;
             return userProfileResponse;
         } catch (error) {
             this.logger.error(error);
@@ -86,8 +85,7 @@ export class UserController {
         const passwordValidResponse = new PasswordValidResponseDto();
         const { password } = passwordValidDto
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
-            const createdUser = await this.userUseCases.passwordValid(userId, password/*secureWrap.decryptWrapper(password)*/);
+            const createdUser = await this.userUseCases.passwordValid(userId, password);
 
             passwordValidResponse.success = true;
             passwordValidResponse.valid = createdUser;
@@ -122,7 +120,7 @@ export class UserController {
             res.cookie('refreshToken', encrytedToken.refreshToken)
             res.cookie('accessToken', encrytedToken.accessToken)
             loginResponse.success = true;
-            loginResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
+            loginResponse.user = user;
             loginResponse.accessToken = encrytedToken.accessToken;
             return loginResponse;
         } catch (error) {
@@ -143,13 +141,12 @@ export class UserController {
         const changePassword = editUserDto.changePassword;
         const changeNickname = editUserDto.changeNickname;
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
-            let editData = {}
+            const secureWrap = this.utilServices.secure().wrapper()
             if (changePassword?.length > 0) {
-                editData['changePassword'] = editUserDto.changePassword//secureWrap.decryptWrapper(editUserDto.changePassword)
+                editUserDto.changePassword = secureWrap.decryptWrapper(editUserDto.changePassword)
             }
             if (changeNickname?.length > 0) {
-                editData['changeNickname'] = editUserDto.changeNickname//secureWrap.decryptWrapper(editUserDto.changeNickname)
+                editUserDto.changeNickname = secureWrap.decryptWrapper(editUserDto.changeNickname)
             }
             const editUser = await this.userUseCases.editUser(userId, editUserDto);
             editUserResponse.success = true;
@@ -184,7 +181,6 @@ export class UserController {
     @ApiCreatedResponse({ description: '로그아웃 한다.' })
     @Get('logout')
     async logOut(
-        @AuthUser() userId: number,
         @Res({ passthrough: true }) res: Response
     ): Promise<LogoutResponseDto> {
         const logOutResponse = new LogoutResponseDto();
@@ -209,7 +205,8 @@ export class UserController {
     ): Promise<RefreshTokenResponseDto> {
 
         const refreshTokenResponse = new RefreshTokenResponseDto();
-        const refreshToken = cookie.split('=')[1]
+        const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
+        
         try {
             const secureWrap = this.utilServices.secure().wrapper()
             const decrypted = secureWrap.decryptWrapper(refreshToken);
@@ -224,20 +221,29 @@ export class UserController {
         }
     };
 
-    //설정, 검증필요
     @ApiOperation({ summary: 'Google 소셜 로그인 API', description: '소셜 로그인 한다.' })
     @ApiCreatedResponse({ description: '유저 데이터와 토큰을 반환한다.', type: GoogleOauthResponseDto })
     @ApiBody({type:GoogleOauthDto})
     @Post('/google')
     async googleOauth(
-        @Body() googleOauthDto: GoogleOauthDto
+        @Body() googleOauthDto: GoogleOauthDto,
+        @Res({ passthrough: true }) res: Response
     ): Promise<GoogleOauthResponseDto> {
         const googleOauthResponse = new GoogleOauthResponseDto();
+        const secureWrap = this.utilServices.secure().wrapper()
         try {
-            const googleOauth = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
+            const {user, jwtAccessToken, jwtRefreshToken} = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
 
+            const encrytedToken = {
+                accessToken: secureWrap.encryptWrapper(jwtAccessToken),
+                refreshToken: secureWrap.encryptWrapper(jwtRefreshToken)
+            }
+            res.cookie('refreshToken', encrytedToken.refreshToken)
+            res.cookie('accessToken', encrytedToken.accessToken)
+            
             googleOauthResponse.success = true;
-            googleOauthResponse.user
+            googleOauthResponse.user = user
+            googleOauthResponse.accessToken = encrytedToken.accessToken;
             return googleOauthResponse;
         } catch (error) {
             this.logger.error(error);
