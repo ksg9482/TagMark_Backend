@@ -37,22 +37,6 @@ export class TagController {
         }
     };
 
-    @ApiOperation({ summary: '모든 태그를 반환하는 API', description: '모든 태그를 반환한다.' })
-    @ApiCreatedResponse({ description: '존재하는 모든 태그를 반환한다.', type: GetAllTagsResponseDto })
-    @Get('/all')
-    async getAllTag() {
-        const getAllTagsResponse = new GetAllTagsResponseDto()
-        try {
-            const tags = await this.tagUseCases.getAllTags();
-            getAllTagsResponse.success = true;
-            getAllTagsResponse.tags = tags;
-            return getAllTagsResponse;
-        } catch (error) {
-            this.logger.error(error);
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    };
-
     
     @ApiOperation({ summary: '유저가 생성한 모든 태그를 반환하는 API', description: '유저가 생성한 모든 태그를 반환한다.' })
     @ApiCreatedResponse({ description: '유저가 생성한 모든 태그를 반환한다.', type: GetUserAllTagsResponseDto })
@@ -73,6 +57,7 @@ export class TagController {
         }
     };
 
+    //나오는게 없음??
     @ApiOperation({ summary: '유저가 생성한 태그의 갯수를 반환하는 API', description: '모든 태그의 갯수를 반환한다.' })
     @ApiCreatedResponse({ description: '유저가 생성한 모든 태그의 갯수를 반환한다.', type: GetUserAllTagsResponseDto })
     @Get('/count')
@@ -131,7 +116,7 @@ export class TagController {
     ) {
         const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
         try {
-            const tagArr = tags.split(',') //태그 식별을 정확히 +로 해야함. 태그를 미리 ""로 감싸나? -> split('"+"') 이럼 양옆 ""이 짤릴수도?
+            const tagArr = tags.split(',')
             
             const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page)
             
@@ -146,28 +131,6 @@ export class TagController {
         }
     };
     
-    @ApiOperation({ summary: '태그 데이터를 수정하는 API', description: '태그를 수정한다.' })
-    @ApiCreatedResponse({ description: '태그를 수정하고 Updated 메시지를 반환한다.', type: EditTagResponseDto })
-    @ApiParam({name:'id', type:'number', description:'수정할 태그 id'})
-    @ApiBody({type:EditTagDto})
-    @Patch('/:id')
-    async editTag(
-        @AuthUser() userId:number,
-        @Param('id', ParseIntPipe) tagId: number,
-        @Body(new ValidationPipe()) editTagDto: EditTagDto
-    ) {
-        const editTagResponseDto = new EditTagResponseDto()
-        try {
-            const editTag = await this.tagUseCases.editTag(userId, tagId, editTagDto);
-            
-            editTagResponseDto.success = true;
-            editTagResponseDto.message = 'Updated';
-            return editTagResponseDto;
-        } catch (error) {
-            this.logger.error(error);
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    };
 
     @ApiOperation({ summary: '북마크에 등록된 태그를 삭제하는 API', description: '북마크에 등록된 태그를 삭제한다.' })
     @ApiCreatedResponse({ description: '북마크에 등록된 태그를 삭제하고 Deleted 메시지를 반환한다.', type: DeleteTagResponseDto })

@@ -28,11 +28,10 @@ export class UserController {
     ): Promise<UserProfileResponseDto> {
         const userProfileResponse = new UserProfileResponseDto();
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
             const user = await this.userUseCases.me(userId);
             
             userProfileResponse.success = true;
-            userProfileResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
+            userProfileResponse.user = user;
             return userProfileResponse;
         } catch (error) {
             this.logger.error(error);
@@ -86,8 +85,7 @@ export class UserController {
         const passwordValidResponse = new PasswordValidResponseDto();
         const { password } = passwordValidDto
         try {
-            //const secureWrap = this.utilServices.secure().wrapper()
-            const createdUser = await this.userUseCases.passwordValid(userId, password/*secureWrap.decryptWrapper(password)*/);
+            const createdUser = await this.userUseCases.passwordValid(userId, password);
 
             passwordValidResponse.success = true;
             passwordValidResponse.valid = createdUser;
@@ -122,7 +120,7 @@ export class UserController {
             res.cookie('refreshToken', encrytedToken.refreshToken)
             res.cookie('accessToken', encrytedToken.accessToken)
             loginResponse.success = true;
-            loginResponse.user = user//secureWrap.encryptWrapper(JSON.stringify(user));
+            loginResponse.user = user;
             loginResponse.accessToken = encrytedToken.accessToken;
             return loginResponse;
         } catch (error) {
