@@ -120,7 +120,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 	            FROM "tag" "tag" 
 	            LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
 	            LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
-	            WHERE bookmark."userId" = 1 and ("tag"."tag" in (${addDot}))
+	            WHERE bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))
             ))`)
             .groupBy(`bookmark.id`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
@@ -142,7 +142,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
                 FROM "tag" "tag" 
                 LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
                 LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
-                WHERE bookmark."userId" = 1 and ("tag"."tag" in (${addDot}))
+                WHERE bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))
                 GROUP BY bookmark.id
                 HAVING count(bookmark.id) > ${tags.length - 1}
             ))`)
