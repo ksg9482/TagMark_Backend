@@ -32,8 +32,8 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
   ],
   providers: [
     {
-      provide: DataServices, //추상클래스
-      useClass: PostgresqlDataServices //사용할 구현체
+      provide: DataServices, 
+      useClass: PostgresqlDataServices
     }
   ],
   exports: [DataServices]
