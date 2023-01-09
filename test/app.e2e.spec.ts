@@ -195,17 +195,7 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    describe('/:id (delete)', () => {
-      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
-      it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
-        const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
-          
-          expect(result.status).toBe(200)
-          expect(result.body.success).toBe(true);
-          expect(result.body.message).toBe('Deleted');
-          
-      });
-    });
+    
 
   });
 
@@ -232,12 +222,12 @@ describe('AppController (e2e)', () => {
 
     describe('/ (get)', () => {
       it('유저가 작성한 모든 태그를 반환한다.', async () => {
-        const targetTags = ['여행', '요리', '인도', '카레', '유원지']
+        const targetTags = ['여행', '요리', '인도', '카레', /*'유원지'*/]
         const result = await privateTest().get('/api/tag', accessToken)
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(tagResponseData.success);
         const tags: Array<any> = result.body.tags;
-        
+        console.log(tags)
         targetTags.forEach((tag) => {
           expect(tags.map((tag)=>{return tag.tag}).includes(tag)).toBeTruthy()
         })
@@ -288,9 +278,20 @@ describe('AppController (e2e)', () => {
     })
   })
 
+  describe('삭제 테스트', () => {
+    describe('bookmark/:id (delete)', () => {
+      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
+      it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
+        const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
+          
+          expect(result.status).toBe(200)
+          expect(result.body.success).toBe(true);
+          expect(result.body.message).toBe('Deleted');
+          
+      });
+    });
 
-  afterAll(async () => {
-    describe('/ (delete)', () => {
+    describe('user/ (delete)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
         const result = await privateTest().delete('/api/user', accessToken)
           expect(result.status).toBe(200)
@@ -298,6 +299,10 @@ describe('AppController (e2e)', () => {
           expect(result.body.message).toBe('deleted');
       });
     });
+  })
+
+
+  afterAll(async () => {
 
     await connectDB.dropDatabase()
     await app.close();

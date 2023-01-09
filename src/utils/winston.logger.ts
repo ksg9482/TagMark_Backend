@@ -3,7 +3,7 @@ import { WinstonModule } from 'nest-winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
 
 const env = process.env.NODE_ENV;
-const logDir = __dirname + '/../../../logs';
+const logDir = __dirname + '/../../logs';
 const dailyOptions = (level: string) => {
   return {
     level,
