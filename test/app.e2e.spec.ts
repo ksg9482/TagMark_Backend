@@ -70,7 +70,6 @@ describe('AppController (e2e)', () => {
         signupData.email = secureWrap.encryptWrapper(userParamsOne.email)
         signupData.password = secureWrap.encryptWrapper(userParamsOne.password)
         const result = await privateTest().post('/api/user').send(signupData)
-
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);
         expect(result.body.createdUser["email"]).toBe(userResponseDataOne.createdUser["email"]);
@@ -110,7 +109,7 @@ describe('AppController (e2e)', () => {
 
     describe('/ (patch)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 변경된다', async () => {
-        const changeParams = { changeNickname: 'changed-nickname' };
+        const changeParams = { changeNickname: 'new-nickname' };
         const result = await privateTest().patch('/api/user', accessToken).send(changeParams)
 
         expect(result.status).toBe(200)

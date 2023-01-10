@@ -49,7 +49,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
             .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
             .leftJoin('bookmarks_tags', 'bookmarks_tags', 'bookmarks_tags.bookmarkId = bookmark.id')
             .leftJoin('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
-            .where(`"userId" = ${userId}`)
+            .where(`"userId" = :userId`, {userId: userId})
             .groupBy("bookmark.id")
             .orderBy('bookmark."createdAt"', 'DESC')
             .limit(page.take)
@@ -61,7 +61,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
     async getcount(userId: number): Promise<any> {
         const bookmarkCount = await this.bookmarkRepository.createQueryBuilder('bookmark')
             .select(`COUNT("bookmark".id)`)
-            .where(`"userId" = ${userId}`)
+            .where(`"userId" = :userId`, {userId: userId})
             .getRawMany()
 
         return bookmarkCount[0]

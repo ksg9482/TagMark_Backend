@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt"
 import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Bookmark } from "./";
 import { User as UserAbstract } from "src/core"
+import { MaxLength, MinLength } from "class-validator";
 export enum UserType {
     BASIC = 'BASIC',
     KAKAO = 'KAKAO',
@@ -25,10 +26,13 @@ export class User implements UserAbstract {
     email: string;
 
     @Column()
+    @MinLength(6)
+    @MaxLength(30)
     @ApiProperty({ description: '비밀번호' })
     password: string;
 
     @Column({default:'익명'})
+    @MaxLength(20)
     @ApiProperty({ description: '별명' })
     nickname: string;
 

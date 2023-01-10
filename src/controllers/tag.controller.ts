@@ -140,11 +140,12 @@ export class TagController {
     async detachTag(
         @AuthUser() userId:number,
         @Param('bookmark_id', ParseIntPipe) bookmarkId: number,
-        @Query('tag_ids') tagIds: number[]
+        @Query('tag_ids') tagIds: string
     ) {
         const deleteTagResponse = new DeleteTagResponseDto()
         try {
-            const result = await this.tagUseCases.detachTag(userId, bookmarkId, tagIds)
+            const numTagIds = tagIds.split(',').map((strNum)=>{return parseInt(strNum)})
+            const result = await this.tagUseCases.detachTag(userId, bookmarkId, numTagIds)
             
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';
