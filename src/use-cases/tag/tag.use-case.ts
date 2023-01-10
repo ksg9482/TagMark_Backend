@@ -69,6 +69,7 @@ export class TagUseCases {
         if (!Array.isArray(tagId)) {
             tagId = [tagId]
         }
+        
         const deletedTag = await this.dataService.tags.detachTag(bookmarkId, tagId)
         return { message: 'Deleted', deleteCount: deletedTag.affected }
     }

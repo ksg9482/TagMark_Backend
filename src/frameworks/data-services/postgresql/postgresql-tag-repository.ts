@@ -77,11 +77,12 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
     };
 
     async detachTag(bookmarkId: number, tagIds: number[]) {
+        console.log(tagIds)
         const deletedTag = await this.TagRepository
             .createQueryBuilder()
             .delete()
             .from("bookmarks_tags", "bookmarks_tags")
-            .where(`bookmarks_tags."bookmarkId" = ${bookmarkId} AND bookmarks_tags."tagId" IN (${tagIds})`)
+            .where(`bookmarks_tags."bookmarkId" = (:bookmarkId) AND bookmarks_tags."tagId" IN (:...tagIds)`,{bookmarkId:bookmarkId, tagIds:tagIds})
             .execute()
         return deletedTag
     };
@@ -100,7 +101,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             .select(`tag.*, COUNT(bookmark.id)`)
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .innerJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} OR bookmark."userId" IS NULL`)
+            .where(`bookmark."userId" = (:userId) OR bookmark."userId" IS NULL`, {userId: userId})
             .groupBy('tag.id')
             .orderBy('count', 'DESC')
             .getRawMany()
@@ -115,13 +116,13 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("bookmark"."id" in (      
+            .where(`bookmark."userId" = (:userId) and ("bookmark"."id" in (      
 	            SELECT DISTINCT "bookmark"."id" AS "ids" 
 	            FROM "tag" "tag" 
 	            LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
 	            LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
-	            WHERE bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))
-            ))`)
+	            WHERE bookmark."userId" = (:userId) and ("tag"."tag" in (:...addDot))
+            ))`, {userId:userId, addDot:tags})
             .groupBy(`bookmark.id`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .limit(page.take)
@@ -137,15 +138,15 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
             .addSelect(`array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`, 'tags')
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
             .leftJoin(`bookmark`, `bookmark`, `bookmark.id = bookmarks_tags."bookmarkId"`)
-            .where(`bookmark."userId" = ${userId} and ("bookmark"."id" in (      
+            .where(`bookmark."userId" = (:userId) and ("bookmark"."id" in (      
 	            SELECT bookmark.id 
                 FROM "tag" "tag" 
                 LEFT JOIN "bookmarks_tags" "bookmarks_tags" ON bookmarks_tags."tagId" = "tag"."id"  
                 LEFT JOIN "bookmark" "bookmark" ON "bookmark"."id" = bookmarks_tags."bookmarkId" 
-                WHERE bookmark."userId" = ${userId} and ("tag"."tag" in (${addDot}))
+                WHERE bookmark."userId" = (:userId) and ("tag"."tag" in (:...addDot))
                 GROUP BY bookmark.id
                 HAVING count(bookmark.id) > ${tags.length - 1}
-            ))`)
+            ))`, {userId:userId, addDot:tags})
             .groupBy(`bookmark.id`)
             .orderBy(`bookmark."createdAt"`, 'DESC')
             .limit(page.take)
