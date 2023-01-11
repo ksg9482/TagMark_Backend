@@ -6,7 +6,7 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import {UtilsService} from 'src/utils/utils.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -66,7 +66,7 @@ describe('AppController (e2e)', () => {
         let signupData = {
           email: "",
           password: ""
-      };
+        };
         signupData.email = secureWrap.encryptWrapper(userParamsOne.email)
         signupData.password = secureWrap.encryptWrapper(userParamsOne.password)
         const result = await privateTest().post('/api/user').send(signupData)
@@ -81,7 +81,7 @@ describe('AppController (e2e)', () => {
         let loginData = {
           email: "",
           password: ""
-      };
+        };
         loginData.email = secureWrap.encryptWrapper(userParamsOne.email)
         loginData.password = secureWrap.encryptWrapper(userParamsOne.password)
         const result = await privateTest().post('/api/user/login').send(loginData)
@@ -159,7 +159,7 @@ describe('AppController (e2e)', () => {
 
         const createBookmarkTwo = await privateTest().post('/api/bookmark', accessToken).send(bookmarkParamsTwo)
         const createBookmarkThree = await privateTest().post('/api/bookmark', accessToken).send(bookmarkParamsThree)
-        
+
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);
         expect(result.body.createdBookmark["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
@@ -168,7 +168,7 @@ describe('AppController (e2e)', () => {
 
     });
 
-    
+
     describe('/ (get)', () => {
       it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
         const keys = ["id", "url", "tags"]
@@ -177,8 +177,8 @@ describe('AppController (e2e)', () => {
         const bookmarkArr = result.body.bookmarks
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(true);
-        expect(bookmarkArr[bookmarkArr.length-1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
-        expect(bookmarkArr[bookmarkArr.length-1]["url"]).toBe(bookmarkResponseDataOne.createdBookmark["url"]);
+        expect(bookmarkArr[bookmarkArr.length - 1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
+        expect(bookmarkArr[bookmarkArr.length - 1]["url"]).toBe(bookmarkResponseDataOne.createdBookmark["url"]);
 
       });
     });
@@ -194,7 +194,7 @@ describe('AppController (e2e)', () => {
       });
     });
 
-    
+
 
   });
 
@@ -228,7 +228,7 @@ describe('AppController (e2e)', () => {
         const tags: Array<any> = result.body.tags;
         console.log(tags)
         targetTags.forEach((tag) => {
-          expect(tags.map((tag)=>{return tag.tag}).includes(tag)).toBeTruthy()
+          expect(tags.map((tag) => { return tag.tag }).includes(tag)).toBeTruthy()
         })
       });
     });
@@ -256,10 +256,10 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(true);
 
-        const bookmarks:Array<any> = result.body.bookmarks;
+        const bookmarks: Array<any> = result.body.bookmarks;
         expect(bookmarks.length).toBe(2);
-        expect(bookmarks[bookmarks.length-1]["url"]).toBe('https://www.test-change.com');
-        expect(bookmarks[bookmarks.length-1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
+        expect(bookmarks[bookmarks.length - 1]["url"]).toBe('https://www.test-change.com');
+        expect(bookmarks[bookmarks.length - 1]["tags"][0]['tag']).toBe(bookmarkResponseDataOne.createdBookmark["tags"][0]['tag']);
       });
     });
 
@@ -282,20 +282,20 @@ describe('AppController (e2e)', () => {
       const bookmarkId = bookmarkResponseDataOne.createdBookmark.id
       it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
         const result = await privateTest().delete(`/api/bookmark/${bookmarkId}`, accessToken)
-          
-          expect(result.status).toBe(200)
-          expect(result.body.success).toBe(true);
-          expect(result.body.message).toBe('Deleted');
-          
+
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('Deleted');
+
       });
     });
 
     describe('user/ (delete)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
         const result = await privateTest().delete('/api/user', accessToken)
-          expect(result.status).toBe(200)
-          expect(result.body.success).toBe(true);
-          expect(result.body.message).toBe('deleted');
+        expect(result.status).toBe(200)
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('deleted');
       });
     });
   })

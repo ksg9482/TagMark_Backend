@@ -6,4 +6,4 @@ import { PostgresqlDataServicesModule } from "src/frameworks/data-services/postg
   exports: [PostgresqlDataServicesModule],
 })
 
-export class DataServicesModule {}
+export class DataServicesModule { }

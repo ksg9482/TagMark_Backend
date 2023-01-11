@@ -21,7 +21,7 @@ export class User implements UserAbstract {
     @ApiProperty({ description: 'id' })
     id: number;
 
-    @Column({unique:true})
+    @Column({ unique: true })
     @ApiProperty({ description: '이메일' })
     email: string;
 
@@ -31,16 +31,16 @@ export class User implements UserAbstract {
     @ApiProperty({ description: '비밀번호' })
     password: string;
 
-    @Column({default:'익명'})
+    @Column({ default: '익명' })
     @MaxLength(20)
     @ApiProperty({ description: '별명' })
     nickname: string;
 
-    @Column({type:'enum', enum:UserRole, default:UserRole.USER})
+    @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
     @ApiProperty({ description: '유저/매니저' })
     role: UserRole
 
-    @Column({type:'enum', enum:UserType, default:UserType.BASIC})
+    @Column({ type: 'enum', enum: UserType, default: UserType.BASIC })
     @ApiProperty({ description: '유저 가입 유형' })
     type: UserType
 
@@ -48,9 +48,9 @@ export class User implements UserAbstract {
         () => Bookmark,
         bookmark => bookmark.user
     )
-    bookmarks?:Bookmark[]
+    bookmarks?: Bookmark[]
 
-    
+
     @CreateDateColumn()
     @ApiProperty({ description: '가입날짜' })
     createdAt: Date;
@@ -62,8 +62,8 @@ export class User implements UserAbstract {
 
     @BeforeInsert()
     @BeforeUpdate()
-    async hashPassword?():Promise<void>{
-        if(this.password){
+    async hashPassword?(): Promise<void> {
+        if (this.password) {
             try {
                 this.password = await bcrypt.hash(this.password, 10)
             } catch (error) {
@@ -71,7 +71,7 @@ export class User implements UserAbstract {
             }
         }
     }
-    
+
 
     async checkPassword?(aPassword: string): Promise<boolean> {
         try {
@@ -82,6 +82,6 @@ export class User implements UserAbstract {
     }
 }
 
-export class ResponseUser extends OmitType(User, ['password' ,'role', 'type'] as const) {
+export class ResponseUser extends OmitType(User, ['password', 'role', 'type'] as const) {
 
 }

@@ -4,4 +4,4 @@ export interface BookmarkAndTag extends Pick<Bookmarks_Tags, 'bookmarkId'> {
     tagIds: number[];
 };
 
-export interface BookmarkTagMap extends Pick<Bookmarks_Tags, 'bookmarkId' | 'tagId'> {};
+export interface BookmarkTagMap extends Pick<Bookmarks_Tags, 'bookmarkId' | 'tagId'> { };

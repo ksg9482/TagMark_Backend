@@ -11,4 +11,4 @@ import { UserUseCases } from './user.use-case';
     providers: [UserFactoryService, UserUseCases, Logger],
     exports: [UserFactoryService, UserUseCases]
 })
-export class UserUsecasesModule {}
+export class UserUsecasesModule { }

@@ -11,14 +11,14 @@ export class BookmarkUseCases {
         @Inject(DataServices)
         private dataService: DataServices,
     ) { }
-    
+
     async createBookmark(userId: number, createBookmarkDto: CreateBookmarkDto): Promise<Bookmark> {
         const { tagNames, url } = createBookmarkDto;
         const bookmark = await this.dataService.bookmarks.getBookmarkByUrl(url)
         if (bookmark) {
             throw new HttpException('Bookmark is aleady exist', HttpStatus.BAD_REQUEST)
         }
-        
+
         const createdBookmark = await this.dataService.bookmarks.create({
             url: url,
             userId: userId,
@@ -35,7 +35,7 @@ export class BookmarkUseCases {
     async getUserAllBookmarks(userId: number, page: GetUserAllBookmarksDto) {
         const limit = page.getLimit()
         const offset = page.getOffset()
-        
+
         const bookmarks: Page<Bookmark> = await this.dataService.bookmarks.getUserAllBookmarks(
             userId,
             {
@@ -45,11 +45,11 @@ export class BookmarkUseCases {
         );
         this.bookmarksNullCheck(bookmarks.bookmarks)
         const bookmarksForm = this.bookmarksNullCheck(bookmarks.bookmarks)
-        return {...bookmarks, bookmarks:bookmarksForm}
+        return { ...bookmarks, bookmarks: bookmarksForm }
     }
-    
-    protected bookmarksNullCheck(bookmarks:Bookmark[]) {
-        const result = bookmarks.map((bookmark)=>{
+
+    protected bookmarksNullCheck(bookmarks: Bookmark[]) {
+        const result = bookmarks.map((bookmark) => {
             if (!bookmark.tags[0]) {
                 bookmark.tags = null
             }
@@ -62,37 +62,37 @@ export class BookmarkUseCases {
         const { count } = await this.dataService.bookmarks.getcount(userId)
         return count
     }
+
+
+    /*
+    처음에는 그냥 방어적으로 에러 나올만한 부분에 예외처리
+    그 다음에는 트라이 캐치에 넣어놓으면 캐치로 들어가니까 컨트롤러에만 트라이캐치해서 잡게 만들었다.
+    지금은 함수를 트라이캐치블로에 넣는걸로 한다. 왜? 에러 처리할때 그게 더 명확히 할 수 있으니까.
     
-
-/*
-처음에는 그냥 방어적으로 에러 나올만한 부분에 예외처리
-그 다음에는 트라이 캐치에 넣어놓으면 캐치로 들어가니까 컨트롤러에만 트라이캐치해서 잡게 만들었다.
-지금은 함수를 트라이캐치블로에 넣는걸로 한다. 왜? 에러 처리할때 그게 더 명확히 할 수 있으니까.
-
-트라이캐치 범벅인건 어떻게 보일러 플레이트인데? 래핑할 생각. 
-
-
-연동 db연결.
-프론트엔드 페이지, 블럭, 아톰 나누기.
-인터페이스 정리
-안쓰는거 정리해서 ver2넘길 준비
-ws 뒤에 was 놔두기
-도커에 넣기
-서버는 ec2 프론트는 s3로.
+    트라이캐치 범벅인건 어떻게 보일러 플레이트인데? 래핑할 생각. 
+    
+    
+    연동 db연결.
+    프론트엔드 페이지, 블럭, 아톰 나누기.
+    인터페이스 정리
+    안쓰는거 정리해서 ver2넘길 준비
+    ws 뒤에 was 놔두기
+    도커에 넣기
+    서버는 ec2 프론트는 s3로.
+    
+    
+    */
 
 
-*/
-
-
-    async syncBookmark(bookmarks:Bookmark[]) {
+    async syncBookmark(bookmarks: Bookmark[]) {
         const bookmarkInsert = await this.dataService.bookmarks.syncBookmark(bookmarks)
-        
+
         await this.saveBookmarkTag(bookmarkInsert);
-        
+
         return bookmarkInsert
     }
 
-    protected async saveBookmarkTag(bookmarks:Bookmark[]) {
+    protected async saveBookmarkTag(bookmarks: Bookmark[]) {
         const getBookmarkIdAndTagId = (bookmarks: Bookmark[]) => {
             const result = bookmarks.map((bookmark) => {
                 if (bookmark.tags.length <= 0) {
@@ -107,8 +107,8 @@ ws 뒤에 was 놔두기
             return result;
         };
 
-        const getBookmarkTagMap = (bookmarksAndTags: BookmarkAndTag[]):BookmarkTagMap[] => {
-            const bookmarkTagMap:BookmarkTagMap[] = [];
+        const getBookmarkTagMap = (bookmarksAndTags: BookmarkAndTag[]): BookmarkTagMap[] => {
+            const bookmarkTagMap: BookmarkTagMap[] = [];
             for (let bookmarksTags of bookmarksAndTags) {
                 for (let tagId of bookmarksTags.tagIds) {
                     bookmarkTagMap.push(
@@ -142,7 +142,7 @@ ws 뒤에 was 놔두기
 
     async findBookmark(userId: number, bookmarkId: number): Promise<Bookmark> {
         const bookmark = await this.dataService.bookmarks.getUserBookmark(userId, bookmarkId);
-        
+
         if (!bookmark) {
             throw new HttpException('Bookmark not found', HttpStatus.BAD_REQUEST)
         };

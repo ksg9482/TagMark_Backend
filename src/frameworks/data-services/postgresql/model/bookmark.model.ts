@@ -15,31 +15,31 @@ export class Bookmark implements BookmarkAbstract {
     @ManyToOne(
         () => User,
         user => user.bookmarks,
-        {onDelete:"CASCADE"},
+        { onDelete: "CASCADE" },
     )
     @JoinColumn({
         name: 'userId',
-        referencedColumnName:'id'
+        referencedColumnName: 'id'
     })
-    user?:User;
+    user?: User;
 
     @Column()
     @ApiProperty({ description: '북마크 생성한 유저 아이디' })
     userId: number
 
     @OneToMany(
-        ()=>Bookmarks_Tags,
+        () => Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.tag
     )
-   
-    @ApiProperty({ description: '태그 배열', type:()=>[Tag]})
-    tags:Tag[]
-    
-    @CreateDateColumn({type: "timestamp"})
+
+    @ApiProperty({ description: '태그 배열', type: () => [Tag] })
+    tags: Tag[]
+
+    @CreateDateColumn({ type: "timestamp" })
     @ApiProperty({ description: '생성날짜' })
     createdAt: Date;
 
-    @CreateDateColumn({type: "timestamp"})
+    @CreateDateColumn({ type: "timestamp" })
     @ApiProperty({ description: '수정날짜' })
     updatedAt: Date;
 

@@ -10,22 +10,22 @@ export class Tag implements TagAbstract {
     @ApiProperty({ description: 'id' })
     id: number;
 
-    @Column({unique:true})
+    @Column({ unique: true })
     @ApiProperty({ description: '태그' })
     tag: string;
 
     @OneToMany(
-        ()=>Bookmarks_Tags,
+        () => Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.bookmark,
-        {onDelete:"CASCADE"}
+        { onDelete: "CASCADE" }
     )
-    bookmarks?:Bookmark[]
+    bookmarks?: Bookmark[]
 
-    @CreateDateColumn({type: "timestamp"})
+    @CreateDateColumn({ type: "timestamp" })
     @ApiProperty({ description: '생성날짜' })
     createdAt: Date;
 
-    @CreateDateColumn({type: "timestamp"})
+    @CreateDateColumn({ type: "timestamp" })
     @ApiProperty({ description: '수정날짜' })
     updatedAt: Date;
 

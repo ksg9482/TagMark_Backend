@@ -4,7 +4,7 @@ import { PostgresqlGenericRepository } from './postgresql-generic-repository';
 import { BookmarkRepository } from 'src/core/abstracts';
 import { Bookmark, Bookmarks_Tags } from './model';
 import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
-import { BookmarkAndTag, BookmarkTagMap } from 'src/use-cases/interfaces/bookmark.interface';
+import { BookmarkTagMap } from 'src/use-cases/interfaces/bookmark.interface';
 
 
 @Injectable()
@@ -38,10 +38,11 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         return await this.bookmarkRepository.findOne({ where: { url: url } });
     }
     async getUserAllBookmarks(userId: number, page: any): Promise<Page<Bookmark>> {
-        const tagProperty = (/*entityName:string,properties:string[]*/) => {
-            const name = 'tag'
-            const test = ['id', 'tag']
-            return `'id', "tag"."id",'tag', "tag"."tag"`
+        const tagProperty = () => {
+            const id = `'id', "tag"."id"`;
+            const tag = `'tag', "tag"."tag"`;
+
+            return `${id},${tag}`
         }
         const { count } = await this.getcount(userId)
         const bookmarks = await this.bookmarkRepository.createQueryBuilder('bookmark')
@@ -49,7 +50,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
             .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
             .leftJoin('bookmarks_tags', 'bookmarks_tags', 'bookmarks_tags.bookmarkId = bookmark.id')
             .leftJoin('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
-            .where(`"userId" = :userId`, {userId: userId})
+            .where(`"userId" = :userId`, { userId: userId })
             .groupBy("bookmark.id")
             .orderBy('bookmark."createdAt"', 'DESC')
             .limit(page.take)
@@ -61,24 +62,24 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
     async getcount(userId: number): Promise<any> {
         const bookmarkCount = await this.bookmarkRepository.createQueryBuilder('bookmark')
             .select(`COUNT("bookmark".id)`)
-            .where(`"userId" = :userId`, {userId: userId})
+            .where(`"userId" = :userId`, { userId: userId })
             .getRawMany()
 
         return bookmarkCount[0]
     }
-    
+
     async syncBookmark(bookmarks: Bookmark[]) {
         const createdBookmarks = await this.bookmarkRepository.createQueryBuilder()
             .insert()
             .into(Bookmark)
             .values(bookmarks)
             .execute();
-            
+
         const bookmarkIdAndTagIdArr: any = createdBookmarks.identifiers;
         const completedBookmarks = bookmarks.map((bookmark, i) => {
             return { ...bookmark, id: bookmarkIdAndTagIdArr[i].id }
         })
-        
+
         return completedBookmarks
     }
 
