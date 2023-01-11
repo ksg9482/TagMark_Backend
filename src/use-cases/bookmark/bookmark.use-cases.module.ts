@@ -8,4 +8,4 @@ import { BookmarkUseCases } from './bookmark.use-case';
     providers: [BookmarkFactoryService, BookmarkUseCases],
     exports: [BookmarkFactoryService, BookmarkUseCases]
 })
-export class BookmarkUsecasesModule {}
+export class BookmarkUsecasesModule { }

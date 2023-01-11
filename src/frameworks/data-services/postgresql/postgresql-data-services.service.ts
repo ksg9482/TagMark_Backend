@@ -4,15 +4,13 @@ import { DataServices } from 'src/core/abstracts';
 import { Repository } from 'typeorm';
 import { User, Bookmark, Tag } from './model';
 import { PostgresqlBookmarkRepository } from './postgresql-bookmark-repository';
-import { PostgresqlGenericRepository } from './postgresql-generic-repository';
 import { PostgresqlTagRepository } from './postgresql-tag-repository';
 import { PostgresqlUserRepository } from './postgresql-user-repository';
 
 
 @Injectable()
-export class PostgresqlDataServices 
-implements DataServices, OnApplicationBootstrap 
-{
+export class PostgresqlDataServices
+    implements DataServices, OnApplicationBootstrap {
     users: PostgresqlUserRepository;
     bookmarks: PostgresqlBookmarkRepository;
     tags: PostgresqlTagRepository;
@@ -24,13 +22,13 @@ implements DataServices, OnApplicationBootstrap
         private BookmarkRepository: Repository<Bookmark>,
         @InjectRepository(Tag)
         private TagRepository: Repository<Tag>
-    ) {}
+    ) { }
 
-    
-    onApplicationBootstrap() { 
+
+    onApplicationBootstrap() {
         this.users = new PostgresqlUserRepository(this.UserRepository);
         this.bookmarks = new PostgresqlBookmarkRepository(this.BookmarkRepository);
         this.tags = new PostgresqlTagRepository(this.TagRepository);
-        
+
     }
 }

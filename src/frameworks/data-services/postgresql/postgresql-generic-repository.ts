@@ -9,7 +9,7 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     constructor(
         @Inject(Repository<T>)
         repository: Repository<T>
-        ) {
+    ) {
         this._repository = repository;
     }
 
@@ -26,7 +26,7 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     }
 
     async update(id: number, item: T) {
-        
+
     }
 
     async delete(id: any) {

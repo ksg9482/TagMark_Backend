@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Domain } from 'domain';
 import { DataServices } from 'src/core/abstracts';
-import { Bookmark, Bookmarks_Tags, Tag, User} from './model';
+import { Bookmark, Bookmarks_Tags, Tag, User } from './model';
 import { PostgresqlDataServices } from './postgresql-data-services.service';
 
 @Module({
@@ -19,7 +19,7 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
         database: config.get('DB_NAME'),
         synchronize: config.get('NODE_ENV') !== 'production',
         logging: config.get('NODE_ENV') !== 'production',
-        entities:[__dirname + './../../**/*.model{.ts,.js}'],
+        entities: [__dirname + './../../**/*.model{.ts,.js}'],
       })
     }),
     TypeOrmModule.forFeature([
@@ -32,7 +32,7 @@ import { PostgresqlDataServices } from './postgresql-data-services.service';
   ],
   providers: [
     {
-      provide: DataServices, 
+      provide: DataServices,
       useClass: PostgresqlDataServices
     }
   ],

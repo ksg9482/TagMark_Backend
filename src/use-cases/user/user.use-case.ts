@@ -120,17 +120,17 @@ export class UserUseCases {
         };
 
         const googleUserInfo = await getGoogleUserData(accessToken);
-        
+
         const googleUser = setGoogleUserForm(googleUserInfo.data);
 
-       
+
         let user = await this.findByEmail(googleUser.email);
-        
+
         if (!user) {
             const createdUser = await this.createUser(googleUser)
             user = createdUser;
         };
-        
+
 
         const jwtAccessToken = this.jwtService.sign(user);
         const jwtRefreshToken = this.jwtService.refresh(user);

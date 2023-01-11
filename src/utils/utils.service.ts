@@ -5,7 +5,7 @@ import { User } from "src/core";
 
 @Injectable()
 export class UtilsService {
-    async checkPassword(password: string, user:User): Promise<boolean> {
+    async checkPassword(password: string, user: User): Promise<boolean> {
         try {
             return await bcrypt.compare(password, user.password)
         } catch (error) {
@@ -15,28 +15,28 @@ export class UtilsService {
 
     secure() {
         const SECRET_KEY = process.env.CRYPTOJS_SECRET_KEY;
-        const encrypt = (message:string) => {
+        const encrypt = (message: string) => {
             const encrypted = CryptoJS.AES.encrypt(message, SECRET_KEY)
             return encrypted.toString()
         }
-        const decrypt = (data:string) => {
+        const decrypt = (data: string) => {
             const decrypted = CryptoJS.AES.decrypt(data, SECRET_KEY)
             return decrypted.toString(CryptoJS.enc.Utf8)
         }
-        const setItem = (key:string, item:string) => {
-            localStorage.setItem(key,encrypt(item))
+        const setItem = (key: string, item: string) => {
+            localStorage.setItem(key, encrypt(item))
         }
-        const getItem = (key:string) => {
+        const getItem = (key: string) => {
             const encrypted = localStorage.getItem(key)
-            if(!encrypted) {
+            if (!encrypted) {
                 return null
             }
             else {
                 return decrypt(encrypted)
             }
-            
+
         }
-        const removeItem = (key:string) => {
+        const removeItem = (key: string) => {
             localStorage.removeItem(key)
         }
         const local = () => {
@@ -44,26 +44,27 @@ export class UtilsService {
                 setItem, getItem, removeItem
             }
         }
-        const encryptWrapper = (data:any) => {
+        const encryptWrapper = (data: any) => {
             return encrypt(data)
         }
-        const decryptWrapper = (encryptStr:string) => {
+        const decryptWrapper = (encryptStr: string) => {
             try {
                 const result = decrypt(encryptStr)
-                if(!result) {throw false}
+                if (!result) { throw false }
                 return result
             } catch (error) {
                 return encryptStr;
             }
         }
-    
+
         const wrapper = () => {
             return {
                 encryptWrapper, decryptWrapper
             }
         }
-    
+
         return {
             local, wrapper
-        }}
+        }
+    }
 }

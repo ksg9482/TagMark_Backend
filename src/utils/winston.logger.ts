@@ -10,7 +10,7 @@ const dailyOptions = (level: string) => {
     datePattern: 'YYYY-MM-DD',
     dirname: logDir + `/${level}`,
     filename: `%DATE%.${level}.log`,
-    zippedArchive: true, 
+    zippedArchive: true,
   };
 };
 const baseFormat = winston.format.combine(
@@ -41,5 +41,5 @@ export const winstonLogger = WinstonModule.createLogger({
     new winstonDaily(dailyOptions('warn')),
     new winstonDaily(dailyOptions('error'))
   ],
-  
+
 });

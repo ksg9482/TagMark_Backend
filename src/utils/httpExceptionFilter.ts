@@ -9,7 +9,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
         const status = exception.getStatus();
-        const error:any = exception.getResponse();
+        const error: any = exception.getResponse();
 
         winstonLogger.error('요청 url : ', request.url);
         winstonLogger.error('error 정보 : ', error);

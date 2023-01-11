@@ -8,4 +8,4 @@ import { TagUseCases } from './tag.use-case';
     providers: [TagFactoryService, TagUseCases],
     exports: [TagFactoryService, TagUseCases]
 })
-export class TagUsecasesModule {}
+export class TagUsecasesModule { }

@@ -22,7 +22,7 @@ export class TagUseCases {
         if (tagCheck) {
             return tagCheck[0]
         }
-        
+
         const createdTag = await this.dataService.tags.create(createTagDto);
 
         return createdTag;
@@ -49,15 +49,15 @@ export class TagUseCases {
 
         return tags;
     };
-    
+
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
-        const attach = await this.dataService.tags.attachTag(userId,bookmarkId,tags)
+        const attach = await this.dataService.tags.attachTag(userId, bookmarkId, tags)
         return attach
     }
 
     async editTag(userId: number, tagId: number, editTagInputDto: EditTagDto) {
         const tag = await this.dataService.tags.get(tagId)
-        const createdTag = await this.dataService.tags.update(tagId,{tag:editTagInputDto.changeTag})
+        const createdTag = await this.dataService.tags.update(tagId, { tag: editTagInputDto.changeTag })
         const tagCheck = await this.getTagsByNames(editTagInputDto.changeTag)
         if (tagCheck) {
             return tagCheck[0]
@@ -69,12 +69,12 @@ export class TagUseCases {
         if (!Array.isArray(tagId)) {
             tagId = [tagId]
         }
-        
+
         const deletedTag = await this.dataService.tags.detachTag(bookmarkId, tagId)
         return { message: 'Deleted', deleteCount: deletedTag.affected }
     }
 
-    async getTagsByIds(tagId: number | number[]):Promise<Tag[]> {
+    async getTagsByIds(tagId: number | number[]): Promise<Tag[]> {
         if (!Array.isArray(tagId)) {
             tagId = [tagId]
         }
@@ -84,8 +84,8 @@ export class TagUseCases {
 
     async getUserAllTags(userId: number): Promise<Tag[]> {
         const tags = await this.dataService.tags.getUserAllTags(userId)
-        const countForm = tags.map((tag)=>{
-            return {...tag, count:Number(tag['count'])}
+        const countForm = tags.map((tag) => {
+            return { ...tag, count: Number(tag['count']) }
         })
         return countForm
     };
@@ -94,12 +94,12 @@ export class TagUseCases {
         const limit = page.getLimit()
         const offset = page.getOffset()
         const bookmarks = await this.dataService.tags.getTagSeatchOR(
-            userId, tags, 
+            userId, tags,
             {
                 take: limit,
                 skip: offset
             }
-            );
+        );
         return bookmarks;
     };
 
@@ -107,15 +107,15 @@ export class TagUseCases {
         const limit = page.getLimit()
         const offset = page.getOffset()
         const bookmarks = await this.dataService.tags.getTagSearchAND(
-            userId, tags, 
+            userId, tags,
             {
                 take: limit,
                 skip: offset
             }
-            );
+        );
         return bookmarks;
     };
-    
+
     protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]) {
         const tagArr = finedTagArr.map((tag) => {
             return tag.tag;
