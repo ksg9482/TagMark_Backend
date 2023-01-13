@@ -1,73 +1,61 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# TAG-MARK
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 기획
+인터넷을 검색하다보면 여러 내용을 탭으로 열어서 보다가 끄지는 않는 타입. 그래서 브라우저에는 탭이 가득하다. 좀 정리하려고 나중에 더 볼 것 같은 사이트는 북마크를 해놓는다.
+그런데 이렇게 북마크를 해놓으면 북마크 내용이 일부는 중복되고 일부는 도대체 내가 이걸 왜 북마크 해놓았는지 모르게된다.
+그래서 북마크에 태크를 지정하고 태그 기반으로 북마크를 관리할 수 있는 사이트를 구상하게 되었다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+___
 
-## Installation
+## 백엔드
+* 태그 기반 검색을 위해 태그의 OR연산과 AND연산 구현
+* 보안 및 로그인 유지를 위해 JWT(Json Web Token) 설정 
+* Google 소셜 로그인 구현
+* Swagger를 이용한 API 명세서 작성
 
-```bash
-$ npm install
-```
+### 기술 스택
+* nestjs 
+  * 이전부터 아키텍처에 관심이 많아 여러가지 아키텍처를 시도해보았다. nodejs 진영 프레임워크에서는 nestjs가 아키텍처에 대한 기준을 가지고 있었고, 모듈기반 아키텍처를 경험해보고 싶었기 때문에 프레임워크로 nestjs를 선택했다.
+* postgresql
+  * mysql과 문법도 비슷해서 익히기 쉬웠고, 최근 트렌드를 따라간 면도 있었다. 하지만 가장 큰 이유는 
+* nginx
+  * ws와 was 분리를 해야한다는 것만 생각하고 있었다가, 실제로 적용하기 위해 사용했다. 아파치도 ws에 있지만 nginx가 성능좋고 비동기 지원과 nodejs궁합이 좋아 선택했다.
+* docker
+  * 개발을 데스크탑과 노트북을 병행하며 했다. 같은 개발환경을 만들기 위해 도커를 이용했고, 배포할 때도 환경설정을 쉽게 하기 위해 이용.
+* ec2
+  * 헤로쿠를 이용하여 배포하려 했다가 무료 postgresql이 중단된다길래 환경설정부터 배포까지 스스로 해보자는 생각에 ec2를 이용했다.
 
-## Running the app
+___
 
-```bash
-# development
-$ npm run start
+## 데이터베이스 테이블 구조
+![tagmark_entities](https://user-images.githubusercontent.com/83062886/212309957-a1f19308-559a-4a0c-a626-40929ee2bd58.jpg)
+___
 
-# watch mode
-$ npm run start:dev
+## API 명세
+[링크]()
 
-# production mode
-$ npm run start:prod
-```
 
-## Test
+## 디렉토리 구성
+* Core
+  * 핵심부. 추상클래스와 엔티티가 존재하고 Core는 프레임워크와 분리되어 있다.
+* Controllers
+  * HTTP 요청을 해당 비즈니스 로직과 매칭한다. DTO가 존재하며, 비즈니스 로직에 맞게 데이터 형식을 가공하는 역할도 한다.
+* Frameworks
+  * 엔티티를 기반으로 한 DB 테이블 모델이 존재하고, 실제 데이터베이스에 쿼리를 전송한다.
+* Services
+  * 데이터베이스와의 연결을 서비스로서 제공한다.
+* Use-cases
+  * 설계한 비즈니스 로직으로 요청받은 데이터를 처리하여 응답할 데이터를 제공한다.
+* Utils
+  * JWT, Logger 등 유틸리티를 관리한다.
+* auth
+  * JWT 존재 여부와 정합성을 확인하고 요청한 유저ID를 요청에 삽입한다.
+___
 
-```bash
-# unit tests
-$ npm run test
+## 미리보기
+___
 
-# e2e tests
-$ npm run test:e2e
+#### 후기
 
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
