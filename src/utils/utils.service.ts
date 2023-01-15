@@ -67,4 +67,18 @@ export class UtilsService {
             local, wrapper
         }
     }
+
+    deepCopy(obj: any) {
+        if (obj instanceof Object) {
+            let result = new obj.constructor();
+            Object.keys(obj).forEach(k => {
+                result[k] = this.deepCopy(obj[k]);
+            })
+            return result;
+        }
+        else if (obj instanceof Array) {
+            let result = obj.map(element => this.deepCopy(element));
+        }
+        else return obj;
+    }
 }
