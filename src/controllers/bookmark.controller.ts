@@ -163,7 +163,7 @@ export class BookmarkController {
             const addTag = editBookmarkDto.addTag?.length > 0 ? editBookmarkDto.addTag : null;
 
             if (deleteTag) {
-                await this.tagUseCases.detachTag(userId, bookmarkId, deleteTag)
+                await this.tagUseCases.detachTag(bookmarkId, deleteTag)
             };
 
             if (addTag) {

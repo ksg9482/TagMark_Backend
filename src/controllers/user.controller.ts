@@ -240,7 +240,7 @@ export class UserController {
         const googleOauthResponse = new GoogleOauthResponseDto();
         const secureWrap = this.utilServices.secure().wrapper()
         try {
-            const { user, jwtAccessToken, jwtRefreshToken } = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
+            const { propertyDeletedUser:user, jwtAccessToken, jwtRefreshToken } = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
 
             const encrytedToken = {
                 accessToken: secureWrap.encryptWrapper(jwtAccessToken),

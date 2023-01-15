@@ -145,7 +145,7 @@ export class TagController {
         const deleteTagResponse = new DeleteTagResponseDto()
         try {
             const numTagIds = tagIds.split(',').map((strNum)=>{return parseInt(strNum)})
-            const result = await this.tagUseCases.detachTag(userId, bookmarkId, numTagIds)
+            const result = await this.tagUseCases.detachTag(bookmarkId, numTagIds)
             
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';

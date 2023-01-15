@@ -20,8 +20,8 @@ export class TagUseCases {
     async createTag(userId: number, createTagDto: CreateTagDto): Promise<Tag> {
         const tagCheck = await this.getTagsByNames(createTagDto.tag)
         if (tagCheck) {
-            return tagCheck[0]
-        }
+            return tagCheck[0];
+        };
 
         const createdTag = await this.dataService.tags.create(createTagDto);
 
@@ -30,19 +30,20 @@ export class TagUseCases {
 
     async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
         if (!Array.isArray(tagName)) {
-            tagName = [tagName]
+            tagName = [tagName];
         }
-        const tags = await this.tagFindOrCreate(tagName)
+        const tags = await this.tagFindOrCreate(tagName);
+
         return tags;
     };
 
     protected async tagFindOrCreate(tagNames: string[]) {
-        let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames)
+        let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames);
 
         const tagFilter = this.tagFilter(tags, tagNames)
         if (tagFilter) {
             const createTags = tagFilter.map(tag => { return this.dataService.tags.createForm({ tag: tag }) })
-            const insertBulk = await this.dataService.tags.insertBulk(createTags)
+            await this.dataService.tags.insertBulk(createTags)
 
             tags = [...tags, ...createTags];
         };
@@ -51,21 +52,12 @@ export class TagUseCases {
     };
 
     async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
-        const attach = await this.dataService.tags.attachTag(userId, bookmarkId, tags)
-        return attach
+        const attach = await this.dataService.tags.attachTag(userId, bookmarkId, tags);
+       
+        return attach;
     }
 
-    async editTag(userId: number, tagId: number, editTagInputDto: EditTagDto) {
-        const tag = await this.dataService.tags.get(tagId)
-        const createdTag = await this.dataService.tags.update(tagId, { tag: editTagInputDto.changeTag })
-        const tagCheck = await this.getTagsByNames(editTagInputDto.changeTag)
-        if (tagCheck) {
-            return tagCheck[0]
-        }
-        return { message: 'Updated' }
-    }
-
-    async detachTag(userId: number, bookmarkId: number, tagId: number | number[]) {
+    async detachTag(bookmarkId: number, tagId: number | number[]) {
         if (!Array.isArray(tagId)) {
             tagId = [tagId]
         }

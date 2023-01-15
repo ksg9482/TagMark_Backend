@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import * as jwt from "jsonwebtoken";
 import { JwtModuleOptions } from './jwt.interfaces';
 
@@ -29,10 +29,18 @@ export class JwtService {
     };
 
     verify(token: string) {
-        return jwt.verify(token, this.options.privateKey, { algorithms: ['HS256'] });
+        const result = jwt.verify(token, this.options.privateKey, { algorithms: ['HS256'] });
+        if (!result) {
+            throw new HttpException('Token expire', HttpStatus.BAD_REQUEST);
+        };
+        return result
     }
 
     refreshVerify(token: string) {
-        return jwt.verify(token, this.options.refreshPrivateKey, { algorithms: ['HS256'] });
+        const result = jwt.verify(token, this.options.refreshPrivateKey, { algorithms: ['HS256'] });
+        if (!result) {
+            throw new HttpException('Token expire', HttpStatus.BAD_REQUEST);
+        };
+        return result
     }
 }
