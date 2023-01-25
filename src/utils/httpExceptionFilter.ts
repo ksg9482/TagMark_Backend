@@ -11,9 +11,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception.getStatus();
         const error: any = exception.getResponse();
 
-        winstonLogger.error('요청 url : ', request.url);
-        winstonLogger.error('error 정보 : ', error);
-        winstonLogger.error('발생 시간 : ', new Date().toISOString());
+        winstonLogger.error('Request url : ', request.url);
+        winstonLogger.error('error Info : ', error);
+        winstonLogger.error('Time : ', new Date().toISOString());
         response.status(status).json({
             success: false,
             message: error
