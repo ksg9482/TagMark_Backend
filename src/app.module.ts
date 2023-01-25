@@ -12,6 +12,7 @@ import { BookmarkController, TagController, UserController } from './controllers
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/httpExceptionFilter';
+import { CommonController } from './controllers/common.controller';
 
 
 
@@ -20,7 +21,6 @@ import { HttpExceptionFilter } from './utils/httpExceptionFilter';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
-      ignoreEnvFile: process.env.NODE_ENV === 'production',
       validate
     }),
     AuthModule,
@@ -37,7 +37,8 @@ import { HttpExceptionFilter } from './utils/httpExceptionFilter';
   controllers: [
     UserController,
     BookmarkController,
-    TagController
+    TagController,
+    CommonController
   ],
   providers: [
     Logger,

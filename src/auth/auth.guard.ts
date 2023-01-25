@@ -1,9 +1,4 @@
 import { CanActivate, ExecutionContext, HttpException, HttpStatus, Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
-import { Request } from 'express';
-import { DataServices } from 'src/core/abstracts';
-import { JwtService } from 'src/jwt/jwt.service';
-import { UtilsService } from 'src/utils/utils.service';
-import { winstonLogger } from 'src/utils/winston.logger';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -17,11 +12,11 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     try {
-      
       const caseMap = {
-        signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'}
+        signup:()=>{return request.method === 'POST' && request.url.split('/')[1] === 'api' && request.url.split('/')[2] === 'user'},
+        connectionCheck:()=>{return request.method === 'GET' && request.url.split('/')[1] === ''}
       };
-      if(caseMap.signup()) {
+      if(caseMap.signup() || caseMap.connectionCheck()) {
         return true;
       }
       
@@ -30,14 +25,14 @@ export class AuthGuard implements CanActivate {
         const decoded = this.authServices.accessTokenDecode(accessToken);
         const userInfo = await this.authServices.getUserInfo(decoded['id']);
         if (!userInfo) {
-          this.logger.error('유저 정보가 없습니다.')
+          this.logger.error('User not exists.')
           throw false;
         };
         
         request.userId = userInfo.id;
         return true;
       } else {
-        this.logger.error('엑세스 토큰이 없습니다.')
+        this.logger.error('Access token not exists.')
         throw false;
       }
     } catch (error) {
@@ -50,7 +45,7 @@ export class AuthGuard implements CanActivate {
         throw new HttpException('TokenExpiredError', HttpStatus.BAD_REQUEST)
       }
       
-      this.logger.error('Auth Guard가 접근을 거부했습니다.')
+      this.logger.error('Reject by Auth Guard.')
       return false;
     }
   }
