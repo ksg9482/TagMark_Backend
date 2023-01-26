@@ -56,19 +56,7 @@ export class UserController {
 
         const createUserResponse = new CreateUserResponseDto();
         try {
-            const secureWrap = this.utilServices.secure().wrapper()
-            let signupData = {
-                ...userDto,
-                email: secureWrap.decryptWrapper(userDto.email),
-                password: secureWrap.decryptWrapper(userDto.password)
-            }
-            if (userDto.nickname) {
-                signupData = {
-                    ...signupData,
-                    nickname: secureWrap.decryptWrapper(userDto.nickname)
-                }
-            }
-            const user = this.userFactoryService.createNewUser(signupData);
+            const user = this.userFactoryService.createNewUser(userDto);
 
             const createdUser = await this.userUseCases.createUser(user);
 
@@ -114,12 +102,7 @@ export class UserController {
         const loginResponse = new LoginResponseDto();
         try {
             const secureWrap = this.utilServices.secure().wrapper()
-            const loginData = {
-                ...loginDto,
-                email: secureWrap.decryptWrapper(loginDto.email),
-                password: secureWrap.decryptWrapper(loginDto.password)
-            }
-            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginData);
+            const { user, accessToken, refreshToken } = await this.userUseCases.login(loginDto);
             const encrytedToken = {
                 accessToken: secureWrap.encryptWrapper(accessToken),
                 refreshToken: secureWrap.encryptWrapper(refreshToken)
@@ -147,11 +130,6 @@ export class UserController {
     ): Promise<EditUserResponseDto> {
         const editUserResponse = new EditUserResponseDto();
         try {
-            const secureWrap = this.utilServices.secure().wrapper();
-            if (editUserDto.changePassword?.length > 0) {
-                editUserDto.changePassword = secureWrap.decryptWrapper(editUserDto.changePassword)
-            }
-            
             await this.userUseCases.editUser(userId, editUserDto);
             editUserResponse.success = true;
             editUserResponse.message = 'updated';
@@ -166,12 +144,15 @@ export class UserController {
     @ApiCreatedResponse({ description: '유저 데이터를 삭제하고 deleted 메시지를 반환한다.', type: DeleteUserResponseDto })
     @Delete('/')
     async deleteUser(
-        @AuthUser() userId: number
+        @AuthUser() userId: number,
+        @Res({ passthrough: true }) res: Response
     ): Promise<DeleteUserResponseDto> {
         const deleteUserResponse = new DeleteUserResponseDto();
         try {
             const deleteUser = await this.userUseCases.deleteUser(userId);
-
+            res.clearCookie('refreshToken')
+            res.clearCookie('accessToken')
+            res.clearCookie('Authorization')
             deleteUserResponse.success = true;
             deleteUserResponse.message = 'deleted';
             return deleteUserResponse;
@@ -191,6 +172,7 @@ export class UserController {
         try {
             res.clearCookie('refreshToken')
             res.clearCookie('accessToken')
+            res.clearCookie('Authorization')
             logOutResponse.success = true
             logOutResponse.message = 'logout'
             return logOutResponse

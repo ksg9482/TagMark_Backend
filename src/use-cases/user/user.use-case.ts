@@ -22,8 +22,8 @@ export class UserUseCases {
         const { email } = createUserDto;
         const user = await this.findByEmail(email);
         if (user) {
-            this.logger.error('이미 가입된 이메일 입니다.')
-            throw new HttpException('이미 가입된 이메일 입니다.', HttpStatus.BAD_REQUEST);
+            this.logger.error('Email Already exists.')
+            throw new HttpException('Email Already exists.', HttpStatus.BAD_REQUEST);
         };
 
         const createdUser = await this.dataServices.users.create(createUserDto);
@@ -38,7 +38,7 @@ export class UserUseCases {
 
         const user = await this.findByEmail(email);
         if (!user) {
-            throw new HttpException('아이디가 없습니다.', HttpStatus.BAD_REQUEST);
+            throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
         };
         await this.checkPassword(password, user)
 
@@ -141,7 +141,7 @@ export class UserUseCases {
     protected async findById(id: number): Promise<User> {
         const user = await this.dataServices.users.get(id);
         if (!user) {
-            throw new HttpException('아이디가 없습니다.', HttpStatus.BAD_REQUEST);
+            throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
         };
 
         return user;
@@ -167,7 +167,7 @@ export class UserUseCases {
     private async checkPassword(password: string, user: User): Promise<boolean> {
         const result = await this.utilServices.checkPassword(password, user);
         if (!result) {
-            throw new HttpException('잘못된 비밀번호 입니다.', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Invalid password.', HttpStatus.BAD_REQUEST);
         }
 
         return result;

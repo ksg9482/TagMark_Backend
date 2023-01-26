@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsObject, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { ResponseUser, User } from "src/frameworks/data-services/postgresql/model";
 import { BaseResponseDto } from "../common/base-response.dto";
 
@@ -13,6 +13,7 @@ export class CreateUserDto {
   @ApiProperty({ description: '비밀번호'})
   @IsString()
   //@Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
+  @MinLength(6)
   @IsNotEmpty()
   password: string;
 

@@ -226,7 +226,6 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(200)
         expect(result.body.success).toBe(tagResponseData.success);
         const tags: Array<any> = result.body.tags;
-        console.log(tags)
         targetTags.forEach((tag) => {
           expect(tags.map((tag) => { return tag.tag }).includes(tag)).toBeTruthy()
         })
