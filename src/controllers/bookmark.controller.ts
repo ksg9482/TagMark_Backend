@@ -67,7 +67,6 @@ export class BookmarkController {
             
             const setSyncBookmarkForm = (userId:number, bookmarks:Bookmark[], tags:Tag[]): Bookmark[] => {
                 const result = bookmarks.map((bookmark) => {
-                    const changedUrl = this.utilServices.secure().wrapper().decryptWrapper(bookmark.url)
                     const localTags = bookmark.tags;
                     const changedTags = localTags.map((localtag)=>{
                         const targetTag = tags.find((dbTag)=>{
@@ -76,7 +75,7 @@ export class BookmarkController {
                         return targetTag;
                     })
                     Reflect.deleteProperty(bookmark, 'id');
-                    return {...bookmark, url:changedUrl, tags:changedTags, userId:userId};
+                    return {...bookmark, tags:changedTags, userId:userId};
                 });
                 return result
             };
