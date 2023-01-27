@@ -13,7 +13,7 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: process.env.SERVER_HOST,
     credentials: true
   });
   app.use(cookieParser());
