@@ -31,9 +31,12 @@ ___
 ![tagmark_entities](https://user-images.githubusercontent.com/83062886/212309957-a1f19308-559a-4a0c-a626-40929ee2bd58.jpg)
 ___
 
+## 시스템 아키텍처
+![tagmark_architecture_docker_ver drawio](https://user-images.githubusercontent.com/83062886/215265244-9791b4e3-5c7a-4395-a449-a9afb47d6e6d.jpg)
+___
+
 ## API 명세
 [swagger](https://server.tagmark.site/api-docs)
-
 
 ## 디렉토리 구성
 * Core
