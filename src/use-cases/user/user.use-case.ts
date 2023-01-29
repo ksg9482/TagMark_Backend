@@ -97,7 +97,6 @@ export class UserUseCases {
     async googleOauth(accessToken: string) {
         const googleUserInfo = await this.getGoogleUserData(accessToken);
         const googleUser = this.setGoogleUserForm(googleUserInfo.data);
-
         let user = await this.findByEmail(googleUser.email);
         if (!user) {
             const createdUser = await this.createUser(googleUser)
