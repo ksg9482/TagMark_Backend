@@ -35,7 +35,7 @@ ___
 ___
 
 ## 시스템 아키텍처
-![tagmark_architecture_docker_ver drawio](https://user-images.githubusercontent.com/83062886/215265244-9791b4e3-5c7a-4395-a449-a9afb47d6e6d.jpg)
+![tagmark_architecture_rds_ver drawio](https://user-images.githubusercontent.com/83062886/215636681-907b575a-4e38-4ef3-b01e-8ad29758c6a8.jpg)
 ___
 
 ## API 명세
