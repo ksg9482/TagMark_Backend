@@ -76,7 +76,10 @@ ___
 ___
 
 ## 미리보기
+* 북마크 페이지
 ![tagmark_main](https://user-images.githubusercontent.com/83062886/215687289-e6302bd4-b5dc-4651-9023-369057bb5046.jpg)
+
+* 유저 정보 페이지
 ![tagmark_userinfo](https://user-images.githubusercontent.com/83062886/215687317-fc14e2c6-a28a-4ed8-9c7e-ac9d638d278c.jpg)
 
 ___
