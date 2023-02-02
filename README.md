@@ -35,7 +35,7 @@ ___
 
 ### 데이터베이스 제약조건
 <details>
-<summary>User</summary>
+<summary><b>User</b></summary>
 
 * 유저의 Email은 중복되지 않아야 한다.
 * 비밀번호는 6자 이상, 30자 이하여야 한다.
@@ -46,7 +46,7 @@ ___
 </details>
 
 <details>
-<summary>Bookmark</summary>
+<summary><b>Bookmark</b></summary>
 
 * 유저는 복수의 북마크를 가질 수 있다.
 * 유저 데이터가 삭제되면 북마크 데이터도 Cascade되어야 한다.
@@ -56,7 +56,7 @@ ___
 </details>
 
 <details>
-<summary>Tag</summary>
+<summary><b>Tag</b></summary>
 
 * 북마크 데이터가 삭제되면 해당 북마크가 소유한 태그에 대한 연결도 삭제되어야 한다.
 * 태그는 중복되지 않아야 한다.
@@ -70,23 +70,36 @@ ___
 
 ## API 명세
 [Swagger](https://server.tagmark.site/api-docs)
-* User
-  * 회원가입
-  * 로그인
-  * 소셜 로그인
-  * 회원 정보 수정
-  * 로그아웃
-  * 회원 탈퇴
-* Bookmark
-  * 북마크 생성
-  * 북마크 수정
-  * 작성한 북마크 가져오기
-  * 북마크 삭제
-* Tag
-  * 태그 생성
-  * 태그 수정
-  * 태그 삭제
-  * 태그 기반 검색
+<details>
+<summary><b>api/user</b></summary>
+
+* 회원가입
+* 로그인
+* 소셜 로그인
+* 회원 정보 수정
+* 로그아웃
+* 회원 탈퇴
+</details>
+
+<details>
+<summary><b>api/bookmark</b></summary>
+
+* 북마크 생성
+* 북마크 수정
+* 작성한 북마크 가져오기
+* 북마크 삭제
+</details>
+
+<details>
+<summary><b>api/tag</b></summary>
+
+* 태그 생성
+* 태그 수정
+* 태그 삭제
+* 태그 기반 검색
+</details>
+
+___
 
 ## 디렉토리 구성
 * Core
