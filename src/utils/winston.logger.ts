@@ -19,17 +19,17 @@ const baseFormat = winston.format.combine(
   winston.format((info) => {
     info.level = info.level.toUpperCase();
     return info;
-  })(),
+  })()
 );
 
 const splunkFormat = winston.format.combine(
   baseFormat,
-  winston.format.json(),
+  winston.format.json()
 );
 
 const prettyFormat = winston.format.combine(
   baseFormat,
-  winston.format.prettyPrint(),
+  winston.format.prettyPrint()
 );
 
 export const winstonLogger = WinstonModule.createLogger({
@@ -40,6 +40,5 @@ export const winstonLogger = WinstonModule.createLogger({
     new winstonDaily(dailyOptions('info')),
     new winstonDaily(dailyOptions('warn')),
     new winstonDaily(dailyOptions('error'))
-  ],
-
+  ]
 });

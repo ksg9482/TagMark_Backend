@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UserUseCases } from 'src/use-cases/user';
 import { UtilsService } from 'src/utils/utils.service';
-
-enum AuthorizationType {
-    Bearer = 'Bearer'
-}
+import { AuthorizationType } from './auth.interface';
 
 @Injectable()
 export class AuthService {

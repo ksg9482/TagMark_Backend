@@ -20,31 +20,41 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
     ;
 
     async create(item: Partial<Bookmark>): Promise<Bookmark> {
-        return await this.bookmarkRepository.save(this.bookmarkRepository.create(item))
-    }
+        return await this.bookmarkRepository.save(this.bookmarkRepository.create(item));
+    };
 
     async update(id: number, item: Bookmark): Promise<any> {
         return await this.bookmarkRepository.update(id, item);
     };
 
     async getAll(): Promise<Bookmark[]> {
-        return await this.bookmarkRepository.find({ relations: ['tags'] })
-    }
+        return await this.bookmarkRepository.find({ relations: ['tags'] });
+    };
 
     async getUserBookmark(userId: number, bookmarkId: number): Promise<Bookmark> {
-        return await this.bookmarkRepository.findOne({ where: { userId: userId, id: bookmarkId } })
+        return await this.bookmarkRepository.findOne({ 
+            where: { 
+                userId: userId, 
+                id: bookmarkId 
+            } 
+        });
     };
+
     async getBookmarkByUrl(url: string): Promise<Bookmark> {
-        return await this.bookmarkRepository.findOne({ where: { url: url } });
+        return await this.bookmarkRepository.findOne({ 
+            where: { 
+                url: url 
+            } 
+        });
     }
     async getUserAllBookmarks(userId: number, page: any): Promise<Page<Bookmark>> {
         const tagProperty = () => {
             const id = `'id', "tag"."id"`;
             const tag = `'tag', "tag"."tag"`;
 
-            return `${id},${tag}`
+            return `${id},${tag}`;
         }
-        const { count } = await this.getcount(userId)
+        const { count } = await this.getcount(userId);
         const bookmarks = await this.bookmarkRepository.createQueryBuilder('bookmark')
             .select(`"bookmark".*`)
             .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
@@ -55,20 +65,20 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
             .orderBy('bookmark."createdAt"', 'DESC')
             .limit(page.take)
             .offset(page.skip)
-            .getRawMany()
+            .getRawMany();
 
-        return new Page<Bookmark>(Number(count), page.take, bookmarks)
+        return new Page<Bookmark>(Number(count), page.take, bookmarks);
     }
     async getcount(userId: number): Promise<any> {
         const bookmarkCount = await this.bookmarkRepository.createQueryBuilder('bookmark')
             .select(`COUNT("bookmark".id)`)
             .where(`"userId" = :userId`, { userId: userId })
-            .getRawMany()
+            .getRawMany();
 
-        return bookmarkCount[0]
+        return bookmarkCount[0];
     }
 
-    async syncBookmark(bookmarks: Bookmark[]) {
+    async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
         const createdBookmarks = await this.bookmarkRepository.createQueryBuilder()
             .insert()
             .into(Bookmark)
@@ -78,12 +88,12 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         const bookmarkIdAndTagIdArr: any = createdBookmarks.identifiers;
         const completedBookmarks = bookmarks.map((bookmark, i) => {
             return { ...bookmark, id: bookmarkIdAndTagIdArr[i].id }
-        })
+        });
 
-        return completedBookmarks
+        return completedBookmarks;
     }
 
-    async attachbulk(bookmarkTagMap: BookmarkTagMap[]) {
+    async attachbulk(bookmarkTagMap: BookmarkTagMap[]): Promise<any> {
 
         const attachBookmark = await this.bookmarkRepository.createQueryBuilder()
             .insert()

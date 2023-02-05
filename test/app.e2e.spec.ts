@@ -6,7 +6,6 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from 'src/utils/utils.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -57,19 +56,11 @@ describe('AppController (e2e)', () => {
       id: 1, email: "test1@test.com", nickname: "익명", role: "USER", type: "BASIC"
     }
   };
-  const util = new UtilsService();
-  const secureWrap = util.secure().wrapper()
 
   describe('user e2e', () => {
     describe('/ (post)', () => {
       it('정상적인 데이터를 전송하면 회원가입한다.', async () => {
-        let signupData = {
-          email: "",
-          password: ""
-        };
-        signupData.email = secureWrap.encryptWrapper(userParamsOne.email)
-        signupData.password = secureWrap.encryptWrapper(userParamsOne.password)
-        const result = await privateTest().post('/api/user').send(signupData)
+        const result = await privateTest().post('/api/user').send(userParamsOne)
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);
         expect(result.body.createdUser["email"]).toBe(userResponseDataOne.createdUser["email"]);
@@ -78,13 +69,7 @@ describe('AppController (e2e)', () => {
 
     describe('/login (post)', () => {
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
-        let loginData = {
-          email: "",
-          password: ""
-        };
-        loginData.email = secureWrap.encryptWrapper(userParamsOne.email)
-        loginData.password = secureWrap.encryptWrapper(userParamsOne.password)
-        const result = await privateTest().post('/api/user/login').send(loginData)
+        const result = await privateTest().post('/api/user/login').send(userParamsOne)
 
         expect(result.status).toBe(201)
         expect(result.body.success).toBe(true);

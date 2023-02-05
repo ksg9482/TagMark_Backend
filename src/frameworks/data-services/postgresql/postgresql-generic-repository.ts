@@ -14,22 +14,22 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
     }
 
     async getAll(): Promise<T[]> {
-        return await this._repository.find()
-    }
+        return await this._repository.find();
+    };
 
     async get(id: any): Promise<T> {
-        return await this._repository.findOne(id)
-    }
+        return await this._repository.findOne(id);
+    };
 
     async create(item: T): Promise<T> {
-        return await this._repository.save(this._repository.create(item))
-    }
+        return await this._repository.save(this._repository.create(item));
+    };
 
     async update(id: number, item: T) {
 
-    }
+    };
 
     async delete(id: any) {
-        return await this._repository.delete(id)
-    }
+        return await this._repository.delete(id);
+    };
 }

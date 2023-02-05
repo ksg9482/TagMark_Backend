@@ -22,7 +22,7 @@ export class PostgresqlDataServices
         private BookmarkRepository: Repository<Bookmark>,
         @InjectRepository(Tag)
         private TagRepository: Repository<Tag>
-    ) { }
+    ) { };
 
 
     onApplicationBootstrap() {

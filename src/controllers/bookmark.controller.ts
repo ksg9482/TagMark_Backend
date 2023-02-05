@@ -38,7 +38,7 @@ export class BookmarkController {
             if (createBookmarkDto.tagNames.length >= 0) {
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
-                await this.tagUseCases.attachTag(userId, createdBookmark.id, tags)
+                await this.tagUseCases.attachTag(createdBookmark.id, tags)
             }
             const addTags = { ...createdBookmark, tags: createdTags || [] };
             
@@ -167,7 +167,7 @@ export class BookmarkController {
 
             if (addTag) {
                 const tags = await this.tagUseCases.getTagsByNames(addTag)
-                await this.tagUseCases.attachTag(userId, bookmarkId, tags)
+                await this.tagUseCases.attachTag(bookmarkId, tags)
             };
 
             if (changeUrl) {

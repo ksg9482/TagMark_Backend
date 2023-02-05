@@ -25,15 +25,14 @@ export class Bookmark implements BookmarkAbstract {
 
     @Column()
     @ApiProperty({ description: '북마크 생성한 유저 아이디' })
-    userId: number
+    userId: number;
 
     @OneToMany(
         () => Bookmarks_Tags,
         bookmarks_tags => bookmarks_tags.tag
     )
-
     @ApiProperty({ description: '태그 배열', type: () => [Tag] })
-    tags: Tag[]
+    tags: Tag[];
 
     @CreateDateColumn({ type: "timestamp" })
     @ApiProperty({ description: '생성날짜' })

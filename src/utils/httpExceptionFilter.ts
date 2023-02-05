@@ -10,14 +10,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
         const status = exception.getStatus();
         const error: any = exception.getResponse();
+
         winstonLogger.error('Request url : ', request.url);
         winstonLogger.error('error Info : ', error);
         winstonLogger.error('Time : ', new Date().toISOString());
+
         let statusCode = status;
         if(error.status || error.statusCode) {
             statusCode = error.status || error.statusCode;
-        }
+        };
         //valid에서 에러 반환하면 statusCode로 반환함.
+        
         response.status(statusCode || 500).json({
             success: false,
             message: error.message || error

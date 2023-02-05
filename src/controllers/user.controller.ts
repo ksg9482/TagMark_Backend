@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Headers, HttpException, HttpStatus, Inject, Logger, LoggerService, Patch, Post, Req, Res, ValidationPipe } from "@nestjs/common";
-import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CookieOptions, Request, Response } from "express";
+import { Body, Controller, Delete, Get, Headers, HttpException, HttpStatus, Inject, Logger, LoggerService, Patch, Post, Res, ValidationPipe } from "@nestjs/common";
+import { ApiBody, ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { CookieOptions, Response } from "express";
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateUserDto, CreateUserResponseDto, DeleteUserResponseDto, EditUserDto, EditUserResponseDto, GoogleOauthDto, GoogleOauthResponseDto, LoginDto, LoginResponseDto } from "src/controllers/dtos";
 import { LogoutResponseDto } from "src/controllers/dtos/user/logout.dto";
