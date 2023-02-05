@@ -44,7 +44,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 
         return tags;
     }
-    async getTagsByIds(tagId: number[]) {
+    async getTagsByIds(tagId: number[]): Promise<Tag[]> {
         const tags = await this.TagRepository.createQueryBuilder()
             .select()
             .whereInIds(tagId)
@@ -52,7 +52,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 
         return tags;
     };
-    async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
+    async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
         const arr = [];
         tags.forEach(async (tag) => {
             const check = await this.TagRepository.createQueryBuilder()
@@ -77,7 +77,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         return arr;
     };
 
-    async detachTag(bookmarkId: number, tagIds: number[]) {
+    async detachTag(bookmarkId: number, tagIds: number[]): Promise<any> {
         const deletedTag = await this.TagRepository
             .createQueryBuilder()
             .delete()
@@ -88,7 +88,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         return deletedTag;
     };
 
-    async insertBulk(tags: Tag[]) {
+    async insertBulk(tags: Tag[]): Promise<any> {
         const tagInsertBultk = await this.TagRepository.createQueryBuilder()
             .insert()
             .into('tag')
@@ -136,7 +136,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
 
         const count = bookmarks.length;
 
-        return new Page<Bookmark>(count, page.take, bookmarks)
+        return new Page<Bookmark>(count, page.take, bookmarks);
     }
     async getTagSearchAND(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
 

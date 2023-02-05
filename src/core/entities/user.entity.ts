@@ -1,12 +1,6 @@
-export enum UserType {
-    BASIC = 'BASIC',
-    KAKAO = 'KAKAO',
-    GOOGLE = 'GOOGLE'
-}
-export enum UserRole {
-    USER = 'USER',
-    MANAGER = 'MANAGER'
-}
+import { UserRole, UserType } from "./entity.interface";
+
+
 export class User {
 
     id: number;

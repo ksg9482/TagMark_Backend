@@ -19,6 +19,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
   setupSwagger(app)
+
   await app.listen(process.env.PORT || 8080);
-}
+};
+
 bootstrap();

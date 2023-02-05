@@ -21,21 +21,18 @@ export class PostgresqlUserRepository extends PostgresqlGenericRepository<User> 
             .select(`*`)
             .where('("user"."email" = :email)', { email: email })
             .limit(1)
-            .getRawOne() as User
+            .getRawOne() as User;
     };
 
     async create(item: Partial<User>): Promise<User> {
-        return await this.userRepository.save(this.userRepository.create(item))
-    }
+        return await this.userRepository.save(this.userRepository.create(item));
+    };
 
     async update(id: number, item: User): Promise<any> {
         return await this.userRepository.update(id, item);
     };
 
     async get(id: number): Promise<User> {
-        return await this.userRepository.findOne({ where: { id: id } })
-    }
-
-
-
+        return await this.userRepository.findOne({ where: { id: id } });
+    };
 }

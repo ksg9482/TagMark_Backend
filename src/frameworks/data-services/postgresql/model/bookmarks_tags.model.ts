@@ -15,10 +15,10 @@ export class Bookmarks_Tags {
         name: 'bookmarkId',
         referencedColumnName: 'id'
     })
-    bookmark: Bookmark
+    bookmark: Bookmark;
 
     @Column()
-    bookmarkId: number
+    bookmarkId: number;
 
     @ManyToOne(
         () => Tag,
@@ -29,10 +29,10 @@ export class Bookmarks_Tags {
         name: 'tagId',
         referencedColumnName: 'id'
     })
-    tag: Tag
+    tag: Tag;
 
     @Column()
-    tagId: number
+    tagId: number;
 
     @CreateDateColumn({ type: "timestamp" })
     createdAt: Date;

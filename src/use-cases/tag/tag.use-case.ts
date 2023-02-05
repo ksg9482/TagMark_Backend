@@ -1,8 +1,9 @@
 import { Inject } from "@nestjs/common";
 import { DataServices } from "src/core/abstracts";
-import { CreateTagDto, CreateTagResponseDto, EditTagDto } from "src/controllers/dtos";
+import { CreateTagDto } from "src/controllers/dtos";
 import { GetSearchTagsDto } from "src/controllers/dtos/tag/get-search-tags.dto copy";
 import { Bookmark, Tag } from "src/core/entities";
+import { Page } from "../bookmark";
 
 
 export class TagUseCases {
@@ -13,12 +14,12 @@ export class TagUseCases {
     ) { }
 
     async getAllTags(): Promise<Tag[]> {
-        const tags = await this.dataService.tags.getAll()
+        const tags = await this.dataService.tags.getAll();
         return tags;
     };
 
-    async createTag(userId: number, createTagDto: CreateTagDto): Promise<Tag> {
-        const tagCheck = await this.getTagsByNames(createTagDto.tag)
+    async createTag(createTagDto: CreateTagDto): Promise<Tag> {
+        const tagCheck = await this.getTagsByNames(createTagDto.tag);
         if (tagCheck) {
             return tagCheck[0];
         };
@@ -37,13 +38,13 @@ export class TagUseCases {
         return tags;
     };
 
-    protected async tagFindOrCreate(tagNames: string[]) {
+    protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
         let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames);
 
-        const tagFilter = this.tagFilter(tags, tagNames)
+        const tagFilter = this.tagFilter(tags, tagNames);
         if (tagFilter) {
-            const createTags = tagFilter.map(tag => { return this.dataService.tags.createForm({ tag: tag }) })
-            await this.dataService.tags.insertBulk(createTags)
+            const createTags = tagFilter.map(tag => { return this.dataService.tags.createForm({ tag: tag })});
+            await this.dataService.tags.insertBulk(createTags);
 
             tags = [...tags, ...createTags];
         };
@@ -51,40 +52,40 @@ export class TagUseCases {
         return tags;
     };
 
-    async attachTag(userId: number, bookmarkId: number, tags: Tag[]) {
-        const attach = await this.dataService.tags.attachTag(userId, bookmarkId, tags);
+    async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
+        const attach = await this.dataService.tags.attachTag(bookmarkId, tags);
        
         return attach;
     }
 
-    async detachTag(bookmarkId: number, tagId: number | number[]) {
+    async detachTag(bookmarkId: number, tagId: number | number[]): Promise<string> {
         if (!Array.isArray(tagId)) {
-            tagId = [tagId]
-        }
+            tagId = [tagId];
+        };
 
-        const deletedTag = await this.dataService.tags.detachTag(bookmarkId, tagId)
-        return { message: 'Deleted', deleteCount: deletedTag.affected }
+        await this.dataService.tags.detachTag(bookmarkId, tagId);
+        return 'Deleted';
     }
 
     async getTagsByIds(tagId: number | number[]): Promise<Tag[]> {
         if (!Array.isArray(tagId)) {
-            tagId = [tagId]
-        }
-        const tags = await this.dataService.tags.getTagsByIds(tagId)
-        return tags
+            tagId = [tagId];
+        };
+        const tags = await this.dataService.tags.getTagsByIds(tagId);
+        return tags;
     };
 
     async getUserAllTags(userId: number): Promise<Tag[]> {
-        const tags = await this.dataService.tags.getUserAllTags(userId)
+        const tags = await this.dataService.tags.getUserAllTags(userId);
         const countForm = tags.map((tag) => {
-            return { ...tag, count: Number(tag['count']) }
-        })
-        return countForm
+            return { ...tag, count: Number(tag['count'])};
+        });
+        return countForm;
     };
 
-    async getTagAllBookmarksOR(userId: number, tags: string[], page: GetSearchTagsDto) {
-        const limit = page.getLimit()
-        const offset = page.getOffset()
+    async getTagAllBookmarksOR(userId: number, tags: string[], page: GetSearchTagsDto): Promise<Page<Bookmark>> {
+        const limit = page.getLimit();
+        const offset = page.getOffset();
         const bookmarks = await this.dataService.tags.getTagSeatchOR(
             userId, tags,
             {
@@ -95,9 +96,9 @@ export class TagUseCases {
         return bookmarks;
     };
 
-    async getTagAllBookmarksAND(userId: number, tags: string[], page: GetSearchTagsDto) {
-        const limit = page.getLimit()
-        const offset = page.getOffset()
+    async getTagAllBookmarksAND(userId: number, tags: string[], page: GetSearchTagsDto): Promise<Page<Bookmark>> {
+        const limit = page.getLimit();
+        const offset = page.getOffset();
         const bookmarks = await this.dataService.tags.getTagSearchAND(
             userId, tags,
             {
@@ -108,10 +109,10 @@ export class TagUseCases {
         return bookmarks;
     };
 
-    protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]) {
+    protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]): string[] {
         const tagArr = finedTagArr.map((tag) => {
             return tag.tag;
         });
-        return inputTagArr.filter(tag => !tagArr.includes(tag))
+        return inputTagArr.filter(tag => !tagArr.includes(tag));
     };
 }

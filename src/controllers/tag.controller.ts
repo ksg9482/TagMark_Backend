@@ -1,8 +1,7 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Logger, LoggerService, Param, ParseIntPipe, Post, Query, ValidationPipe } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, EditTagDto, EditTagResponseDto, GetUserAllTagsResponseDto } from "src/controllers/dtos";
-import { GetAllTagsResponseDto } from "src/controllers/dtos/tag/get-all-tags.dto";
+import { CreateTagDto, CreateTagResponseDto, DeleteTagResponseDto, GetUserAllTagsResponseDto } from "src/controllers/dtos";
 import { GetSearchTagsDto, GetSearchTagsResponseDto } from "src/controllers/dtos/tag/get-search-tags.dto copy";
 import { TagFactoryService, TagUseCases } from "src/use-cases/tag";
 
@@ -21,13 +20,12 @@ export class TagController {
     @ApiBody({type:CreateTagDto})
     @Post('/')
     async createTag(
-        @AuthUser() userId:number,
         @Body(new ValidationPipe()) createTagDto: CreateTagDto
     ) {
         const createTagResponse = new CreateTagResponseDto();
         try {
             const tag = this.tagFactoryService.createNewTag(createTagDto);
-            const createdTag = await this.tagUseCases.createTag(userId, tag)
+            const createdTag = await this.tagUseCases.createTag(tag);
             createTagResponse.success = true;
             createTagResponse.createdTag = createdTag;
             return createTagResponse;
@@ -44,7 +42,7 @@ export class TagController {
     async getUserAllTags(
         @AuthUser() userId:number,
     ) {
-        const getUserAllTagsResponse = new GetUserAllTagsResponseDto()
+        const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
         try {
             const tags = await this.tagUseCases.getUserAllTags(userId);
 
@@ -64,7 +62,7 @@ export class TagController {
     async getUserTagCount(
         @AuthUser() userId:number,
     ) {
-        const getUserAllTagsResponse = new GetUserAllTagsResponseDto()
+        const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
         try {
             const tags = await this.tagUseCases.getUserAllTags(userId); 
             
@@ -87,16 +85,16 @@ export class TagController {
         @Query('tags') tags: string,
         @Query(new ValidationPipe({transform:true})) page: GetSearchTagsDto
     ) {
-        const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
+        const getSearchTagsResponseDto = new GetSearchTagsResponseDto();
         try {
-            const tagArr = tags.split(',') 
+            const tagArr = tags.split(',');
             
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page)
+            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page);
             
             getSearchTagsResponseDto.success = true;
-            getSearchTagsResponseDto.totalCount = bookmarks.totalCount
-            getSearchTagsResponseDto.totalPage = bookmarks.totalPage
-            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
+            getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
+            getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
+            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
             return getSearchTagsResponseDto;
         } catch (error) {
             this.logger.error(error);
@@ -114,16 +112,16 @@ export class TagController {
         @Query('tags') tags: string,
         @Query(new ValidationPipe({transform:true})) page: GetSearchTagsDto
     ) {
-        const getSearchTagsResponseDto = new GetSearchTagsResponseDto()
+        const getSearchTagsResponseDto = new GetSearchTagsResponseDto();
         try {
-            const tagArr = tags.split(',')
+            const tagArr = tags.split(',');
             
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page)
+            const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page);
             
             getSearchTagsResponseDto.success = true;
-            getSearchTagsResponseDto.totalCount = bookmarks.totalCount
-            getSearchTagsResponseDto.totalPage = bookmarks.totalPage
-            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks
+            getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
+            getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
+            getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
             return getSearchTagsResponseDto;
         } catch (error) {
             this.logger.error(error);
@@ -138,14 +136,13 @@ export class TagController {
     @ApiQuery({name:'tag_ids', type:'Array<number>'})
     @Delete('/:bookmark_id')
     async detachTag(
-        @AuthUser() userId:number,
         @Param('bookmark_id', ParseIntPipe) bookmarkId: number,
         @Query('tag_ids') tagIds: string
     ) {
-        const deleteTagResponse = new DeleteTagResponseDto()
+        const deleteTagResponse = new DeleteTagResponseDto();
         try {
-            const numTagIds = tagIds.split(',').map((strNum)=>{return parseInt(strNum)})
-            const result = await this.tagUseCases.detachTag(bookmarkId, numTagIds)
+            const numTagIds = tagIds.split(',').map((strNum)=>{return parseInt(strNum)});
+            await this.tagUseCases.detachTag(bookmarkId, numTagIds);
             
             deleteTagResponse.success = true;
             deleteTagResponse.message = 'Deleted';

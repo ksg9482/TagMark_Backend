@@ -6,7 +6,6 @@ import { Repository, DataSource } from 'typeorm';
 import { User } from 'src/frameworks/data-services/postgresql/model';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { UtilsService } from 'src/utils/utils.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;

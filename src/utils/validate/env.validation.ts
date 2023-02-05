@@ -6,7 +6,7 @@ enum Environment {
   dev = "dev",
   production = "production",
   test = "test"
-}
+};
 
 class EnvironmentVariables {
   @IsEnum(Environment)
@@ -35,7 +35,7 @@ class EnvironmentVariables {
 
   @IsString()
   REFRESH_PRIVATE_KEY: string;
-}
+};
 
 export function validate(config: Record<string, unknown>) {
   const validatedConfig = plainToClass(
@@ -48,6 +48,7 @@ export function validate(config: Record<string, unknown>) {
 
   if (errors.length > 0) {
     throw new Error(errors.toString());
-  }
+  };
+
   return validatedConfig;
 }
