@@ -1,7 +1,7 @@
 export abstract class GenericRepository<T> {
   abstract getAll(): Promise<T[]>;
 
-  abstract get(id: number): Promise<T>;
+  abstract get(id: number): Promise<T | null>;
 
   abstract create(item: Partial<T>): Promise<T>;
 

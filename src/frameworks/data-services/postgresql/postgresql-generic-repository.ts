@@ -1,9 +1,9 @@
-import { Repository } from 'typeorm'
+import { ObjectLiteral, Repository } from 'typeorm'
 import { GenericRepository } from "src/core";
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
+export class PostgresqlGenericRepository<T extends ObjectLiteral> implements GenericRepository<T> {
     private _repository: Repository<T>;
 
     constructor(
@@ -17,7 +17,7 @@ export class PostgresqlGenericRepository<T> implements GenericRepository<T> {
         return await this._repository.find();
     };
 
-    async get(id: any): Promise<T> {
+    async get(id: any): Promise<T | null> {
         return await this._repository.findOne(id);
     };
 

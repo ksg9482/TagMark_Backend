@@ -98,7 +98,7 @@ export class BookmarkUseCases {
 
     protected bookmarksNullCheck(bookmarks: Bookmark[]) {
         const result = bookmarks.map((bookmark) => {
-            if (!bookmark.tags[0]) bookmark.tags = null;
+            if (Array.isArray(bookmark.tags) && !bookmark.tags[0]) bookmark.tags = null;
             return bookmark;
         });
 
@@ -106,7 +106,7 @@ export class BookmarkUseCases {
     };
 
     protected async saveBookmarkTag(bookmarks: Bookmark[]) {
-        const bookmarksAndTags = this.getBookmarkIdAndTagId(bookmarks);
+        const bookmarksAndTags:any = this.getBookmarkIdAndTagId(bookmarks);
         const bookmarksAndTagsMap = this.getBookmarkTagMap(bookmarksAndTags);
         
         const result = await this.dataService.bookmarks.attachbulk(bookmarksAndTagsMap);
@@ -116,16 +116,15 @@ export class BookmarkUseCases {
 
     protected getBookmarkIdAndTagId(bookmarks: Bookmark[]) {
         const result = bookmarks.map((bookmark) => {
-            if (bookmark.tags.length <= 0) return ;
+            if (!Array.isArray(bookmark.tags)) return ;
 
             const bookmarkId = bookmark.id;
-            const tagIds = bookmark.tags.map((tag) => {
+            const tagIds = bookmark.tags!.map((tag) => {
                 return tag.id;
             })
             
             return { bookmarkId, tagIds };
         })
-        
         return result;
     }
 

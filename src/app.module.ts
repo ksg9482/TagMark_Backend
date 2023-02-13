@@ -25,8 +25,8 @@ import { CommonController } from './controllers/common.controller';
     }),
     AuthModule,
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY,
-      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY
+      privateKey: process.env.PRIVATE_KEY||'privateKey',
+      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY||'refreshPrivateKey'
     }),
     UtilsModule,
     DataServicesModule,
