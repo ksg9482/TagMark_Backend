@@ -4,7 +4,7 @@ export class Bookmark {
 
     url: string;
 
-    tags: any[];
+    tags: any[] | null;
     
     userId: number;
     

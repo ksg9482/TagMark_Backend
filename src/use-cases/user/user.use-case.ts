@@ -93,7 +93,7 @@ export class UserUseCases {
     };
 
     async refresh(refreshToken: string): Promise<string> {
-        const verifyRefreshToken = this.jwtService.refreshVerify(refreshToken);
+        const verifyRefreshToken:any = this.jwtService.refreshVerify(refreshToken);
 
         const user = await this.findById(verifyRefreshToken['id']);
         const propertyDeletedUser = this.deleteUserProperty('password', user);

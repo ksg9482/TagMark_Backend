@@ -10,11 +10,11 @@ export class PageRequest {
   pageSize?: number | 20;
 
   getOffset(): number {
-    if (this.pageNo < 1 || !this.pageNo) {
+    if (this.pageNo! < 1 || !this.pageNo) {
       this.pageNo = 1;
     }
 
-    if (this.pageSize < 1 || !this.pageSize) {
+    if (this.pageSize! < 1 || !this.pageSize) {
       this.pageSize = 20;
     }
 
@@ -22,7 +22,7 @@ export class PageRequest {
   }
 
   getLimit(): number {
-    if (this.pageSize < 1 || !this.pageSize) {
+    if (this.pageSize! < 1 || !this.pageSize) {
       this.pageSize = 20;
     }
     return Number(this.pageSize);

@@ -89,7 +89,7 @@ export class TagController {
         try {
             const tagArr = tags.split(',');
             
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page);
+            const bookmarks:any = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page);
             
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
@@ -116,7 +116,7 @@ export class TagController {
         try {
             const tagArr = tags.split(',');
             
-            const bookmarks = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page);
+            const bookmarks:any = await this.tagUseCases.getTagAllBookmarksOR(userId, tagArr, page);
             
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount;

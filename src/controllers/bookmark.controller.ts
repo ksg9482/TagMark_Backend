@@ -34,8 +34,8 @@ export class BookmarkController {
         try {
             const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
             const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
-            let createdTags: Array<Tag>;
-            if (createBookmarkDto.tagNames.length >= 0) {
+            let createdTags: Array<Tag> = [];
+            if (Array.isArray(createBookmarkDto.tagNames)) {
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
                 await this.tagUseCases.attachTag(createdBookmark.id, tags)
@@ -69,7 +69,7 @@ export class BookmarkController {
                 const result = bookmarks.map((bookmark) => {
                     const localTags = bookmark.tags;
                     const changedTags = localTags.map((localtag)=>{
-                        const targetTag = tags.find((dbTag)=>{
+                        const targetTag:any = tags.find((dbTag)=>{
                             return dbTag.tag === localtag.tag;
                         });
                         return targetTag;
@@ -107,7 +107,7 @@ export class BookmarkController {
         const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
 
         try {
-            const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(
+            const bookmarks:any = await this.bookmarkUseCases.getUserAllBookmarks(
                 userId,
                 page
             );
