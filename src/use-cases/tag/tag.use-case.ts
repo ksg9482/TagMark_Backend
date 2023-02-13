@@ -4,6 +4,7 @@ import { CreateTagDto } from "src/controllers/dtos";
 import { GetSearchTagsDto } from "src/controllers/dtos/tag/get-search-tags.dto copy";
 import { Bookmark, Tag } from "src/core/entities";
 import { Page } from "../bookmark";
+import { TagWithCount } from "../interfaces/tag.interface";
 
 
 export class TagUseCases {
@@ -75,9 +76,9 @@ export class TagUseCases {
         return tags;
     };
 
-    async getUserAllTags(userId: number): Promise<Tag[]> {
-        const tags = await this.dataService.tags.getUserAllTags(userId);
-        const countForm = tags.map((tag) => {
+    async getUserAllTags(userId: number): Promise<TagWithCount[]> {
+        const tags:any[] = await this.dataService.tags.getUserAllTags(userId);
+        const countForm:TagWithCount[] = tags.map((tag) => {
             return { ...tag, count: Number(tag['count'])};
         });
         return countForm;

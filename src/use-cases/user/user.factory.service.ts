@@ -8,7 +8,7 @@ export class UserFactoryService {
         const newUser = new User();
         newUser.email = createUserDto.email;
         newUser.password = createUserDto.password;
-        newUser.nickname = createUserDto.nickname;
+        newUser.nickname = createUserDto.nickname || '익명';
 
         return newUser;
     }

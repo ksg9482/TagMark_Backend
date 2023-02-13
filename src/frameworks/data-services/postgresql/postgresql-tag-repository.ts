@@ -17,7 +17,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         this.TagRepository = repository;
     };
 
-    async get(id: any): Promise<Tag> {
+    async get(id: any): Promise<Tag | null> {
         return await this.TagRepository.findOne({ where: { id: id } });
     }
     async create(item: Partial<Tag>): Promise<Tag> {
@@ -53,7 +53,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         return tags;
     };
     async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
-        const arr = [];
+        const arr:any[] = [];
         tags.forEach(async (tag) => {
             const check = await this.TagRepository.createQueryBuilder()
                 .from('bookmarks_tags', 'bookmarks_tags')

@@ -31,7 +31,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         return await this.bookmarkRepository.find({ relations: ['tags'] });
     };
 
-    async getUserBookmark(userId: number, bookmarkId: number): Promise<Bookmark> {
+    async getUserBookmark(userId: number, bookmarkId: number): Promise<Bookmark | null> {
         return await this.bookmarkRepository.findOne({ 
             where: { 
                 userId: userId, 
@@ -40,7 +40,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
         });
     };
 
-    async getBookmarkByUrl(url: string): Promise<Bookmark> {
+    async getBookmarkByUrl(url: string): Promise<Bookmark | null> {
         return await this.bookmarkRepository.findOne({ 
             where: { 
                 url: url 

@@ -14,7 +14,7 @@ export class UtilsService {
     };
 
     secure() {
-        const SECRET_KEY = process.env.CRYPTOJS_SECRET_KEY;
+        const SECRET_KEY = process.env.CRYPTOJS_SECRET_KEY||'SECRET_KEY';
 
         const encrypt = (message: string) => {
             const encrypted = CryptoJS.AES.encrypt(message, SECRET_KEY);

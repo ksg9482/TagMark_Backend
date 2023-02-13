@@ -32,7 +32,7 @@ export class PostgresqlUserRepository extends PostgresqlGenericRepository<User> 
         return await this.userRepository.update(id, item);
     };
 
-    async get(id: number): Promise<User> {
+    async get(id: number): Promise<User | null> {
         return await this.userRepository.findOne({ where: { id: id } });
     };
 }
