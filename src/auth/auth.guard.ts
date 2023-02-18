@@ -22,8 +22,8 @@ export class AuthGuard implements CanActivate {
       
       const accessToken = this.authServices.getToken(request);
       if(accessToken) {
-        const decoded:any = this.authServices.accessTokenDecode(accessToken);
-        const userInfo = await this.authServices.getUserInfo(decoded['id']);
+        const decoded = this.authServices.accessTokenDecode(accessToken);
+        const userInfo = await this.authServices.getUserInfo(decoded.id);
         if (!userInfo) {
           this.logger.error('User not exists.')
           throw false;

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Request } from 'express';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UserUseCases } from 'src/use-cases/user';
 import { UtilsService } from 'src/utils/utils.service';
@@ -11,7 +12,7 @@ export class AuthService {
         private readonly utilServices: UtilsService,
         private userUseCases: UserUseCases,
     ) { }
-    getToken(req: any) {
+    getToken(req:Request) {
         const secureWrap = this.utilServices.secure().wrapper()
         const authorization = req.headers.authorization?.split(' ');
         if (!authorization) {
