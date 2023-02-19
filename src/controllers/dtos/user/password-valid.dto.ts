@@ -7,7 +7,7 @@ import { BaseResponseDto } from "../common/base-response.dto";
 export class PasswordValidDto {
   @ApiProperty({ description: '비밀번호'})
   @IsString()
-  //@Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
+  @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
   @IsNotEmpty()
   password: string;
 };

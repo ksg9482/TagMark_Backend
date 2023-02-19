@@ -1,5 +1,4 @@
 import { Page } from "src/use-cases/bookmark/bookmark.pagination";
-import { QueryRunner, SelectQueryBuilder } from "typeorm";
 import { Bookmark } from "../entities";
 import { GenericRepository } from "./generic-repository.abstract";
 

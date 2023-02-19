@@ -55,7 +55,6 @@ export class TagController {
         }
     };
 
-    //나오는게 없음??
     @ApiOperation({ summary: '유저가 생성한 태그의 갯수를 반환하는 API', description: '모든 태그의 갯수를 반환한다.' })
     @ApiCreatedResponse({ description: '유저가 생성한 모든 태그의 갯수를 반환한다.', type: GetUserAllTagsResponseDto })
     @Get('/count')
@@ -89,7 +88,7 @@ export class TagController {
         try {
             const tagArr = tags.split(',');
             
-            const bookmarks:any = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page);
+            const bookmarks = await this.tagUseCases.getTagAllBookmarksAND(userId, tagArr, page);
             
             getSearchTagsResponseDto.success = true;
             getSearchTagsResponseDto.totalCount = bookmarks.totalCount;

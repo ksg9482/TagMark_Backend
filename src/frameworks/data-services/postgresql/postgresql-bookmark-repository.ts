@@ -85,7 +85,7 @@ export class PostgresqlBookmarkRepository extends PostgresqlGenericRepository<Bo
             .values(bookmarks)
             .execute();
 
-        const bookmarkIdAndTagIdArr: any = createdBookmarks.identifiers;
+        const bookmarkIdAndTagIdArr = createdBookmarks.identifiers;
         const completedBookmarks = bookmarks.map((bookmark, i) => {
             return { ...bookmark, id: bookmarkIdAndTagIdArr[i].id }
         });
