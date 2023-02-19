@@ -23,7 +23,7 @@ export class BookmarkUseCases {
         const createdBookmark = await this.dataService.bookmarks.create({
             url: url,
             userId: userId,
-            tags: tagNames
+            tags: tagNames as any
         });
 
         return createdBookmark;
@@ -98,7 +98,7 @@ export class BookmarkUseCases {
 
     protected bookmarksNullCheck(bookmarks: Bookmark[]) {
         const result = bookmarks.map((bookmark) => {
-            if (Array.isArray(bookmark.tags) && !bookmark.tags[0]) bookmark.tags = null;
+            if (Array.isArray(bookmark.tags) && !bookmark.tags[0]) bookmark.tags = null as any;
             return bookmark;
         });
 

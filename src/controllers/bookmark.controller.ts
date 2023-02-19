@@ -69,7 +69,7 @@ export class BookmarkController {
                 const result = bookmarks.map((bookmark) => {
                     const localTags = bookmark.tags;
                     const changedTags = localTags.map((localtag)=>{
-                        const targetTag:any = tags.find((dbTag)=>{
+                        const targetTag = tags.find((dbTag)=>{
                             return dbTag.tag === localtag.tag;
                         });
                         return targetTag;
@@ -77,7 +77,7 @@ export class BookmarkController {
                     Reflect.deleteProperty(bookmark, 'id');
                     return {...bookmark, tags:changedTags, userId:userId};
                 });
-                return result
+                return result as any
             };
 
             const syncedBookmarks = setSyncBookmarkForm(userId, loginsyncBookmarkDto.bookmarks, dbTags)

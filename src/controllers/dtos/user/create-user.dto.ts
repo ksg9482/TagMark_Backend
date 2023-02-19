@@ -5,14 +5,14 @@ import { BaseResponseDto } from "../common/base-response.dto";
 
 export class CreateUserDto {
   @ApiProperty({ description: '이메일'})
-  //@IsEmail()
+  @IsEmail()
   @MaxLength(60)
   @IsNotEmpty()
   email: string;
 
   @ApiProperty({ description: '비밀번호'})
   @IsString()
-  //@Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
+  @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
   @MinLength(6)
   @IsNotEmpty()
   password: string;
