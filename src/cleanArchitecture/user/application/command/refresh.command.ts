@@ -1,5 +1,5 @@
-import { ICommand } from '@nestjs/cqrs';
+// import { ICommand } from '@nestjs/cqrs';
 
-export class RefreshCommand implements ICommand {
-  constructor(readonly refreshToken: string) {}
-}
+// export class RefreshCommand implements ICommand {
+//   constructor(readonly refreshToken: string) {}
+// }
