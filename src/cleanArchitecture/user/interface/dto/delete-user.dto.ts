@@ -1,4 +1,4 @@
-import { BaseResponseDto } from '../../common/dto/base-response.dto';
+import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 
 export class DeleteUserDto {}
 

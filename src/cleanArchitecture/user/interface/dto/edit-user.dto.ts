@@ -6,7 +6,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { BaseResponseDto } from '../../common/dto/base-response.dto';
+import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class EditUserDto {
   @ApiProperty({ description: '변경하려는 비밀번호' })
   @IsString()
