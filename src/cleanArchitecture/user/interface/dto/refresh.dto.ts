@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { BaseResponseDto } from '../../common/dto/base-response.dto';
+import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class RefreshTokenDto {}
 
 export class RefreshTokenResponseDto extends BaseResponseDto {
