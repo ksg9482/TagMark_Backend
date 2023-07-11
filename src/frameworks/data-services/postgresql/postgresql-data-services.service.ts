@@ -7,28 +7,26 @@ import { PostgresqlBookmarkRepository } from './postgresql-bookmark-repository';
 import { PostgresqlTagRepository } from './postgresql-tag-repository';
 import { PostgresqlUserRepository } from './postgresql-user-repository';
 
-
 @Injectable()
 export class PostgresqlDataServices
-    implements DataServices, OnApplicationBootstrap {
-    users: PostgresqlUserRepository;
-    bookmarks: PostgresqlBookmarkRepository;
-    tags: PostgresqlTagRepository;
+  implements DataServices, OnApplicationBootstrap
+{
+  users: PostgresqlUserRepository;
+  bookmarks: PostgresqlBookmarkRepository;
+  tags: PostgresqlTagRepository;
 
-    constructor(
-        @InjectRepository(User)
-        private UserRepository: Repository<User>,
-        @InjectRepository(Bookmark)
-        private BookmarkRepository: Repository<Bookmark>,
-        @InjectRepository(Tag)
-        private TagRepository: Repository<Tag>
-    ) { };
+  constructor(
+    @InjectRepository(User)
+    private UserRepository: Repository<User>,
+    @InjectRepository(Bookmark)
+    private BookmarkRepository: Repository<Bookmark>,
+    @InjectRepository(Tag)
+    private TagRepository: Repository<Tag>,
+  ) {}
 
-
-    onApplicationBootstrap() {
-        this.users = new PostgresqlUserRepository(this.UserRepository);
-        this.bookmarks = new PostgresqlBookmarkRepository(this.BookmarkRepository);
-        this.tags = new PostgresqlTagRepository(this.TagRepository);
-
-    }
+  onApplicationBootstrap() {
+    this.users = new PostgresqlUserRepository(this.UserRepository);
+    this.bookmarks = new PostgresqlBookmarkRepository(this.BookmarkRepository);
+    this.tags = new PostgresqlTagRepository(this.TagRepository);
+  }
 }

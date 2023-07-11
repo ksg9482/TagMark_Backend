@@ -1,21 +1,19 @@
-import { UserRole, UserType } from "./entity.interface";
-
+import { UserRole, UserType } from './entity.interface';
 
 export class User {
+  id: number;
 
-    id: number;
+  email: string;
 
-    email: string;
+  password: string;
 
-    password: string;
+  nickname: string;
 
-    nickname: string;
+  role: UserRole;
 
-    role: UserRole
+  type: UserType;
 
-    type: UserType
+  createdAt: Date;
 
-    createdAt: Date;
-
-    updatedAt: Date;
+  updatedAt: Date;
 }
