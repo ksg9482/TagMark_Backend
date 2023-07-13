@@ -139,7 +139,7 @@ export class PostgresqlTagRepository extends PostgresqlGenericRepository<Tag> im
         return new Page<Bookmark>(count, page.take, bookmarks);
     }
     async getTagSearchAND(userId: number, tags: string[], page: any): Promise<Page<Bookmark>> {
-
+        
         const getMachedBookmarkId = this.TagRepository.createQueryBuilder('tag')
             .select(`bookmark.id`)
             .leftJoin(`bookmarks_tags`, `bookmarks_tags`, `bookmarks_tags."tagId" = tag.id`)
