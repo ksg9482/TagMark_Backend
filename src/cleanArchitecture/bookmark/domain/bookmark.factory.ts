@@ -7,32 +7,12 @@ import { Bookmark } from './bookmark';
 export class BookmarkFactory {
   constructor(private eventBus: EventBus) {}
 
-  create(
-    id: string,
-    url: string,
-    tags: Tag[],
-    userId: string
-  ): Bookmark {
-    const bookmark = new Bookmark(
-      id,
-      url,
-      tags,
-      userId
-    );
+  create(id: string, url: string, tags: Tag[], userId: string): Bookmark {
+    const bookmark = new Bookmark(id, url, tags, userId);
     return bookmark;
   }
 
-  reconstitute(
-    id: string,
-    url: string,
-    tags: Tag[],
-    userId: string
-  ): Bookmark {
-    return new Bookmark(
-      id,
-      url,
-      tags,
-      userId
-    );
+  reconstitute(id: string, url: string, tags: Tag[], userId: string): Bookmark {
+    return new Bookmark(id, url, tags, userId);
   }
 }

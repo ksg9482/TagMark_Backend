@@ -1,4 +1,4 @@
-import { Tag } from "src/cleanArchitecture/tag/domain/tag";
+import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 
 export class Bookmark {
   constructor(

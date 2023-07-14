@@ -8,15 +8,15 @@ import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 @Module({
-    imports: [JwtModule, DataServicesModule,UtilsModule, UserUsecasesModule],
-    providers: [
-        {
-            provide: APP_GUARD,
-            useClass: AuthGuard
-        },
-        AuthService,
-        Logger
-    ],
-    exports:[AuthService]
+  imports: [JwtModule, DataServicesModule, UtilsModule, UserUsecasesModule],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    AuthService,
+    Logger,
+  ],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}
