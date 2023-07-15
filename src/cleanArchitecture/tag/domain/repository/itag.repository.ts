@@ -2,8 +2,10 @@ import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 import { Page } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
 
-export interface TagRepository {
-  createTag: (item: Partial<Tag>) => Promise<Tag>;
+export interface ITagRepository {
+  get: (id: string) => Promise<Tag | null>;
+  createTag: (item: string) => Promise<Tag>;
+  getAllTags: () => Promise<Tag[]>;
   getUserAllTags: (userId: number) => Promise<Tag[]>;
   getTagSeatchOR: (
     userId: number,
@@ -19,6 +21,6 @@ export interface TagRepository {
   detachTag: (bookmarkId: number, tagIds: number[]) => Promise<string>;
   getTagsByIds: (tagId: number[]) => Promise<Tag[]>;
   insertBulk: (tags: Tag[]) => Promise<any>;
-  createForm: (item: Partial<Tag>) => Tag;
+  createForm: (tag: string) => Tag;
   findByTagNames: (tagNames: string[]) => Promise<Tag[]>;
 }

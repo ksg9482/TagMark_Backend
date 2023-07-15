@@ -1,19 +1,21 @@
 import { Inject } from '@nestjs/common';
 import { DataServices } from 'src/core/abstracts';
-import { CreateTagDto } from 'src/controllers/dtos';
+import { ITagRepository } from 'src/cleanArchitecture/tag/domain/repository/itag.repository';
+import { CreateTagDto } from 'src/cleanArchitecture/tag/interface/dto';
 import { GetSearchTagsDto } from 'src/controllers/dtos/tag/get-search-tags.dto';
-import { Bookmark, Tag } from 'src/core/entities';
+import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
+import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
 import { Page } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import { TagWithCount } from 'src/cleanArchitecture/tag/domain/tag.interface';
 
 export class TagUseCases {
   constructor(
-    @Inject(DataServices)
-    private dataService: DataServices,
+    // @Inject(DataServices)
+    private tagRepository: ITagRepository,
   ) {}
 
   async getAllTags(): Promise<Tag[]> {
-    const tags = await this.dataService.tags.getAll();
+    const tags = await this.tagRepository.getAllTags();
     return tags;
   }
 
@@ -23,7 +25,7 @@ export class TagUseCases {
       return tagCheck[0];
     }
 
-    const createdTag = await this.dataService.tags.create(createTagDto);
+    const createdTag = await this.tagRepository.createTag(createTagDto.tag);
 
     return createdTag;
   }
@@ -38,14 +40,14 @@ export class TagUseCases {
   }
 
   protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
-    let tags: Tag[] = await this.dataService.tags.findByTagNames(tagNames);
+    let tags: Tag[] = await this.tagRepository.findByTagNames(tagNames);
 
     const tagFilter = this.tagFilter(tags, tagNames);
     if (tagFilter) {
       const createTags = tagFilter.map((tag) => {
-        return this.dataService.tags.createForm({ tag: tag });
+        return this.tagRepository.createForm(tag);
       });
-      await this.dataService.tags.insertBulk(createTags);
+      await this.tagRepository.insertBulk(createTags);
 
       tags = [...tags, ...createTags];
     }
@@ -54,7 +56,7 @@ export class TagUseCases {
   }
 
   async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
-    const attach = await this.dataService.tags.attachTag(bookmarkId, tags);
+    const attach = await this.tagRepository.attachTag(bookmarkId, tags);
 
     return attach;
   }
@@ -67,7 +69,7 @@ export class TagUseCases {
       tagId = [tagId];
     }
 
-    await this.dataService.tags.detachTag(bookmarkId, tagId);
+    await this.tagRepository.detachTag(bookmarkId, tagId);
     return 'Deleted';
   }
 
@@ -75,12 +77,12 @@ export class TagUseCases {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }
-    const tags = await this.dataService.tags.getTagsByIds(tagId);
+    const tags = await this.tagRepository.getTagsByIds(tagId);
     return tags;
   }
 
   async getUserAllTags(userId: number): Promise<TagWithCount[]> {
-    const tags: any[] = await this.dataService.tags.getUserAllTags(userId);
+    const tags: any[] = await this.tagRepository.getUserAllTags(userId);
     const countForm: TagWithCount[] = tags.map((tag) => {
       return { ...tag, count: Number(tag['count']) };
     });
@@ -94,7 +96,7 @@ export class TagUseCases {
   ): Promise<Page<Bookmark>> {
     const limit = page.getLimit();
     const offset = page.getOffset();
-    const bookmarks = await this.dataService.tags.getTagSeatchOR(userId, tags, {
+    const bookmarks = await this.tagRepository.getTagSeatchOR(userId, tags, {
       take: limit,
       skip: offset,
     });
@@ -108,20 +110,16 @@ export class TagUseCases {
   ): Promise<Page<Bookmark>> {
     const limit = page.getLimit();
     const offset = page.getOffset();
-    const bookmarks = await this.dataService.tags.getTagSearchAND(
-      userId,
-      tags,
-      {
-        take: limit,
-        skip: offset,
-      },
-    );
+    const bookmarks = await this.tagRepository.getTagSearchAND(userId, tags, {
+      take: limit,
+      skip: offset,
+    });
     return bookmarks;
   }
 
   protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]): string[] {
     const tagArr = finedTagArr.map((tag) => {
-      return tag.tag;
+      return tag.getTag();
     });
     return inputTagArr.filter((tag) => !tagArr.includes(tag));
   }
