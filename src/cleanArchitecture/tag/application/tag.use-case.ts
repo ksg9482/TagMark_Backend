@@ -89,6 +89,7 @@ export class TagUseCases {
     return countForm;
   }
 
+  //OR과 AND는 북마크와 태그가 함께 사용되니 별도의 클래스로 분리하는게 맞지 않을까?
   async getTagAllBookmarksOR(
     userId: number,
     tags: string[],
