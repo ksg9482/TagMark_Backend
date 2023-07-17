@@ -8,15 +8,7 @@ export class Tag {
     return this.id;
   }
 
-  setId(id: string) {
-    this.id = id;
-  }
-
   getTag(): Readonly<string> {
     return this.tag;
-  }
-
-  setTag(tag: string) {
-    this.tag = tag;
   }
 }
