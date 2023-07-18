@@ -6,7 +6,6 @@ export class User {
     private email: string,
     private nickname: string,
     private password: string,
-    private signupVerifyToken: string,
     private role: UserRole,
     private type: UserType,
   ) {}
