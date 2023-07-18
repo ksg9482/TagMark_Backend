@@ -1,11 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import {
-  Tag,
-  Bookmarks_Tags,
-  User
-} from 'src/frameworks/data-services/postgresql/model';
-import { Bookmark as BookmarkAbstract } from "src/core"
+import { TagEntity as Tag } from "src/cleanArchitecture/tag/infra/db/entity/tag.entity";
+import { Bookmarks_TagsEntity as Bookmarks_Tags } from "src/cleanArchitecture/bookmark/infra/db/entity/bookmarks_tags.entity";
+import { UserEntity as User } from "src/cleanArchitecture/user/infra/db/entity/user.entity";
+
 @Entity()
 export class BookmarkEntity {
     @PrimaryGeneratedColumn()

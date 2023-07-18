@@ -4,8 +4,6 @@ import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
 import { BookmarkTagMap } from 'src/use-cases/interfaces/bookmark.interface';
 import { IBookmarkRepository } from 'src/cleanArchitecture/bookmark/domain/repository/ibookmark.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TagEntity } from 'src/cleanArchitecture/tag/infra/db/entity/tag.entity';
-import { TagFactory } from 'src/cleanArchitecture/tag/domain/tag.factory';
 import { BookmarkEntity } from 'src/cleanArchitecture/bookmark/infra/db/entity/bookmark.entity';
 import { BookmarkFactory } from 'src/cleanArchitecture/bookmark/domain/bookmark.factory';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';

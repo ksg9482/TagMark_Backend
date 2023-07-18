@@ -13,7 +13,6 @@ export class UserFactory {
     email: string,
     nickname: string,
     password: string,
-    signupVerifyToken: string,
     role: UserRole,
     type: UserType,
   ): User {
@@ -22,11 +21,10 @@ export class UserFactory {
       email,
       nickname,
       password,
-      signupVerifyToken,
       role,
       type,
     );
-    this.eventBus.publish(new UserCreatedEvent(email, signupVerifyToken));
+    this.eventBus.publish(new UserCreatedEvent(email));
     return user;
   }
 
@@ -35,7 +33,6 @@ export class UserFactory {
     email: string,
     nickname: string,
     password: string,
-    signupVerifyToken: string,
     role: UserRole,
     type: UserType,
   ): User {
@@ -44,7 +41,6 @@ export class UserFactory {
       email,
       nickname,
       password,
-      signupVerifyToken,
       role,
       type,
     );
