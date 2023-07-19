@@ -30,13 +30,17 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
     return await this.bookmarkRepository.find({ relations: ['tags'] });
   };
 
-  async getUserBookmark(userId: number, bookmarkId: number): Promise<Bookmark | null> {
-    return await this.bookmarkRepository.findOne({
-      where: {
-        userId: userId,
-        id: bookmarkId
-      }
-    });
+  async getUserBookmark(inputUserId: string, bookmarkId: string): Promise<Bookmark | null> {
+    const bookmarkEntity = await this.bookmarkRepository.findOne({ where: { 
+      id: bookmarkId,
+      userId: inputUserId 
+    } });
+    if (!bookmarkEntity) {
+      return null;
+    }
+    const { id, url, tags, userId } = bookmarkEntity;
+
+    return this.bookmarkFactory.reconstitute(id, url, tags, userId);
   };
 
   async getBookmarkByUrl(url: string): Promise<Bookmark | null> {

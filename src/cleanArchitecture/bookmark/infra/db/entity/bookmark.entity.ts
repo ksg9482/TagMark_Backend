@@ -8,7 +8,7 @@ import { UserEntity as User } from "src/cleanArchitecture/user/infra/db/entity/u
 export class BookmarkEntity {
     @PrimaryGeneratedColumn()
     @ApiProperty({ description: 'id' })
-    id: number;
+    id: string;
 
     @Column()
     @ApiProperty({ description: 'URL' })
@@ -27,7 +27,7 @@ export class BookmarkEntity {
 
     @Column()
     @ApiProperty({ description: '북마크 생성한 유저 아이디' })
-    userId: number;
+    userId: string;
 
     @OneToMany(
         () => Bookmarks_Tags,
