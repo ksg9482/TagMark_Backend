@@ -6,7 +6,7 @@ import { BookmarkEntity as Bookmark } from "src/cleanArchitecture/bookmark/infra
 @Entity()
 export class Bookmarks_TagsEntity {
     @PrimaryGeneratedColumn()
-    id: number;
+    id: string;
 
     @ManyToOne(
         () => Bookmark,
@@ -20,7 +20,7 @@ export class Bookmarks_TagsEntity {
     bookmark: Bookmark;
 
     @Column()
-    bookmarkId: number;
+    bookmarkId: string;
 
     @ManyToOne(
         () => Tag,
@@ -34,7 +34,7 @@ export class Bookmarks_TagsEntity {
     tag: Tag;
 
     @Column()
-    tagId: number;
+    tagId: string;
 
     @CreateDateColumn({ type: "timestamp" })
     createdAt: Date;

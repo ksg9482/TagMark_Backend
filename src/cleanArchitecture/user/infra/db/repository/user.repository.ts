@@ -35,7 +35,7 @@ export class UserRepository implements IUserRepository {
       ) as User;
   }
 
-  async create(item: Partial<User>): Promise<User> {
+  async create(): Promise<User> {
     const user = new UserEntity()
     user.id
     user.email
@@ -48,8 +48,8 @@ export class UserRepository implements IUserRepository {
     // return await this.userRepository.save(this.userRepository.create(item));
   }
 
-  async update(id: string, item: User): Promise<any> {
-    return await this.userRepository.update(id, item);
+  async update(id: string, email: string, nickname:string): Promise<any> {
+    return await this.userRepository.update(id, {id, email, nickname});
   }
 
   async get(inputId: string): Promise<User | null> {
