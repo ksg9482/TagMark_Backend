@@ -23,7 +23,8 @@ export class UserRepository implements IUserRepository {
   findByEmail: (email: string) => Promise<User>;
   findByEmailAndPassword: (email: string, password: string) => Promise<User>;
   findBySignupVerifyToken: (signupVerifyToken: string) => Promise<User>;
-  save: (id: string, name: string, email: string, password: string, signupVerifyToken: string) => Promise<void>;
+  save: (item: Partial<User>) => Promise<User>;
+  // save: (id: string, name: string, email: string, password: string, signupVerifyToken: string) => Promise<User>;
   async getByEmail(email: string): Promise<User> {
     return (
       await this.userRepository
@@ -48,10 +49,12 @@ export class UserRepository implements IUserRepository {
     // return await this.userRepository.save(this.userRepository.create(item));
   }
 
-  async update(id: string, email: string, nickname:string): Promise<any> {
-    return await this.userRepository.update(id, {id, email, nickname});
+  //entity랑 도메인에 있는게 조금 다르다. 확장해서 써야 할까?
+  async update(id: string, item: Partial<User>): Promise<any> {
+    return await this.userRepository.update(id, item);
   }
 
+  //null 반환을 명시적으로 써야 한다. 그런데 이거 어떻게 처리할 수 있는 방법 없나?
   async get(inputId: string): Promise<User | null> {
     const userEntity = await this.userRepository.findOne({ where: { id: inputId } });
     if (!userEntity) {
