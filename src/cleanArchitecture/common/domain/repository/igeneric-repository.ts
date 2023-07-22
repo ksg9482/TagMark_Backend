@@ -1,13 +1,9 @@
-export interface IGenericRepository<T> {
-  getAll: () => Promise<T[]>;
+export interface IGenericRepository<Type> {
+  getAll: () => Promise<Type[]>;
 
-  get: (id: string) => Promise<T>;
+  get: (id: string) => Promise<Type | null>;
 
-  create: (item: Partial<T>) => Promise<T>;
-
-  save: (item: Partial<T>) => Promise<T>;
-
-  update: (id: string, item: Partial<T>) => Promise<any>;
+  update: (id: string, item: Partial<Type>) => Promise<any>;
 
   delete: (id: string) => Promise<any>;
 }

@@ -1,5 +1,4 @@
-import { UserRole } from '../interface/UserRole';
-import { UserType } from '../interface/UserType';
+import { UserRole, UserType } from 'src/cleanArchitecture/user/domain';
 export class User {
   constructor(
     private id: string, //uuid
@@ -14,11 +13,22 @@ export class User {
     return this.id;
   }
 
+  getEmail(): Readonly<string> {
+    return this.email;
+  }
+
   getNickName(): Readonly<string> {
     return this.nickname;
   }
 
-  getEmail(): Readonly<string> {
-    return this.email;
+  getPassword(): Readonly<string> {
+    return this.password;
+  }
+
+  getRole(): Readonly<UserRole> {
+    return this.role;
+  }
+  getType(): Readonly<UserType> {
+    return this.type;
   }
 }

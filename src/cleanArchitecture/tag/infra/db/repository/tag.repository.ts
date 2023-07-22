@@ -17,8 +17,6 @@ export class TagRepository implements ITagRepository {
     private tagFactory: TagFactory,
     BookmarksTagsRepository: Repository<Bookmarks_Tags>,
   ) {}
-  createTag: (item: string) => Promise<Tag>;
-  getAllTags: () => Promise<Tag[]>;
 
   async get(inputId: string): Promise<Tag | null> {
     const tagEntity = await this.tagRepository.findOne({
@@ -31,38 +29,65 @@ export class TagRepository implements ITagRepository {
     return this.tagFactory.reconstitute(id, tag);
   }
 
-  async create(item: Partial<Tag>): Promise<Tag> {
-    return await this.tagRepository.save(this.tagRepository.create(item));
-  }
-  createForm(tag: string): Tag {
-    return this.tagRepository.create();
+  //tagName이 더 직관적 아닐까?
+  async create(inputId: string, inputTag: string): Promise<Tag> {
+    const tag = new TagEntity();
+    tag.id = inputId;
+    tag.tag = inputTag;
+
+    return this.tagFactory.reconstitute(tag.id, tag.tag);
   }
 
-  async update(id: number, item: Tag): Promise<any> {
+  async save(inputId: string, inputTag: string): Promise<Tag> {
+    const tag = new TagEntity();
+    tag.id = inputId;
+    tag.tag = inputTag;
+
+    return this.tagFactory.reconstitute(tag.id, tag.tag);
+  }
+
+  createForm(inputTag: string): Tag {
+    const tag = new TagEntity();
+    tag.tag = inputTag;
+    return this.tagFactory.reconstitute(tag.id, tag.tag);
+  }
+
+  async update(id: string, item: any): Promise<any> {
     return await this.tagRepository.update(id, item);
   }
 
   async getAll(): Promise<Tag[]> {
-    return await this.tagRepository.find();
+    const tagEntities = await this.tagRepository.find();
+    if (tagEntities.length <= 0) {
+      return [];
+    }
+    return tagEntities.map((entity) => {
+      return this.tagFactory.reconstitute(entity.id, entity.tag);
+    });
   }
 
   async findByTagNames(tagNames: string[]): Promise<Tag[]> {
-    const tags: Tag[] = await this.tagRepository
+    const tagEntities = await this.tagRepository
       .createQueryBuilder('tag')
       .where('tag.tag IN (:...tags)', { tags: tagNames })
       .getMany();
 
-    return tags;
+    return tagEntities.map((entity) => {
+      return this.tagFactory.reconstitute(entity.id, entity.tag);
+    });
   }
   async getTagsByIds(tagId: number[]): Promise<Tag[]> {
-    const tags = await this.tagRepository
+    const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
       .whereInIds(tagId)
       .getMany();
 
-    return tags;
+    return tagEntities.map((entity) => {
+      return this.tagFactory.reconstitute(entity.id, entity.tag);
+    });
   }
+
   async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
     const arr: any[] = [];
     tags.forEach(async (tag) => {
@@ -118,7 +143,7 @@ export class TagRepository implements ITagRepository {
     return tagInsertBultk;
   }
 
-  async getUserAllTags(userId: number): Promise<Tag[]> {
+  async getUserAllTags(userId: string): Promise<Tag[]> {
     const tags: Tag[] = await this.tagRepository
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
@@ -142,111 +167,8 @@ export class TagRepository implements ITagRepository {
     return tags;
   }
 
-  async getTagSeatchOR(
-    userId: number,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
-    const getMachedBookmarkId = this.tagRepository
-      .createQueryBuilder('tag')
-      .select(`DISTINCT "bookmark"."id"`, 'ids')
-      .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
-      )
-      .leftJoin(
-        `bookmark`,
-        `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
-      )
-      .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags });
-
-    const bookmarks = await this.tagRepository
-      .createQueryBuilder('tag')
-      .select(`bookmark.*`)
-      .addSelect(
-        `array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`,
-        'tags',
-      )
-      .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
-      )
-      .leftJoin(
-        `bookmark`,
-        `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
-      )
-      .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(
-        `"bookmark"."id" in (${getMachedBookmarkId.getQuery()})`,
-        getMachedBookmarkId.getParameters(),
-      )
-      .groupBy(`bookmark.id`)
-      .orderBy(`bookmark."createdAt"`, 'DESC')
-      .limit(page.take)
-      .offset(page.skip)
-      .getRawMany();
-
-    const count = bookmarks.length;
-
-    return new Page<Bookmark>(count, page.take, bookmarks);
-  }
-  async getTagSearchAND(
-    userId: number,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
-    const getMachedBookmarkId = this.tagRepository
-      .createQueryBuilder('tag')
-      .select(`bookmark.id`)
-      .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
-      )
-      .leftJoin(
-        `bookmark`,
-        `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
-      )
-      .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags })
-      .groupBy(`bookmark.id`)
-      .having(`count(bookmark.id) > ${tags.length - 1}`);
-
-    const bookmarks = await this.tagRepository
-      .createQueryBuilder('tag')
-      .select(`bookmark.*`)
-      .addSelect(
-        `array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`,
-        'tags',
-      )
-      .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
-      )
-      .leftJoin(
-        `bookmark`,
-        `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
-      )
-      .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(
-        `"bookmark"."id" in (${getMachedBookmarkId.getQuery()})`,
-        getMachedBookmarkId.getParameters(),
-      )
-      .groupBy(`bookmark.id`)
-      .orderBy(`bookmark."createdAt"`, 'DESC')
-      .limit(page.take)
-      .offset(page.skip)
-      .getRawMany();
-
-    const count = bookmarks.length;
-    return new Page<Bookmark>(count, page.take, bookmarks);
+  async delete(id: string): Promise<any> {
+    const userEntity = await this.tagRepository.delete(id);
+    return userEntity;
   }
 }

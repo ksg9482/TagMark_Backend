@@ -1,2 +1,2 @@
 export * from './UserRole';
-export * from './UserType';
+export * from '../domain/UserType';
