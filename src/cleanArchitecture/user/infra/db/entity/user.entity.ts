@@ -13,6 +13,7 @@ import {
 import { BookmarkEntity as Bookmark } from "src/cleanArchitecture/bookmark/infra/db/entity/bookmark.entity";
 import { MaxLength, MinLength } from 'class-validator';
 import { UserRole, UserType } from 'src/cleanArchitecture/user/interface';
+import { User } from 'src/cleanArchitecture/user/domain/user';
 
 @Entity()
 export class UserEntity {

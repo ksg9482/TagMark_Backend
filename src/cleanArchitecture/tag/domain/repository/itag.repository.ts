@@ -1,9 +1,9 @@
 import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 import { Page } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
+import { IGenericRepository } from 'src/cleanArchitecture/common/domain/repository/igeneric-repository';
 
-export interface ITagRepository {
-  get: (id: string) => Promise<Tag | null>;
+export interface ITagRepository extends IGenericRepository<Tag> {
   createTag: (item: string) => Promise<Tag>;
   getAllTags: () => Promise<Tag[]>;
   getUserAllTags: (userId: number) => Promise<Tag[]>;
