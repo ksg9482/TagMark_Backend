@@ -1,3 +1,3 @@
 export enum AuthorizationType {
-  Bearer = 'Bearer',
+    Bearer = 'Bearer'
 }

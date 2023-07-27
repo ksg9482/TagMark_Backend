@@ -1,9 +1,11 @@
 export class Tag {
-  id: number;
 
-  tag: string;
+    id: number;
 
-  createdAt: Date;
+    tag: string;
 
-  updatedAt: Date;
+    createdAt: Date;
+
+    updatedAt: Date;
+
 }

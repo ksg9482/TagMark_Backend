@@ -4,8 +4,8 @@ import { TagFactoryService } from './tag.factory.service';
 import { TagUseCases } from './tag.use-case';
 
 @Module({
-  imports: [DataServicesModule],
-  providers: [TagFactoryService, TagUseCases],
-  exports: [TagFactoryService, TagUseCases],
+    imports: [DataServicesModule],
+    providers: [TagFactoryService, TagUseCases],
+    exports: [TagFactoryService, TagUseCases]
 })
-export class TagUsecasesModule {}
+export class TagUsecasesModule { }

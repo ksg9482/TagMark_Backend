@@ -1,6 +1,6 @@
-import { User } from '../entities';
-import { GenericRepository } from './generic-repository.abstract';
+import { User } from "../entities";
+import { GenericRepository } from "./generic-repository.abstract";
 
 export abstract class UserRepository extends GenericRepository<User> {
-  abstract getByEmail(email: string): Promise<User>;
+    abstract getByEmail(email: string): Promise<User>;
 }

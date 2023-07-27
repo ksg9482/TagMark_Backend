@@ -8,27 +8,25 @@ import { DataServicesModule } from './services/data-services/data-services.modul
 import { UserUsecasesModule } from './use-cases/user';
 import { BookmarkUsecasesModule } from './use-cases/bookmark';
 import { TagUsecasesModule } from './use-cases/tag';
-import {
-  BookmarkController,
-  TagController,
-  UserController,
-} from './controllers';
+import { BookmarkController, TagController, UserController } from './controllers';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/httpExceptionFilter';
 import { CommonController } from './controllers/common.controller';
+
+
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
-      validate,
+      validate
     }),
     AuthModule,
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY || 'privateKey',
-      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY || 'refreshPrivateKey',
+      privateKey: process.env.PRIVATE_KEY||'privateKey',
+      refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY||'refreshPrivateKey'
     }),
     UtilsModule,
     DataServicesModule,
@@ -40,18 +38,19 @@ import { CommonController } from './controllers/common.controller';
     UserController,
     BookmarkController,
     TagController,
-    CommonController,
+    CommonController
   ],
   providers: [
     Logger,
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
+    }
   ],
 })
+
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+  };
+};

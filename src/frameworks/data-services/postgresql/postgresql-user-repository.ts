@@ -5,36 +5,34 @@ import { UserRepository } from 'src/core/abstracts';
 import { User } from './model';
 
 @Injectable()
-export class PostgresqlUserRepository
-  extends PostgresqlGenericRepository<User>
-  implements UserRepository
-{
-  userRepository: Repository<User>;
-  constructor(
-    @Inject(Repository<User>)
-    repository: Repository<User>,
-  ) {
-    super(repository);
-    this.userRepository = repository;
-  }
-  async getByEmail(email: string): Promise<User> {
-    return (await this.userRepository
-      .createQueryBuilder('user')
-      .select(`*`)
-      .where('("user"."email" = :email)', { email: email })
-      .limit(1)
-      .getRawOne()) as User;
-  }
+export class PostgresqlUserRepository extends PostgresqlGenericRepository<User> implements UserRepository {
+    userRepository: Repository<User>;
+    constructor(
+        @Inject(Repository<User>)
+        repository: Repository<User>
+    ) {
+        super(repository);
+        this.userRepository = repository;
+    }
+    ;
 
-  async create(item: Partial<User>): Promise<User> {
-    return await this.userRepository.save(this.userRepository.create(item));
-  }
+    async getByEmail(email: string): Promise<User> {
+        return await this.userRepository.createQueryBuilder("user")
+            .select(`*`)
+            .where('("user"."email" = :email)', { email: email })
+            .limit(1)
+            .getRawOne() as User;
+    };
 
-  async update(id: number, item: User): Promise<any> {
-    return await this.userRepository.update(id, item);
-  }
+    async create(item: Partial<User>): Promise<User> {
+        return await this.userRepository.save(this.userRepository.create(item));
+    };
 
-  async get(id: number): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { id: id } });
-  }
+    async update(id: number, item: User): Promise<any> {
+        return await this.userRepository.update(id, item);
+    };
+
+    async get(id: number): Promise<User | null> {
+        return await this.userRepository.findOne({ where: { id: id } });
+    };
 }
