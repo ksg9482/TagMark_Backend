@@ -5,7 +5,7 @@ import { Bookmark } from './bookmark';
 
 @Injectable()
 export class BookmarkFactory {
-  constructor(private eventBus: EventBus) {}
+  //constructor(private eventBus: EventBus) {}
 
   create(id: string, url: string, tags: Tag[], userId: string): Bookmark {
     const bookmark = new Bookmark(id, url, tags, userId);

@@ -30,11 +30,11 @@ export class TagRepository implements ITagRepository {
   }
 
   //tagName이 더 직관적 아닐까?
-  async create(inputId: string, inputTag: string): Promise<Tag> {
+  async create(inputTag: string): Promise<Tag> {
     const tag = new TagEntity();
-    tag.id = inputId;
     tag.tag = inputTag;
-
+    const a = this.tagRepository.create()
+    
     return this.tagFactory.reconstitute(tag.id, tag.tag);
   }
 
@@ -42,7 +42,9 @@ export class TagRepository implements ITagRepository {
     const tag = new TagEntity();
     tag.id = inputId;
     tag.tag = inputTag;
-
+    
+    //create에서도 같은걸 반환하는데, 책임이 명확히 설정되지 않았다.
+    await this.tagRepository.save(tag)
     return this.tagFactory.reconstitute(tag.id, tag.tag);
   }
 
@@ -52,8 +54,19 @@ export class TagRepository implements ITagRepository {
     return this.tagFactory.reconstitute(tag.id, tag.tag);
   }
 
-  async update(id: string, item: any): Promise<any> {
-    return await this.tagRepository.update(id, item);
+  async update(id: string, item: Tag): Promise<any> {
+    //불러와서 확인하고 프로세스 들어가는게 안전할듯. 
+    const tagEntities = await this.tagRepository
+      .createQueryBuilder()
+      .select()
+      .whereInIds(id)
+      .getOne();
+    if(tagEntities === null) {
+      return null
+    }
+    tagEntities.id = id;
+    tagEntities.tag = item.getTag()
+    return await this.tagRepository.update(id, tagEntities);
   }
 
   async getAll(): Promise<Tag[]> {
@@ -76,7 +89,7 @@ export class TagRepository implements ITagRepository {
       return this.tagFactory.reconstitute(entity.id, entity.tag);
     });
   }
-  async getTagsByIds(tagId: number[]): Promise<Tag[]> {
+  async getTagsByIds(tagId: string[]): Promise<Tag[]> {
     const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
@@ -88,7 +101,7 @@ export class TagRepository implements ITagRepository {
     });
   }
 
-  async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
+  async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const arr: any[] = [];
     tags.forEach(async (tag) => {
       const check = await this.tagRepository
@@ -118,7 +131,7 @@ export class TagRepository implements ITagRepository {
     return arr;
   }
 
-  async detachTag(bookmarkId: number, tagIds: number[]): Promise<any> {
+  async detachTag(bookmarkId: string, tagIds: string[]): Promise<any> {
     const deletedTag = await this.tagRepository
       .createQueryBuilder()
       .delete()
