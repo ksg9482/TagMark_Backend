@@ -34,7 +34,7 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
     const bookmark = new BookmarkEntity();
     bookmark.id = inputId;
     bookmark.url = url;
-    // bookmark.tags = tags;
+    bookmark.tags = tags;
     bookmark.userId = userId;
 
     return this.bookmarkFactory.reconstitute(
@@ -212,6 +212,7 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
     page: any,
   ): Promise<Page<Bookmark>> {
     //북마크 리파지토리로 바꾸면 성능 그대론가??
+    //태그내용이 다 안나오니까 서브쿼리 사용 -> 셀프조인으로 안되나??
     const getMachedBookmarkId = this.tagRepository
       .createQueryBuilder('tag')
       .select(`DISTINCT "bookmark"."id"`, 'ids')

@@ -23,4 +23,27 @@ export class Bookmark {
   getUserId(): Readonly<string> {
     return this.userId;
   }
+
+  getAll() {
+    return {
+      id: this.id,
+      url: this.url,
+      tags: this.tags,
+      userId: this.userId
+    }
+  }
+
+  updateUrl(url: string) {
+    this.url = url;
+    return {
+      url: this.url
+    }
+  }
+
+  updateTags(tags:Tag[]) {
+    this.tags = tags;
+    return {
+      tags: this.tags
+    }
+  }
 }

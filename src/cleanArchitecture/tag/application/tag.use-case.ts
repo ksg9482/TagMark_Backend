@@ -15,7 +15,8 @@ export class TagUseCases {
   ) {}
 
   async getAllTags(): Promise<Tag[]> {
-    const tags = await this.tagRepository.getAllTags();
+    const tags = await this.tagRepository.getAll();
+    
     return tags;
   }
 
@@ -25,7 +26,7 @@ export class TagUseCases {
       return tagCheck[0];
     }
 
-    const createdTag = await this.tagRepository.createTag(createTagDto.tag);
+    const createdTag = await this.tagRepository.create(createTagDto.tag);
 
     return createdTag;
   }
@@ -55,15 +56,15 @@ export class TagUseCases {
     return tags;
   }
 
-  async attachTag(bookmarkId: number, tags: Tag[]): Promise<any[]> {
+  async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
 
     return attach;
   }
 
   async detachTag(
-    bookmarkId: number,
-    tagId: number | number[],
+    bookmarkId: string,
+    tagId: string | string[],
   ): Promise<string> {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
@@ -73,7 +74,7 @@ export class TagUseCases {
     return 'Deleted';
   }
 
-  async getTagsByIds(tagId: number | number[]): Promise<Tag[]> {
+  async getTagsByIds(tagId: string | string[]): Promise<Tag[]> {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }
@@ -81,7 +82,7 @@ export class TagUseCases {
     return tags;
   }
 
-  async getUserAllTags(userId: number): Promise<TagWithCount[]> {
+  async getUserAllTags(userId: string): Promise<TagWithCount[]> {
     const tags: any[] = await this.tagRepository.getUserAllTags(userId);
     const countForm: TagWithCount[] = tags.map((tag) => {
       return { ...tag, count: Number(tag['count']) };
@@ -89,34 +90,7 @@ export class TagUseCases {
     return countForm;
   }
 
-  //OR과 AND는 북마크와 태그가 함께 사용되니 별도의 클래스로 분리하는게 맞지 않을까?
-  async getTagAllBookmarksOR(
-    userId: number,
-    tags: string[],
-    page: GetSearchTagsDto,
-  ): Promise<Page<Bookmark>> {
-    const limit = page.getLimit();
-    const offset = page.getOffset();
-    const bookmarks = await this.tagRepository.getTagSeatchOR(userId, tags, {
-      take: limit,
-      skip: offset,
-    });
-    return bookmarks;
-  }
-
-  async getTagAllBookmarksAND(
-    userId: number,
-    tags: string[],
-    page: GetSearchTagsDto,
-  ): Promise<Page<Bookmark>> {
-    const limit = page.getLimit();
-    const offset = page.getOffset();
-    const bookmarks = await this.tagRepository.getTagSearchAND(userId, tags, {
-      take: limit,
-      skip: offset,
-    });
-    return bookmarks;
-  }
+  
 
   protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]): string[] {
     const tagArr = finedTagArr.map((tag) => {

@@ -5,10 +5,12 @@ import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 
 export interface IBookmarkRepository extends IGenericRepository<Bookmark> {
   create: (
-    id: string,
-    url: string,
-    tags: Tag[],
-    userId: string,
+createBookmark:{
+      id: string,
+      url: string,
+      tags: Tag[],
+      userId: string
+    }
   ) => Promise<Bookmark>;
   save: (
     id: string,
