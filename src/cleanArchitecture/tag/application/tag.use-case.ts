@@ -1,33 +1,29 @@
-import { Inject } from '@nestjs/common';
-import { DataServices } from 'src/core/abstracts';
 import { ITagRepository } from 'src/cleanArchitecture/tag/domain/repository/itag.repository';
-import { CreateTagDto } from 'src/cleanArchitecture/tag/interface/dto';
-import { GetSearchTagsDto } from 'src/controllers/dtos/tag/get-search-tags.dto';
 import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
-import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
-import { Page } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import { TagWithCount } from 'src/cleanArchitecture/tag/domain/tag.interface';
+import { TagFactory } from '../domain/tag.factory';
 
+//dto 말고 서비스 레이어에서 이용하는 비즈니스 로직에 맞는 인수로 받아야 한다.
+//dto를 그대로 받으면 dto에 컨트롤러와 서비스가 의존하게 되어 연결이 강해진다.
 export class TagUseCases {
   constructor(
-    // @Inject(DataServices)
     private tagRepository: ITagRepository,
+    private tagFactory: TagFactory,
   ) {}
 
   async getAllTags(): Promise<Tag[]> {
     const tags = await this.tagRepository.getAll();
-    
     return tags;
   }
 
-  async createTag(createTagDto: CreateTagDto): Promise<Tag> {
-    const tagCheck = await this.getTagsByNames(createTagDto.tag);
+  //결국 저장은 데이터 레이어로 넘어가서 엔티티에 맞춰야 한다.
+  //그렇다면 여기서 엔티티를 만들어 넘겨줄게 아니라 엔티티 만들 재료를 넘겨줘야 한다.
+  async createTag(tag: string): Promise<Tag> {
+    const tagCheck = await this.getTagsByNames(tag);
     if (tagCheck) {
       return tagCheck[0];
     }
-
-    const createdTag = await this.tagRepository.create(createTagDto.tag);
-
+    const createdTag = this.tagRepository.save(tag);
     return createdTag;
   }
 
@@ -36,29 +32,29 @@ export class TagUseCases {
       tagName = [tagName];
     }
     const tags = await this.tagFindOrCreate(tagName);
-
     return tags;
   }
 
   protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
-    let tags: Tag[] = await this.tagRepository.findByTagNames(tagNames);
+    const result: Tag[] = [];
+    const findedTags = await this.tagRepository.findByTagNames(tagNames);
 
-    const tagFilter = this.tagFilter(tags, tagNames);
-    if (tagFilter) {
-      const createTags = tagFilter.map((tag) => {
-        return this.tagRepository.createForm(tag);
+    const notExistTags = this.getNotExistTag(findedTags, tagNames);
+    if (notExistTags) {
+      const createTags = notExistTags.map((tag) => {
+        const tempUuid = '';
+        return this.tagFactory.reconstitute(tempUuid, tag);
       });
       await this.tagRepository.insertBulk(createTags);
-
-      tags = [...tags, ...createTags];
+      const resultTags = [...findedTags, ...createTags];
+      result.push(...resultTags);
     }
 
-    return tags;
+    return result;
   }
 
   async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
-
     return attach;
   }
 
@@ -69,7 +65,6 @@ export class TagUseCases {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }
-
     await this.tagRepository.detachTag(bookmarkId, tagId);
     return 'Deleted';
   }
@@ -90,12 +85,10 @@ export class TagUseCases {
     return countForm;
   }
 
-  
-
-  protected tagFilter(finedTagArr: Tag[], inputTagArr: string[]): string[] {
-    const tagArr = finedTagArr.map((tag) => {
+  protected getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
+    const tagArr = existTags.map((tag) => {
       return tag.getTag();
     });
-    return inputTagArr.filter((tag) => !tagArr.includes(tag));
+    return inputTags.filter((tag) => !tagArr.includes(tag));
   }
 }
