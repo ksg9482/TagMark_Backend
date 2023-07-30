@@ -1,5 +1,5 @@
 export class Tag {
-  constructor(private id: string, private tag: string) {
+  constructor(protected id: string, protected tag: string) {
     this.id = id;
     this.tag = tag;
   }

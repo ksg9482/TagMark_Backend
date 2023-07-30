@@ -1,11 +1,12 @@
 import { Repository } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
-import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
+import { Injectable } from '@nestjs/common';
+import { v4 as uuidV4 } from 'uuid';
 import { ITagRepository } from 'src/cleanArchitecture/tag/domain/repository/itag.repository';
 import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TagEntity } from 'src/cleanArchitecture/tag/infra/db/entity/tag.entity';
 import { TagFactory } from 'src/cleanArchitecture/tag/domain/tag.factory';
+import { TagWithCount } from 'src/cleanArchitecture/tag/domain/tag.interface';
 
 @Injectable()
 export class TagRepository implements ITagRepository {
@@ -27,8 +28,11 @@ export class TagRepository implements ITagRepository {
   }
 
   createEntity(tag: string): TagEntity {
-    const tempUuid = '';
-    return this.tagRepository.create({ id: tempUuid, tag: tag });
+    const uuid = () => {
+      const tokens = uuidV4().split('-');
+      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    };
+    return this.tagRepository.create({ id: uuid(), tag: tag });
   }
 
   async save(tag: string): Promise<Tag> {
@@ -141,8 +145,8 @@ export class TagRepository implements ITagRepository {
     return tagInsertBultk;
   }
 
-  async getUserAllTags(userId: string): Promise<Tag[]> {
-    const tags: Tag[] = await this.tagRepository
+  async getUserAllTags(userId: string): Promise<TagWithCount[]> {
+    const tags: TagWithCount[] = await this.tagRepository
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
       .leftJoin(

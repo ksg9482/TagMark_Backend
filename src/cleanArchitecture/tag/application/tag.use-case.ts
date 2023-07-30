@@ -78,11 +78,14 @@ export class TagUseCases {
   }
 
   async getUserAllTags(userId: string): Promise<TagWithCount[]> {
-    const tags: any[] = await this.tagRepository.getUserAllTags(userId);
-    const countForm: TagWithCount[] = tags.map((tag) => {
-      return { ...tag, count: Number(tag['count']) };
-    });
-    return countForm;
+    const tags = await this.tagRepository.getUserAllTags(userId);
+    // const countForm = tags.map((tag) => {
+    //   const id = tag.getId();
+    //   const tagName = tag.getTag();
+    //   const count = tag.getCount();
+    //   return { ...tag, count: Number(tag['count']) };
+    // });
+    return tags;
   }
 
   protected getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
