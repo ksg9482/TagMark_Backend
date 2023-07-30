@@ -1,13 +1,12 @@
 import { Repository } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
-import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
+import { Injectable } from '@nestjs/common';
+import { v4 as uuidV4 } from 'uuid';
 import { ITagRepository } from 'src/cleanArchitecture/tag/domain/repository/itag.repository';
 import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
-import { Bookmarks_Tags } from 'src/frameworks/data-services/postgresql/model/bookmarks_tags.model';
-import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TagEntity } from 'src/cleanArchitecture/tag/infra/db/entity/tag.entity';
 import { TagFactory } from 'src/cleanArchitecture/tag/domain/tag.factory';
+import { TagWithCount } from 'src/cleanArchitecture/tag/domain/tag.interface';
 
 @Injectable()
 export class TagRepository implements ITagRepository {
@@ -15,7 +14,6 @@ export class TagRepository implements ITagRepository {
   constructor(
     @InjectRepository(TagEntity) private tagRepository: Repository<TagEntity>,
     private tagFactory: TagFactory,
-    BookmarksTagsRepository: Repository<Bookmarks_Tags>,
   ) {}
 
   async get(inputId: string): Promise<Tag | null> {
@@ -29,43 +27,34 @@ export class TagRepository implements ITagRepository {
     return this.tagFactory.reconstitute(id, tag);
   }
 
-  //tagName이 더 직관적 아닐까?
-  async create(inputTag: string): Promise<Tag> {
-    const tag = new TagEntity();
-    tag.tag = inputTag;
-    const a = this.tagRepository.create()
-    
-    return this.tagFactory.reconstitute(tag.id, tag.tag);
+  createEntity(tag: string): TagEntity {
+    const uuid = () => {
+      const tokens = uuidV4().split('-');
+      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    };
+    return this.tagRepository.create({ id: uuid(), tag: tag });
   }
 
-  async save(inputId: string, inputTag: string): Promise<Tag> {
-    const tag = new TagEntity();
-    tag.id = inputId;
-    tag.tag = inputTag;
-    
-    //create에서도 같은걸 반환하는데, 책임이 명확히 설정되지 않았다.
-    await this.tagRepository.save(tag)
-    return this.tagFactory.reconstitute(tag.id, tag.tag);
-  }
-
-  createForm(inputTag: string): Tag {
-    const tag = new TagEntity();
-    tag.tag = inputTag;
-    return this.tagFactory.reconstitute(tag.id, tag.tag);
+  async save(tag: string): Promise<Tag> {
+    //create는 entity 생성, save는 entity를 db에 저장으로 명시.
+    //create가 엔티티 생성인지, db에 생성인지 명확하지 않았음. create로 재활용
+    const tagEntity = this.createEntity(tag);
+    await this.tagRepository.save(tagEntity);
+    return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
   }
 
   async update(id: string, item: Tag): Promise<any> {
-    //불러와서 확인하고 프로세스 들어가는게 안전할듯. 
+    //불러와서 확인하고 프로세스 들어가는게 안전할듯.
     const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
       .whereInIds(id)
       .getOne();
-    if(tagEntities === null) {
-      return null
+    if (tagEntities === null) {
+      return null;
     }
     tagEntities.id = id;
-    tagEntities.tag = item.getTag()
+    tagEntities.tag = item.getTag();
     return await this.tagRepository.update(id, tagEntities);
   }
 
@@ -156,8 +145,8 @@ export class TagRepository implements ITagRepository {
     return tagInsertBultk;
   }
 
-  async getUserAllTags(userId: string): Promise<Tag[]> {
-    const tags: Tag[] = await this.tagRepository
+  async getUserAllTags(userId: string): Promise<TagWithCount[]> {
+    const tags: TagWithCount[] = await this.tagRepository
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
       .leftJoin(
