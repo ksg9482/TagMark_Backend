@@ -23,9 +23,9 @@ export class BookmarkUseCases {
 
   async createBookmark(
     userId: string,
-    createBookmarkDto: CreateBookmarkDto,
+    url: string,
+    tagNames?: string
   ): Promise<Bookmark> {
-    const { tagNames, url } = createBookmarkDto;
     const bookmark = await this.bookmarkCheck(url);
 
     if (bookmark) {
