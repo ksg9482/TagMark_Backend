@@ -43,7 +43,7 @@ export class TagUseCases {
     if (notExistTags) {
       const createTags = notExistTags.map((tag) => {
         const tempUuid = '';
-        return this.tagFactory.reconstitute(tempUuid, tag);
+        return this.tagFactory.create(tempUuid, tag);
       });
       await this.tagRepository.insertBulk(createTags);
       const resultTags = [...findedTags, ...createTags];

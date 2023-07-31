@@ -3,16 +3,19 @@ import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags 
 import { AuthUser } from "src/auth/auth-user.decorator";
 import { CreateBookmarkDto, CreateBookmarkResponseDto, DeleteBookmarkResponseDto,GetUserBookmarkCountResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto, SyncBookmarkDto, SyncBookmarkResponseDto } from "src/cleanArchitecture/bookmark/interface/dto";
 import { Bookmark, Tag } from "src/frameworks/data-services/postgresql/model";
-import { BookmarkUseCases, BookmarkFactoryService } from "src/use-cases/bookmark";
-import { TagUseCases } from "src/use-cases/tag";
+import { BookmarkUseCases } from "src/cleanArchitecture/bookmark/application/bookmark.use-case";
+import { BookmarkFactory } from "src/cleanArchitecture/bookmark/domain/bookmark.factory";
+import { TagUseCases } from "src/cleanArchitecture/tag/application/tag.use-case";
 import { UtilsService } from "src/utils/utils.service";
+import { TagFactory } from "src/cleanArchitecture/tag/domain/tag.factory";
 
 @ApiTags('Bookmark')
 @Controller('api/bookmark')
 export class BookmarkController {
     constructor(
         private bookmarkUseCases: BookmarkUseCases,
-        private bookmarkFactoryService: BookmarkFactoryService,
+        private bookmarkFactory: BookmarkFactory,
+        private tagFactory: TagFactory,
         private tagUseCases: TagUseCases,
         private readonly utilServices: UtilsService,
         @Inject(Logger) private readonly logger: LoggerService
@@ -24,14 +27,23 @@ export class BookmarkController {
     @ApiBody({type:CreateBookmarkDto})
     @Post('/')
     async createBookmark(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
         @Body(new ValidationPipe()) createBookmarkDto: CreateBookmarkDto
     ) {
         const createBookmarkResponse = new CreateBookmarkResponseDto();
         try {
-            const bookmark = this.bookmarkFactoryService.createNewBookmark(createBookmarkDto);
-            const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark);
-            let createdTags: Array<Tag> = [];
+            const {url, tagNames} = createBookmarkDto
+            const tags = tagNames || []
+            const tempUuid = ''
+            const createTags = tags.map((tag) => {
+                const tempUuid = '';
+                return this.tagFactory.create(tempUuid, tag);
+              });
+            const bookmark = this.bookmarkFactory.create(tempUuid, url, createTags, userId);
+            //이거 해야 됨
+            
+            const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark.getUrl());
+            let createdTags: Tag[] = [];
             if (Array.isArray(createBookmarkDto.tagNames)) {
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
@@ -53,7 +65,7 @@ export class BookmarkController {
     @ApiBody({type:SyncBookmarkDto})
     @Post('/sync')
     async syncBookmark(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
         @Body(new ValidationPipe()) loginsyncBookmarkDto: SyncBookmarkDto
     ) {
         const syncBookmarkResponse = new SyncBookmarkResponseDto();
@@ -98,7 +110,7 @@ export class BookmarkController {
     @ApiQuery({ name: 'pageno', type: 'number', description: '페이지네이션 넘버. 1부터 시작하고 20개 단위이다.' })
     @Get('/')
     async getUserAllBookmark(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
         @Query(new ValidationPipe({ transform: true })) page: GetUserAllBookmarksDto
     ) {
         const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
@@ -125,7 +137,7 @@ export class BookmarkController {
     @ApiCreatedResponse({ description: '유저가 생성한 북마크의 갯수를 반환한다.', type: GetUserBookmarkCountResponseDto })
     @Get('/count')
     async getUserBookmarkCount(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
     ) {
         const getUserAllBookmarkResponse = new GetUserBookmarkCountResponseDto()
         try {
@@ -148,7 +160,7 @@ export class BookmarkController {
     @ApiBody({type:EditBookmarkDto})
     @Patch('/:id')
     async editBookmark(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
         @Param('id', ParseIntPipe) bookmarkId: number,
         @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto
     ) {
@@ -185,7 +197,7 @@ export class BookmarkController {
     @ApiParam({ name: 'id', description: '삭제할 북마크 id' })
     @Delete('/:id')
     async deleteBookmark(
-        @AuthUser() userId: number,
+        @AuthUser() userId: string,
         @Param('id', ParseIntPipe) bookmarkId: number
     ) {
         const deleteBookmarkResponse = new DeleteBookmarkResponseDto()
