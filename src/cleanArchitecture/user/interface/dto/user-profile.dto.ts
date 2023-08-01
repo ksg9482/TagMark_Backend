@@ -6,7 +6,7 @@ export class UserProfileDto {
   @ApiProperty({ description: '유저 아이디' })
   @IsNumber()
   @IsNotEmpty()
-  userId: number;
+  userId: string;
 }
 
 export class UserProfileResponseDto extends BaseResponseDto {

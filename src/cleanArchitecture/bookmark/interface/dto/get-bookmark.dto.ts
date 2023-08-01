@@ -6,7 +6,7 @@ import { BaseResponseDto } from 'src/cleanArchitecture/common/dto/base-response.
 export class GetBookmarkDto {
   @IsNumber()
   @ApiProperty({ description: '북마크 아이디' })
-  bookmarkId: number;
+  bookmarkId: string;
 }
 
 export class GetBookmarkResponseDto extends BaseResponseDto {

@@ -12,9 +12,9 @@ export class EditBookmarkDto {
   @IsOptional()
   @ApiProperty({
     description: '삭제할 태그 아이디 배열. 해당 태그의 id를 알고있는 상태.',
-    type: ['number'],
+    type: ['string'],
   })
-  deleteTag: number[];
+  deleteTag: string[];
 
   @IsArray()
   @IsOptional()

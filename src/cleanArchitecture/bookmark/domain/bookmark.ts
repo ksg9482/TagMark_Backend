@@ -4,8 +4,8 @@ export class Bookmark {
   constructor(
     private id: string,
     private url: string,
-    private tags: Tag[],
     private userId: string,
+    private tags?: Tag[],
   ) {}
 
   getId(): Readonly<string> {
@@ -17,6 +17,9 @@ export class Bookmark {
   }
 
   getTags(): Readonly<Tag[]> {
+    if(this.tags === undefined) {
+      return []
+    }
     return this.tags;
   }
 
