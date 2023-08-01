@@ -6,7 +6,7 @@ import { BaseResponseDto } from 'src/cleanArchitecture/common/dto/base-response.
 export class GetTagsDto {
   @ApiProperty({ description: '태그 아이디' })
   @IsArray()
-  tagId: number | number[];
+  tagId: string | string[];
 }
 
 export class GetTagsResponseDto extends BaseResponseDto {

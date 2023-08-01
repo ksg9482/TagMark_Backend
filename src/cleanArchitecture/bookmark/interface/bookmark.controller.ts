@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Inject, Logger, LoggerService, Param, ParseIntPipe, Patch, Post, Query, ValidationPipe } from "@nestjs/common";
 import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { AuthUser } from "src/auth/auth-user.decorator";
-import { CreateBookmarkDto, CreateBookmarkResponseDto, DeleteBookmarkResponseDto,GetUserBookmarkCountResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto, SyncBookmarkDto, SyncBookmarkResponseDto } from "src/cleanArchitecture/bookmark/interface/dto";
-import { Bookmark, Tag } from "src/frameworks/data-services/postgresql/model";
+import { CreateBookmarkDto, CreateBookmarkResponseDto, DeleteBookmarkResponseDto, GetUserBookmarkCountResponseDto, EditBookmarkDto, EditBookmarkResponseDto, GetUserAllBookmarksDto, GetUserAllBookmarksResponseDto, SyncBookmarkDto, SyncBookmarkResponseDto } from "src/cleanArchitecture/bookmark/interface/dto";
+import { Bookmark } from "src/cleanArchitecture/bookmark/domain/bookmark";
+import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 import { BookmarkUseCases } from "src/cleanArchitecture/bookmark/application/bookmark.use-case";
 import { BookmarkFactory } from "src/cleanArchitecture/bookmark/domain/bookmark.factory";
 import { TagUseCases } from "src/cleanArchitecture/tag/application/tag.use-case";
@@ -24,7 +25,7 @@ export class BookmarkController {
 
     @ApiOperation({ summary: '북마크를 생성하는 API', description: '북마크를 생성한다.' })
     @ApiCreatedResponse({ description: '북마크를 생성하고 결과를 반환한다.', type: CreateBookmarkResponseDto })
-    @ApiBody({type:CreateBookmarkDto})
+    @ApiBody({ type: CreateBookmarkDto })
     @Post('/')
     async createBookmark(
         @AuthUser() userId: string,
@@ -32,27 +33,28 @@ export class BookmarkController {
     ) {
         const createBookmarkResponse = new CreateBookmarkResponseDto();
         try {
-            const {url, tagNames} = createBookmarkDto
+            const { url, tagNames } = createBookmarkDto
             const tags = tagNames || []
             const tempUuid = ''
             const createTags = tags.map((tag) => {
                 const tempUuid = '';
                 return this.tagFactory.create(tempUuid, tag);
-              });
-            const bookmark = this.bookmarkFactory.create(tempUuid, url, createTags, userId);
-            //이거 해야 됨
+            });
+            const bookmark = this.bookmarkFactory.create(tempUuid, url, userId, createTags);
             
-            const createdBookmark = await this.bookmarkUseCases.createBookmark(userId, bookmark.getUrl());
+            const createdBookmark = await this.bookmarkUseCases.createBookmark(
+                userId,
+                bookmark.getUrl()
+            );
             let createdTags: Tag[] = [];
             if (Array.isArray(createBookmarkDto.tagNames)) {
                 const tags = await this.tagUseCases.getTagsByNames(createBookmarkDto.tagNames)
                 createdTags = tags;
-                await this.tagUseCases.attachTag(createdBookmark.id, tags)
+                await this.tagUseCases.attachTag(createdBookmark.getId(), tags)
             }
-            const tagAddedBookmark = { ...createdBookmark, tags: createdTags || [] };
-            
+           
             createBookmarkResponse.success = true;
-            createBookmarkResponse.createdBookmark = tagAddedBookmark;
+            createBookmarkResponse.createdBookmark = createdBookmark;
             return createBookmarkResponse;
         } catch (error) {
             this.logger.error(error);
@@ -62,7 +64,7 @@ export class BookmarkController {
 
     @ApiOperation({ summary: '첫 로그인시 로컬과 DB를 동기화하는 API', description: '첫 로그인시 북마크를 동기화한다.' })
     @ApiCreatedResponse({ description: '동기화된 북마크 배열을 반환한다.', type: SyncBookmarkResponseDto })
-    @ApiBody({type:SyncBookmarkDto})
+    @ApiBody({ type: SyncBookmarkDto })
     @Post('/sync')
     async syncBookmark(
         @AuthUser() userId: string,
@@ -71,28 +73,28 @@ export class BookmarkController {
         const syncBookmarkResponse = new SyncBookmarkResponseDto();
         try {
             const tagNames = loginsyncBookmarkDto.tagNames;
-           
+
             const dbTags = await this.tagUseCases.getTagsByNames(tagNames)
-            
-            const setSyncBookmarkForm = (userId:number, bookmarks:Bookmark[], tags:Tag[]): Bookmark[] => {
+
+            const setSyncBookmarkForm = (userId: string, bookmarks: Bookmark[], tags: Tag[]): Bookmark[] => {
                 const result = bookmarks.map((bookmark) => {
-                    const localTags = bookmark.tags;
-                    const changedTags = localTags.map((localtag)=>{
-                        const targetTag = tags.find((dbTag)=>{
-                            return dbTag.tag === localtag.tag;
+                    const localTags = bookmark.getTags();
+                    const changedTags = localTags.map((localtag) => {
+                        const targetTag = tags.find((dbTag) => {
+                            return dbTag.getTag() === localtag.getTag();
                         });
                         return targetTag;
                     })
                     Reflect.deleteProperty(bookmark, 'id');
-                    return {...bookmark, tags:changedTags, userId:userId};
+                    return { ...bookmark, tags: changedTags, userId: userId };
                 });
                 return result as any
             };
 
             const syncedBookmarks = setSyncBookmarkForm(userId, loginsyncBookmarkDto.bookmarks, dbTags)
-            
+
             await this.bookmarkUseCases.syncBookmark(syncedBookmarks)
-            
+
             syncBookmarkResponse.success = true;
             syncBookmarkResponse.message = 'synced';
             syncBookmarkResponse.bookmarks = syncedBookmarks;
@@ -116,7 +118,7 @@ export class BookmarkController {
         const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
 
         try {
-            const bookmarks:any = await this.bookmarkUseCases.getUserAllBookmarks(
+            const bookmarks: any = await this.bookmarkUseCases.getUserAllBookmarks(
                 userId,
                 page
             );
@@ -132,7 +134,7 @@ export class BookmarkController {
         }
     }
 
-    
+
     @ApiOperation({ summary: '유저가 생성한 북마크의 갯수를 반환하는 API', description: '북마크를 갯수를 반환한다.' })
     @ApiCreatedResponse({ description: '유저가 생성한 북마크의 갯수를 반환한다.', type: GetUserBookmarkCountResponseDto })
     @Get('/count')
@@ -142,7 +144,7 @@ export class BookmarkController {
         const getUserAllBookmarkResponse = new GetUserBookmarkCountResponseDto()
         try {
             const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
-            
+
             getUserAllBookmarkResponse.success = true;
             getUserAllBookmarkResponse.count = Number(count);
             return getUserAllBookmarkResponse;
@@ -157,11 +159,11 @@ export class BookmarkController {
     @ApiOperation({ summary: '북마크의 데이터를 수정하는 API', description: '북마크의 데이터를 수정한다.' })
     @ApiCreatedResponse({ description: '북마크를 수정하고 Updated 메시지를 반환한다.', type: EditBookmarkResponseDto })
     @ApiParam({ name: 'id', description: '변경할 북마크 id' })
-    @ApiBody({type:EditBookmarkDto})
+    @ApiBody({ type: EditBookmarkDto })
     @Patch('/:id')
     async editBookmark(
         @AuthUser() userId: string,
-        @Param('id', ParseIntPipe) bookmarkId: number,
+        @Param('id', ParseIntPipe) bookmarkId: string,
         @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto
     ) {
         const editBookmarkResponse = new EditBookmarkResponseDto()
@@ -198,7 +200,7 @@ export class BookmarkController {
     @Delete('/:id')
     async deleteBookmark(
         @AuthUser() userId: string,
-        @Param('id', ParseIntPipe) bookmarkId: number
+        @Param('id', ParseIntPipe) bookmarkId: string
     ) {
         const deleteBookmarkResponse = new DeleteBookmarkResponseDto()
         try {

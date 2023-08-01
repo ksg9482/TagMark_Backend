@@ -1,5 +1,6 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { v4 as uuidV4 } from 'uuid';
 import { Page } from 'src/use-cases/bookmark/bookmark.pagination';
 import { IBookmarkRepository } from 'src/cleanArchitecture/bookmark/domain/repository/ibookmark.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,44 +26,23 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
   get: (id: string) => Promise<Bookmark | null>;
   delete: (id: string) => Promise<any>;
 
-  async create(
-    inputId: string,
-    url: string,
-    tags: Tag[],
-    userId: string,
-  ): Promise<Bookmark> {
-    const bookmark = new BookmarkEntity();
-    bookmark.id = inputId;
-    bookmark.url = url;
-    bookmark.tags = tags;
-    bookmark.userId = userId;
-
-    return this.bookmarkFactory.reconstitute(
-      bookmark.id,
-      bookmark.url,
-      tags,
-      bookmark.userId,
-    );
+  createEntity(userId:string, url:string): BookmarkEntity {
+    const uuid = () => {
+      const tokens = uuidV4().split('-');
+      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    };
+    return this.bookmarkRepository.create({ id: uuid(), url: url, userId: userId});
   }
 
   async save(
-    inputId: string,
     url: string,
-    tags: Tag[],
     userId: string,
+    tags: Tag[],
   ): Promise<Bookmark> {
-    const bookmark = new BookmarkEntity();
-    bookmark.id = inputId;
-    bookmark.url = url;
-    // bookmark.tags = tags;
-    bookmark.userId = userId;
-
-    return this.bookmarkFactory.reconstitute(
-      bookmark.id,
-      bookmark.url,
-      tags,
-      bookmark.userId,
-    );
+    
+    const bookmarkEntity = this.createEntity(userId, url);
+    await this.bookmarkRepository.save(bookmarkEntity);
+    return this.bookmarkFactory.reconstitute(bookmarkEntity.id, bookmarkEntity.url, bookmarkEntity.userId, tags);
   }
 
   async update(id: string, item: any): Promise<any> {
@@ -83,8 +63,8 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
       return this.bookmarkFactory.reconstitute(
         entity.id,
         entity.url,
-        tags,
         entity.userId,
+        tags,
       );
     });
   }
@@ -106,7 +86,7 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
     const tags = tagEntities.map((tagEntity) => {
       return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
     });
-    return this.bookmarkFactory.reconstitute(id, url, tags, userId);
+    return this.bookmarkFactory.reconstitute(id, url, userId, tags);
   }
 
   async getBookmarkByUrl(inputUrl: string): Promise<Bookmark | null> {
@@ -122,7 +102,7 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
     const tags = tagEntities.map((tagEntity) => {
       return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
     });
-    return this.bookmarkFactory.reconstitute(id, url, tags, userId);
+    return this.bookmarkFactory.reconstitute(id, url, userId, tags);
   }
 
   async getUserAllBookmarks(
@@ -185,8 +165,8 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
       const bookmarks = this.bookmarkFactory.reconstitute(
         bookmarkIdAndTagIdArr[i].id,
         bookmark.getUrl(),
-        reconstitutedTag,
         bookmark.getUserId(),
+        reconstitutedTag,
       );
 
       return bookmarks;
