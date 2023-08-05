@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber } from 'class-validator';
-import { Bookmark } from 'src/frameworks/data-services/postgresql/model';
-import { PageRequest } from 'src/use-cases/bookmark/bookmark.pagination';
+import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
+import { PageRequest } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import { BaseResponseDto } from 'src/cleanArchitecture/common/dto/base-response.dto';
 
 export class GetSearchTagsDto extends PageRequest {}

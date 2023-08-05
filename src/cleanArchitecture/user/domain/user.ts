@@ -1,12 +1,12 @@
 import { UserRole, UserType } from 'src/cleanArchitecture/user/domain';
 export class User {
   constructor(
-    private id: string, //uuid
-    private email: string,
-    private nickname: string,
-    private password: string,
-    private role: UserRole,
-    private type: UserType,
+    protected id: string, //uuid
+    protected email: string,
+    protected nickname: string,
+    protected password: string,
+    protected role: UserRole,
+    protected type: UserType,
   ) {}
 
   getId(): Readonly<string> {
@@ -28,7 +28,18 @@ export class User {
   getRole(): Readonly<UserRole> {
     return this.role;
   }
+
   getType(): Readonly<UserType> {
     return this.type;
+  }
+
+  updatePassword(password: string) {
+    this.password = password;
+    return this.password;
+  }
+
+  updateNickname(nickname: string) {
+    this.nickname = nickname;
+    return this.nickname;
   }
 }

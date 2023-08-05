@@ -17,8 +17,8 @@ export class Bookmark {
   }
 
   getTags(): Readonly<Tag[]> {
-    if(this.tags === undefined) {
-      return []
+    if (this.tags === undefined) {
+      return [];
     }
     return this.tags;
   }
@@ -32,21 +32,21 @@ export class Bookmark {
       id: this.id,
       url: this.url,
       tags: this.tags,
-      userId: this.userId
-    }
+      userId: this.userId,
+    };
   }
 
   updateUrl(url: string) {
     this.url = url;
     return {
-      url: this.url
-    }
+      url: this.url,
+    };
   }
 
-  updateTags(tags:Tag[]) {
+  updateTags(tags: Tag[]) {
     this.tags = tags;
     return {
-      tags: this.tags
-    }
+      tags: this.tags,
+    };
   }
 }
