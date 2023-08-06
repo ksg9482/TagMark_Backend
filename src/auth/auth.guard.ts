@@ -38,13 +38,13 @@ export class AuthGuard implements CanActivate {
       const accessToken = this.authServices.getToken(request);
       if (accessToken) {
         const decoded = this.authServices.accessTokenDecode(accessToken);
-        const userInfo = await this.authServices.getUserInfo(decoded.id);
+        const userInfo = await this.authServices.getUserInfo(decoded.getId());
         if (!userInfo) {
           this.logger.error('User not exists.');
           throw false;
         }
 
-        request.userId = userInfo.id;
+        request.userId = userInfo.getId();
         return true;
       } else {
         this.logger.error('Access token not exists.');
