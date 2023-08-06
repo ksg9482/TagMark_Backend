@@ -26,23 +26,27 @@ export class PostgresqlBookmarkRepository implements IBookmarkRepository {
   get: (id: string) => Promise<Bookmark | null>;
   delete: (id: string) => Promise<any>;
 
-  createEntity(userId:string, url:string): BookmarkEntity {
+  createEntity(userId: string, url: string): BookmarkEntity {
     const uuid = () => {
       const tokens = uuidV4().split('-');
       return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
     };
-    return this.bookmarkRepository.create({ id: uuid(), url: url, userId: userId});
+    return this.bookmarkRepository.create({
+      id: uuid(),
+      url: url,
+      userId: userId,
+    });
   }
 
-  async save(
-    url: string,
-    userId: string,
-    tags: Tag[],
-  ): Promise<Bookmark> {
-    
+  async save(url: string, userId: string, tags: Tag[]): Promise<Bookmark> {
     const bookmarkEntity = this.createEntity(userId, url);
     await this.bookmarkRepository.save(bookmarkEntity);
-    return this.bookmarkFactory.reconstitute(bookmarkEntity.id, bookmarkEntity.url, bookmarkEntity.userId, tags);
+    return this.bookmarkFactory.reconstitute(
+      bookmarkEntity.id,
+      bookmarkEntity.url,
+      bookmarkEntity.userId,
+      tags,
+    );
   }
 
   async update(id: string, item: any): Promise<any> {

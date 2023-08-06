@@ -10,7 +10,6 @@ import { TagWithCount } from 'src/cleanArchitecture/tag/domain/tag.interface';
 
 @Injectable()
 export class TagRepository implements ITagRepository {
-  //   TagRepository: Repository<Tag>;
   constructor(
     @InjectRepository(TagEntity) private tagRepository: Repository<TagEntity>,
     private tagFactory: TagFactory,

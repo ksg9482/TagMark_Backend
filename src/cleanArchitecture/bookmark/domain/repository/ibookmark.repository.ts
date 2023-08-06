@@ -4,12 +4,7 @@ import { IGenericRepository } from 'src/cleanArchitecture/common/domain/reposito
 import { Tag } from 'src/cleanArchitecture/tag/domain/tag';
 
 export interface IBookmarkRepository extends IGenericRepository<Bookmark> {
-  save: (
-    id: string,
-    url: string,
-    tags: Tag[],
-    userId: string,
-  ) => Promise<Bookmark>;
+  save: (url: string, userId: string, tags: Tag[]) => Promise<Bookmark>;
   getUserBookmark: (
     userId: string,
     bookmarkId: string,

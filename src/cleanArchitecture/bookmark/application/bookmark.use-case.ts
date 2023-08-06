@@ -1,30 +1,25 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
-import { DataServices } from 'src/core/abstracts';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { v4 as uuidV4 } from 'uuid';
 import {
-  CreateBookmarkDto,
   GetUserAllBookmarksDto,
-} from 'src/controllers/dtos';
+  GetSearchTagsDto,
+} from 'src/cleanArchitecture/bookmark/interface/dto';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
 import { Page } from './bookmark.pagination';
 import {
   BookmarkAndTag,
   BookmarkTagMap,
 } from 'src/cleanArchitecture/bookmark/domain/bookmark.interface';
-import { IBookmarkRepository } from '../domain/repository/ibookmark.repository';
-import { BookmarkFactory } from '../domain/bookmark.factory';
-import { GetSearchTagsDto } from 'src/cleanArchitecture/tag/interface/dto';
+import { IBookmarkRepository } from 'src/cleanArchitecture/bookmark/domain/repository/ibookmark.repository';
+import { TagFactory } from 'src/cleanArchitecture/tag/domain/tag.factory';
 
 export class BookmarkUseCases {
-  constructor(
-    @Inject(DataServices)
-    private dataService: DataServices,
-    private bookmarkRepository: IBookmarkRepository,
-  ) {}
+  constructor(private bookmarkRepository: IBookmarkRepository) {}
 
   async createBookmark(
     userId: string,
     url: string,
-    tagNames?: string
+    tagNames?: string[],
   ): Promise<Bookmark> {
     const bookmark = await this.bookmarkCheck(url);
 
@@ -35,12 +30,24 @@ export class BookmarkUseCases {
       );
     }
 
-    const createdBookmark = await this.bookmarkRepository.create({
-      id: 'temp',
-      url: url,
-      userId: userId,
-      tags: tagNames as any,
+    if (tagNames === undefined) {
+      tagNames = [];
+    }
+
+    const tags = tagNames.map((tagName) => {
+      const uuid = () => {
+        const tokens = uuidV4().split('-');
+        return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+      };
+      const tag = new TagFactory().create(uuid(), tagName);
+      return tag;
     });
+
+    const createdBookmark = await this.bookmarkRepository.save(
+      url,
+      userId,
+      tags,
+    );
 
     return createdBookmark;
   }
@@ -54,11 +61,7 @@ export class BookmarkUseCases {
         take: limit,
         skip: offset,
       });
-
-    // const bookmarksForm = this.bookmarksNullCheck(bookmarks.bookmarks);
-
     return bookmarks;
-    // return { ...bookmarks, bookmarks: bookmarksForm };
   }
 
   async getUserBookmarkCount(userId: string) {
@@ -175,7 +178,7 @@ export class BookmarkUseCases {
 
       const bookmarkId = bookmark.getId();
       //앞 단에 예외 및 빈 배열 처리를 해서 반환하는 게 낫다.
-      const tagIds = bookmarkTags!.map((tag) => {
+      const tagIds = bookmarkTags.map((tag) => {
         return tag.id;
       });
 

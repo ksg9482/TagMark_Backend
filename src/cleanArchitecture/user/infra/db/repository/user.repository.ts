@@ -1,6 +1,7 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { v4 as uuidV4 } from 'uuid';
 import { IUserRepository } from 'src/cleanArchitecture/user/domain/repository/iuser.repository';
 import { User } from 'src/cleanArchitecture/user/domain/user';
 import { UserEntity } from 'src/cleanArchitecture/user/infra/db/entity/user.entity';
@@ -63,56 +64,42 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async create(
-    id: string,
+  createEntity(
     email: string,
     nickname: string,
     password: string,
     role: UserRole,
     type: UserType,
-  ): Promise<User> {
-    const user = new UserEntity();
-    user.id = id;
-    user.email = email;
-    user.nickname = nickname;
-    user.password = password;
-    user.role = role;
-    user.type = type;
-    //save와 create는 분리해도 되는 로직.
-    return this.userFactory.reconstitute(
-      user.id,
-      user.email,
-      user.nickname,
-      user.password,
-      user.role,
-      user.type,
-    );
-    // return await this.userRepository.save(this.userRepository.create(item));
+  ): UserEntity {
+    const uuid = () => {
+      const tokens = uuidV4().split('-');
+      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
+    };
+    return this.userRepository.create({
+      id: uuid(),
+      email,
+      password,
+      nickname,
+      role,
+      type,
+    });
   }
-
   async save(
-    id: string,
     email: string,
     nickname: string,
     password: string,
     role: UserRole,
     type: UserType,
   ): Promise<User> {
-    const user = new UserEntity();
-    user.id = id;
-    user.email = email;
-    user.nickname = nickname;
-    user.password = password;
-    user.role = role;
-    user.type = type;
-
+    const userEntity = this.createEntity(email, nickname, password, role, type);
+    await this.userRepository.save(userEntity);
     return this.userFactory.reconstitute(
-      user.id,
-      user.email,
-      user.nickname,
-      user.password,
-      user.role,
-      user.type,
+      userEntity.id,
+      userEntity.email,
+      userEntity.nickname,
+      userEntity.password,
+      userEntity.role,
+      userEntity.type,
     );
   }
 

@@ -1,8 +1,5 @@
 export class Tag {
-  constructor(protected id: string, protected tag: string) {
-    this.id = id;
-    this.tag = tag;
-  }
+  constructor(protected id: string, protected tag: string) {}
 
   getId(): Readonly<string> {
     return this.id;
@@ -17,6 +14,3 @@ export class Tag {
     return this.tag;
   }
 }
-// setter를 지양해야 하는 이유 setter가 생성인지 변경인지 명확하지 않다.
-// 업데이트라면 명시적으로 메서드를 생성하는 것이 좋다
-// 불변객체로 이용하려면?
