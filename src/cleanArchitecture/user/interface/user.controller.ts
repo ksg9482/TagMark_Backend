@@ -70,7 +70,7 @@ export class UserController {
   })
   @Get('/')
   async findUserData(
-    @AuthUser() userId: number,
+    @AuthUser() userId: string,
   ): Promise<UserProfileResponseDto> {
     const userProfileResponse = new UserProfileResponseDto();
     try {
@@ -132,7 +132,7 @@ export class UserController {
   @ApiBody({ type: PasswordValidDto })
   @Post('/valid')
   async checkPassword(
-    @AuthUser() userId: number,
+    @AuthUser() userId: string,
     @Body(new ValidationPipe()) passwordValidDto: PasswordValidDto,
   ) {
     const passwordValidResponse = new PasswordValidResponseDto();
@@ -197,7 +197,7 @@ export class UserController {
   @ApiBody({ type: EditUserDto })
   @Patch('/')
   async editUser(
-    @AuthUser() userId: number,
+    @AuthUser() userId: string,
     @Body(new ValidationPipe()) editUserDto: EditUserDto,
   ): Promise<EditUserResponseDto> {
     const editUserResponse = new EditUserResponseDto();
@@ -222,7 +222,7 @@ export class UserController {
   })
   @Delete('/')
   async deleteUser(
-    @AuthUser() userId: number,
+    @AuthUser() userId: string,
     @Res({ passthrough: true }) res: Response,
   ): Promise<DeleteUserResponseDto> {
     const deleteUserResponse = new DeleteUserResponseDto();
