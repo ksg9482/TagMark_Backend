@@ -10,20 +10,23 @@ export class PageRequest {
   pageSize?: number | 20;
 
   getOffset(): number {
-    if (this.pageNo! < 1 || !this.pageNo) {
-      this.pageNo = 1;
-    }
+    const minimumPageNo = 1;
+    const minimumPageSize = 20;
 
-    if (this.pageSize! < 1 || !this.pageSize) {
-      this.pageSize = 20;
-    }
+    if (this.pageNo === undefined || this.pageNo < minimumPageNo) {
+      this.pageNo = minimumPageNo;
+    };
+    if (this.pageSize === undefined || this.pageSize < minimumPageSize) {
+      this.pageSize = minimumPageSize;
+    };
 
     return (Number(this.pageNo) - 1) * Number(this.pageSize);
   }
 
   getLimit(): number {
-    if (this.pageSize! < 1 || !this.pageSize) {
-      this.pageSize = 20;
+    const minimumPageSize = 20;
+    if (this.pageSize === undefined || this.pageSize! < minimumPageSize) {
+      this.pageSize = minimumPageSize;
     }
     return Number(this.pageSize);
   }

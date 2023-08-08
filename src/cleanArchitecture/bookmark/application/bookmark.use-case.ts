@@ -35,6 +35,7 @@ export class BookmarkUseCases {
     }
 
     const tags = tagNames.map((tagName) => {
+      //uuid는 별도 함수로 분리해서 주입하자
       const uuid = () => {
         const tokens = uuidV4().split('-');
         return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
@@ -52,7 +53,6 @@ export class BookmarkUseCases {
     return createdBookmark;
   }
 
-  //
   async getUserAllBookmarks(userId: string, page: UserAllBookmarks) {
     const limit = page.getLimit();
     const offset = page.getOffset();
