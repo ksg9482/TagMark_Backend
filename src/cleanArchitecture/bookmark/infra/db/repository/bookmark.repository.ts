@@ -15,7 +15,7 @@ import { BookmarkTagMap } from 'src/cleanArchitecture/bookmark/domain/bookmark.i
 
 //북마크가 가져야 하는게 태그 엔티티인지 태그 도메인 객체인지 불명확. 이거 확실히 해야함
 @Injectable()
-export class PostgresqlBookmarkRepository implements IBookmarkRepository {
+export class BookmarkRepository implements IBookmarkRepository {
   constructor(
     @InjectRepository(BookmarkEntity)
     private bookmarkRepository: Repository<BookmarkEntity>,
