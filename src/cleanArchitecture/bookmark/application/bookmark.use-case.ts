@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { v4 as uuidV4 } from 'uuid';
-import {
-  GetUserAllBookmarksDto,
-  GetSearchTagsDto,
-} from 'src/cleanArchitecture/bookmark/interface/dto';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
-import { Page } from './bookmark.pagination';
+import { Page, PageRequest } from 'src/cleanArchitecture/bookmark/application/bookmark.pagination';
 import {
   BookmarkAndTag,
   BookmarkTagMap,
 } from 'src/cleanArchitecture/bookmark/domain/bookmark.interface';
 import { IBookmarkRepository } from 'src/cleanArchitecture/bookmark/domain/repository/ibookmark.repository';
 import { TagFactory } from 'src/cleanArchitecture/tag/domain/tag.factory';
+
+//DTO 의존성 해소용. 
+interface UserAllBookmarks extends PageRequest{ };
+interface SearchTags extends PageRequest{ };
 
 export class BookmarkUseCases {
   constructor(private bookmarkRepository: IBookmarkRepository) {}
@@ -35,6 +35,7 @@ export class BookmarkUseCases {
     }
 
     const tags = tagNames.map((tagName) => {
+      //uuid는 별도 함수로 분리해서 주입하자
       const uuid = () => {
         const tokens = uuidV4().split('-');
         return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
@@ -52,7 +53,7 @@ export class BookmarkUseCases {
     return createdBookmark;
   }
 
-  async getUserAllBookmarks(userId: string, page: GetUserAllBookmarksDto) {
+  async getUserAllBookmarks(userId: string, page: UserAllBookmarks) {
     const limit = page.getLimit();
     const offset = page.getOffset();
 
@@ -110,7 +111,7 @@ export class BookmarkUseCases {
   async getTagAllBookmarksOR(
     userId: string,
     tags: string[],
-    page: GetSearchTagsDto, //이거 인터페이스에서 오면 의존성이 어긋나는데? 인터페이스가 바깥인데 바깥 참조함
+    page: SearchTags, //이거 인터페이스에서 오면 의존성이 어긋나는데? 인터페이스가 바깥인데 바깥 참조함
   ): Promise<Page<Bookmark>> {
     const limit = page.getLimit();
     const offset = page.getOffset();
@@ -128,7 +129,7 @@ export class BookmarkUseCases {
   async getTagAllBookmarksAND(
     userId: string,
     tags: string[],
-    page: GetSearchTagsDto,
+    page: SearchTags,
   ): Promise<Page<Bookmark>> {
     const limit = page.getLimit();
     const offset = page.getOffset();

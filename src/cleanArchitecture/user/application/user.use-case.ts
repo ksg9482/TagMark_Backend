@@ -7,11 +7,6 @@ import {
   Logger,
   LoggerService,
 } from '@nestjs/common';
-import {
-  CreateUserDto,
-  EditUserDto,
-  LoginDto,
-} from 'src/cleanArchitecture/user/interface/dto';
 import { User, UserRole, UserType } from 'src/cleanArchitecture/user/domain';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
@@ -53,14 +48,15 @@ export class UserUseCases {
     return propertyDeletedUser;
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.findByEmail(loginDto.email);
+  async login(loginData: {email: string, password: string}) {
+    const {email, password} = loginData
+    const user = await this.findByEmail(email);
 
     if (!user) {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
 
-    await this.checkPassword(loginDto.password, user);
+    await this.checkPassword(password, user);
 
     const propertyDeletedUser = this.deleteUserProperty('password', user);
 
@@ -83,15 +79,15 @@ export class UserUseCases {
 
     return result;
   }
-
-  async editUser(userId: string, editUserDto: EditUserDto): Promise<any> {
-    const { changeNickname, changePassword } = editUserDto;
+//changePassword changeNickname
+  async editUser(userId: string, editUserData:{changePassword: string, changeNickname: string} ): Promise<any> {
+    const { changeNickname, changePassword } = editUserData;
     const user = await this.findById(userId);
 
-    if (changeNickname) {
+    if (changeNickname !== undefined) {
       user.updateNickname(changeNickname);
     }
-    if (changePassword) {
+    if (changePassword !== undefined) {
       user.updatePassword(changePassword);
     }
 

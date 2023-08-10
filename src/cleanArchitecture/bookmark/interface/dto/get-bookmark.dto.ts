@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsObject } from 'class-validator';
+import { IsObject, IsString } from 'class-validator';
 import { Bookmark } from 'src/cleanArchitecture/bookmark/domain/bookmark';
 import { BaseResponseDto } from 'src/cleanArchitecture/common/dto/base-response.dto';
 
 export class GetBookmarkDto {
-  @IsNumber()
+  @IsString()
   @ApiProperty({ description: '북마크 아이디' })
   bookmarkId: string;
 }

@@ -19,6 +19,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     try {
+      //가드를 필요한 모듈에 별도 적용하는 것이 좋다. 전역으로 하다보니 오히려 알기 힘듦
       const caseMap = {
         signup: () => {
           return (
