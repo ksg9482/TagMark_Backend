@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { UserUseCases } from 'src/cleanArchitecture/user/application/user.use-case';
+import { UserUseCases } from 'src/user/application/user.use-case';
 import { JwtService } from './jwt.service';
 
 @Injectable()
