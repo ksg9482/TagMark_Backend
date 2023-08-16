@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { User } from 'src/cleanArchitecture/user/domain/user';
+import { User } from 'src/user/domain/user';
 import { JwtModuleOptions } from './jwt.interfaces';
 type DeletePasswordUser = Omit<User, 'password'>;
 

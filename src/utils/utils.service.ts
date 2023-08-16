@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
-import { User } from 'src/cleanArchitecture/user/domain';
+import { User } from 'src/user/domain';
 
 @Injectable()
 export class UtilsService {

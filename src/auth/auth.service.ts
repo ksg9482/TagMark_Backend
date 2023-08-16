@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UserUseCases } from 'src/cleanArchitecture/user/application/user.use-case';
+import { UserUseCases } from 'src/user/application/user.use-case';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthorizationType } from './auth.interface';
 
