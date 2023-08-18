@@ -28,7 +28,7 @@ import { TagModule } from './tag/tag.module';
     DataServicesModule,
     UsersModule,
     BookmarkModule,
-    TagModule
+    TagModule,
   ],
   providers: [
     Logger,

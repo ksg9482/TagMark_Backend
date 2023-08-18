@@ -48,8 +48,8 @@ export class UserUseCases {
     return propertyDeletedUser;
   }
 
-  async login(loginData: {email: string, password: string}) {
-    const {email, password} = loginData
+  async login(loginData: { email: string; password: string }) {
+    const { email, password } = loginData;
     const user = await this.findByEmail(email);
 
     if (!user) {
@@ -79,8 +79,11 @@ export class UserUseCases {
 
     return result;
   }
-//changePassword changeNickname
-  async editUser(userId: string, editUserData:{changePassword: string, changeNickname: string} ): Promise<any> {
+  //changePassword changeNickname
+  async editUser(
+    userId: string,
+    editUserData: { changePassword: string; changeNickname: string },
+  ): Promise<any> {
     const { changeNickname, changePassword } = editUserData;
     const user = await this.findById(userId);
 
