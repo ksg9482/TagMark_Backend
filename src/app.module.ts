@@ -4,7 +4,7 @@ import { UtilsModule } from './utils/utils.module';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './utils/validate/env.validation';
-import { DataServicesModule } from './services/data-services/data-services.module';
+// import { DataServicesModule } from './services/data-services/data-services.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/httpExceptionFilter';
@@ -25,7 +25,7 @@ import { TagModule } from './tag/tag.module';
       refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY || 'refreshPrivateKey',
     }),
     UtilsModule,
-    DataServicesModule,
+    // DataServicesModule,
     UsersModule,
     BookmarkModule,
     TagModule,

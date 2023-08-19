@@ -9,7 +9,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ResponseUser } from 'src/frameworks/data-services/postgresql/model';
+import { User } from 'src/user/domain';
+import { ResponseUser } from 'src/user/infra/db/entity/user.entity';
 import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 
 export class CreateUserDto {
@@ -36,5 +37,5 @@ export class CreateUserDto {
 export class CreateUserResponseDto extends BaseResponseDto {
   @ApiProperty({ description: '생성된 유저 데이터' })
   @IsObject()
-  createdUser: ResponseUser;
+  createdUser: Partial<User>;
 }

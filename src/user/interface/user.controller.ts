@@ -42,6 +42,7 @@ import { UserUseCases } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { UtilsService } from 'src/utils/utils.service';
 import { UserRole, UserType } from 'src/user/domain';
+import { ResponseUser } from '../infra/db/entity/user.entity';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -97,20 +98,24 @@ export class UserController {
   ): Promise<CreateUserResponseDto> {
     const createUserResponse = new CreateUserResponseDto();
     try {
-      const tempUuid = '';
-      const tempRole = UserRole.USER;
-      const tempType = UserType.BASIC;
+      // const tempUuid = '';
+      // const tempRole = UserRole.USER;
+      // const tempType = UserType.BASIC;
       const { email, password, nickname } = userDto;
-      const user = this.userFactory.create(
-        tempUuid,
-        email,
-        nickname || '',
-        password,
-        tempRole,
-        tempType,
-      );
+      // const user = this.userFactory.create(
+      //   tempUuid,
+      //   email,
+      //   nickname || '',
+      //   password,
+      //   tempRole,
+      //   tempType,
+      // );
 
-      const createdUser = await this.userUseCases.createUser(userDto);
+      const createdUser = await this.userUseCases.createUser(
+        email,
+        password,
+        nickname,
+      );
 
       createUserResponse.success = true;
       createUserResponse.createdUser = createdUser;

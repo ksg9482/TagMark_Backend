@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray } from 'class-validator';
-import { Tag } from 'src/frameworks/data-services/postgresql/model';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { Tag } from 'src/core/entities';
 
 export class GetTagsDto {
   @ApiProperty({ description: '태그 아이디' })

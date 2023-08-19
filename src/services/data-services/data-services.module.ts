@@ -1,9 +1,9 @@
-import { Module } from "@nestjs/common";
-import { PostgresqlDataServicesModule } from "src/frameworks/data-services/postgresql/postgresql-data-services.module";
+// import { Module } from "@nestjs/common";
+// import { PostgresqlDataServicesModule } from "src/frameworks/data-services/postgresql/postgresql-data-services.module";
 
-@Module({
-  imports: [PostgresqlDataServicesModule],
-  exports: [PostgresqlDataServicesModule],
-})
+// @Module({
+//   imports: [PostgresqlDataServicesModule],
+//   exports: [PostgresqlDataServicesModule],
+// })
 
-export class DataServicesModule { }
+// export class DataServicesModule { }
