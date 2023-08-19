@@ -43,3 +43,9 @@ export class User {
     return this.nickname;
   }
 }
+
+export interface ResponseUser {
+  id: string;
+  email: string;
+  nickname: string;
+}
