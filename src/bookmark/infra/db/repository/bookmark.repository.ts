@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { v4 as uuidV4 } from 'uuid';
 import { Page } from 'src/bookmark/application/bookmark.pagination';
 import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
@@ -18,8 +18,8 @@ import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
 export class BookmarkRepository implements IBookmarkRepository {
   constructor(
     @InjectRepository(BookmarkEntity)
-    private bookmarkRepository: Repository<BookmarkEntity>,
-    private tagRepository: Repository<TagEntity>,
+    @Inject('BookmarkRepository') private bookmarkRepository: Repository<BookmarkEntity>,
+    @Inject('TagRepository') private tagRepository: Repository<TagEntity>,
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
   ) {}
