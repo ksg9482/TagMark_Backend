@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Tag } from 'src/tag/domain/tag';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
-import { PickType } from '@nestjs/mapped-types';
 
 export class CreateTagDto {
   @IsString()

@@ -16,7 +16,7 @@ type deleteUserProperty = 'default' | 'password';
 @Injectable()
 export class UserUseCases {
   constructor(
-    private userRepository: IUserRepository,
+    @Inject('UserRepository') private userRepository: IUserRepository,
     private readonly utilServices: UtilsService,
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
