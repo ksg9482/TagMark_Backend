@@ -14,7 +14,7 @@ import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmar
 import { MaxLength, MinLength } from 'class-validator';
 import { UserRole, UserType } from 'src/user/domain';
 
-@Entity()
+@Entity('User')
 export class UserEntity {
   @PrimaryGeneratedColumn()
   @ApiProperty({ description: 'id' })

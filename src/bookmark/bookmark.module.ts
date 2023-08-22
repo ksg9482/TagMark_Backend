@@ -8,12 +8,13 @@ import { BookmarkUseCases } from './application/bookmark.use-case';
 import { TagRepository } from 'src/tag/infra/db/repository/tag.repository';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagModule } from 'src/tag/tag.module';
+import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 
 
 
 const factories = [
   BookmarkFactory,
-  TagFactory,
+  //TagFactory,
 ];
 
 const useCases = [
@@ -27,7 +28,7 @@ const repositories = [
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BookmarkEntity]),
+    TypeOrmModule.forFeature([BookmarkEntity, TagEntity]),
     TagModule,
   ],
   controllers: [BookmarkController],
@@ -37,5 +38,7 @@ const repositories = [
     ...useCases,
     ...repositories,
   ],
+  exports:[...useCases, ...factories]
+
 })
 export class BookmarkModule { }

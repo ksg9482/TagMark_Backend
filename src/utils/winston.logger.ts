@@ -34,7 +34,7 @@ const prettyFormat = winston.format.combine(
 
 export const winstonLogger = WinstonModule.createLogger({
   level: process.env.LOG_LEVEL,
-  format: process.env.PRETTY_LOGS ? prettyFormat : splunkFormat,
+  format: process.env.PRETTY_LOGS ? prettyFormat : prettyFormat,//splunkFormat,
   transports: [
     new winston.transports.Console(),
     new winstonDaily(dailyOptions('info')),
