@@ -11,7 +11,8 @@ import { TagWithCount } from 'src/tag/domain/tag.interface';
 @Injectable()
 export class TagRepository implements ITagRepository {
   constructor(
-    @InjectRepository(TagEntity) private tagRepository: Repository<TagEntity>,
+    @InjectRepository(TagEntity) 
+    private tagRepository: Repository<TagEntity>,
     private tagFactory: TagFactory,
   ) {}
 

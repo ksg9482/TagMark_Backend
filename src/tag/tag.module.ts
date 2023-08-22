@@ -31,5 +31,7 @@ const repositories = [
     ...useCases,
     ...repositories,
   ],
+  exports:[...useCases,...factories]
+
 })
 export class TagModule { }

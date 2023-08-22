@@ -11,6 +11,7 @@ import { HttpExceptionFilter } from './utils/httpExceptionFilter';
 import { UsersModule } from './user/user.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { TagModule } from './tag/tag.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -18,6 +19,20 @@ import { TagModule } from './tag/tag.module';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
       validate,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost', // 'localhost',
+      port: Number(process.env.DB_PORT) || 5432,
+      username: process.env.DB_USERNAME, // 'root',
+      password: process.env.DB_PASSWORD, // 'test',
+      database: process.env.DB_NAME || 'tagmark',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV !== 'production',
+      //synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
+      //migrations: [__dirname + '/**/migrations/*.js'],
+      //migrationsTableName: 'migrations',
     }),
     AuthModule,
     JwtModule.forRoot({
