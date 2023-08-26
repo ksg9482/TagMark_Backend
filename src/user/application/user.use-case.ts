@@ -11,13 +11,15 @@ import { User, UserRole, UserType } from 'src/user/domain';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
+import { SecureService } from 'src/utils/secure.service';
 
 type deleteUserProperty = 'default' | 'password';
 @Injectable()
 export class UserUseCases {
   constructor(
     @Inject('UserRepository') private userRepository: IUserRepository,
-    private readonly utilServices: UtilsService,
+    private readonly utilService: UtilsService,
+    private readonly secureService: SecureService,
     private readonly jwtService: JwtService,
     private readonly httpService: HttpService,
     @Inject(Logger) private readonly logger: LoggerService,
@@ -182,7 +184,7 @@ export class UserUseCases {
     targetProperty: deleteUserProperty,
     user: User,
   ): User {
-    const copyUser: User = this.utilServices.deepCopy(user);
+    const copyUser: User = this.utilService.deepCopy(user);
 
     if (targetProperty === 'default') {
       Reflect.deleteProperty(copyUser, 'password');
@@ -199,7 +201,7 @@ export class UserUseCases {
   }
 
   private async checkPassword(password: string, user: User): Promise<boolean> {
-    const result = await this.utilServices.checkPassword(password, user);
+    const result = await this.secureService.checkPassword(password, user);
     if (!result) {
       throw new HttpException('Invalid password.', HttpStatus.BAD_REQUEST);
     }

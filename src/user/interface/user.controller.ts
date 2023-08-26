@@ -40,9 +40,7 @@ import {
 } from 'src/user/interface/dto';
 import { UserUseCases } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
-import { UtilsService } from 'src/utils/utils.service';
-import { UserRole, UserType } from 'src/user/domain';
-import { ResponseUser } from '../infra/db/entity/user.entity';
+import { SecureService } from 'src/utils/secure.service';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -57,7 +55,7 @@ export class UserController {
   constructor(
     private userUseCases: UserUseCases,
     private userFactory: UserFactory,
-    private readonly utilServices: UtilsService,
+    private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -98,18 +96,7 @@ export class UserController {
   ): Promise<CreateUserResponseDto> {
     const createUserResponse = new CreateUserResponseDto();
     try {
-      // const tempUuid = '';
-      // const tempRole = UserRole.USER;
-      // const tempType = UserType.BASIC;
       const { email, password, nickname } = userDto;
-      // const user = this.userFactory.create(
-      //   tempUuid,
-      //   email,
-      //   nickname || '',
-      //   password,
-      //   tempRole,
-      //   tempType,
-      // );
 
       const createdUser = await this.userUseCases.createUser(
         email,
@@ -170,7 +157,7 @@ export class UserController {
   ): Promise<LoginResponseDto> {
     const loginResponse = new LoginResponseDto();
     try {
-      const secureWrap = this.utilServices.secure().wrapper();
+      const secureWrap = this.secureService.secure().wrapper();
       const { user, accessToken, refreshToken } = await this.userUseCases.login(
         loginDto,
       );
@@ -281,7 +268,7 @@ export class UserController {
     const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
 
     try {
-      const secureWrap = this.utilServices.secure().wrapper();
+      const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);
       const newAccessToken = await this.userUseCases.refresh(decrypted);
 
@@ -309,7 +296,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<GoogleOauthResponseDto> {
     const googleOauthResponse = new GoogleOauthResponseDto();
-    const secureWrap = this.utilServices.secure().wrapper();
+    const secureWrap = this.secureService.secure().wrapper();
     try {
       const {
         propertyDeletedUser: user,

@@ -9,13 +9,7 @@ import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [
-    JwtModule,
-    // DataServicesModule,
-    UtilsModule,
-    //UserUsecasesModule,
-    UsersModule,
-  ],
+  imports: [JwtModule, UtilsModule, UsersModule],
   providers: [
     {
       provide: APP_GUARD,
