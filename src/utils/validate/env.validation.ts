@@ -2,11 +2,11 @@ import { plainToClass } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 enum Environment {
-  local = "local",
-  dev = "dev",
-  production = "production",
-  test = "test"
-};
+  local = 'local',
+  dev = 'dev',
+  production = 'production',
+  test = 'test',
+}
 
 class EnvironmentVariables {
   @IsEnum(Environment)
@@ -35,20 +35,20 @@ class EnvironmentVariables {
 
   @IsString()
   REFRESH_PRIVATE_KEY: string;
-};
+}
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToClass(
-    EnvironmentVariables,
-    config,
-    { enableImplicitConversion: true },
-  );
+  const validatedConfig = plainToClass(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
 
-  const errors = validateSync(validatedConfig, { skipMissingProperties: false });
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
 
   if (errors.length > 0) {
     throw new Error(errors.toString());
-  };
+  }
 
   return validatedConfig;
 }

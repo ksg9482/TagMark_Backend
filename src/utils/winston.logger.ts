@@ -19,26 +19,23 @@ const baseFormat = winston.format.combine(
   winston.format((info) => {
     info.level = info.level.toUpperCase();
     return info;
-  })()
+  })(),
 );
 
-const splunkFormat = winston.format.combine(
-  baseFormat,
-  winston.format.json()
-);
+const splunkFormat = winston.format.combine(baseFormat, winston.format.json());
 
 const prettyFormat = winston.format.combine(
   baseFormat,
-  winston.format.prettyPrint()
+  winston.format.prettyPrint(),
 );
 
 export const winstonLogger = WinstonModule.createLogger({
   level: process.env.LOG_LEVEL,
-  format: process.env.PRETTY_LOGS ? prettyFormat : prettyFormat,//splunkFormat,
+  format: process.env.PRETTY_LOGS ? prettyFormat : prettyFormat, //splunkFormat,
   transports: [
     new winston.transports.Console(),
     new winstonDaily(dailyOptions('info')),
     new winstonDaily(dailyOptions('warn')),
-    new winstonDaily(dailyOptions('error'))
-  ]
+    new winstonDaily(dailyOptions('error')),
+  ],
 });

@@ -4,7 +4,6 @@ import { UtilsService } from './utils.service';
 @Module({
   imports: [],
   providers: [UtilsService],
-  exports: [UtilsService]
+  exports: [UtilsService],
 })
-export class UtilsModule { }
-
+export class UtilsModule {}
