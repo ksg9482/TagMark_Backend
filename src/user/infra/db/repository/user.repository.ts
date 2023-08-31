@@ -1,12 +1,12 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { v4 as uuidV4 } from 'uuid';
 import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
 import { User } from 'src/user/domain/user';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { UserRole, UserType } from 'src/user/domain';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -14,6 +14,7 @@ export class UserRepository implements IUserRepository {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private userFactory: UserFactory,
+    private utilsService: UtilsService,
   ) {}
 
   async findByEmail(inputEmail: string): Promise<User | null> {
@@ -71,12 +72,8 @@ export class UserRepository implements IUserRepository {
     role: UserRole,
     type: UserType,
   ): UserEntity {
-    const uuid = () => {
-      const tokens = uuidV4().split('-');
-      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-    };
     return this.userRepository.create({
-      id: uuid(),
+      id: this.utilsService.getUuid(),
       email,
       password,
       nickname,

@@ -1,6 +1,7 @@
 import { ITagRepository } from 'src/tag/domain/repository/itag.repository';
 import { Tag } from 'src/tag/domain/tag';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
+import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 
 //dto 말고 서비스 레이어에서 이용하는 비즈니스 로직에 맞는 인수로 받아야 한다.
@@ -9,6 +10,7 @@ export class TagUseCases {
   constructor(
     private tagRepository: ITagRepository,
     private tagFactory: TagFactory,
+    private utilsService: UtilsService,
   ) {}
 
   async getAllTags(): Promise<Tag[]> {
@@ -42,8 +44,7 @@ export class TagUseCases {
     const notExistTags = this.getNotExistTag(findedTags, tagNames);
     if (notExistTags) {
       const createTags = notExistTags.map((tag) => {
-        const tempUuid = '';
-        return this.tagFactory.create(tempUuid, tag);
+        return this.tagFactory.create(this.utilsService.getUuid(), tag);
       });
       await this.tagRepository.insertBulk(createTags);
       const resultTags = [...findedTags, ...createTags];

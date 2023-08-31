@@ -46,6 +46,7 @@ import {
   GetSearchTagsDto,
   GetSearchTagsResponseDto,
 } from 'src/bookmark/interface/dto';
+import { UtilsService } from 'src/utils/utils.service';
 
 @ApiTags('Bookmark')
 @Controller('api/bookmark')
@@ -56,6 +57,7 @@ export class BookmarkController {
     private tagFactory: TagFactory,
     private tagUseCases: TagUseCases,
     @Inject(Logger) private readonly logger: LoggerService,
+    private utilsService: UtilsService,
   ) {}
 
   @ApiOperation({
@@ -76,13 +78,12 @@ export class BookmarkController {
     try {
       const { url, tagNames } = createBookmarkDto;
       const tags = tagNames || [];
-      const tempUuid = '';
+      const uuid = this.utilsService.getUuid()
       const createTags = tags.map((tag) => {
-        const tempUuid = '';
-        return this.tagFactory.create(tempUuid, tag);
+        return this.tagFactory.create(uuid, tag);
       });
       const bookmark = this.bookmarkFactory.create(
-        tempUuid,
+        uuid,
         url,
         userId,
         createTags,
