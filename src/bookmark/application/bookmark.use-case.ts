@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { v4 as uuidV4 } from 'uuid';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import { Page, PageRequest } from 'src/bookmark/application/bookmark.pagination';
 import {
@@ -8,13 +7,14 @@ import {
 } from 'src/bookmark/domain/bookmark.interface';
 import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
 import { TagFactory } from 'src/tag/domain/tag.factory';
+import { UtilsService } from 'src/utils/utils.service';
 
 //DTO 의존성 해소용. 
 interface UserAllBookmarks extends PageRequest{ };
 interface SearchTags extends PageRequest{ };
 
 export class BookmarkUseCases {
-  constructor(private bookmarkRepository: IBookmarkRepository) {}
+  constructor(private bookmarkRepository: IBookmarkRepository, private utilsService: UtilsService) {}
 
   async createBookmark(
     userId: string,
@@ -35,12 +35,7 @@ export class BookmarkUseCases {
     }
 
     const tags = tagNames.map((tagName) => {
-      //uuid는 별도 함수로 분리해서 주입하자
-      const uuid = () => {
-        const tokens = uuidV4().split('-');
-        return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-      };
-      const tag = new TagFactory().create(uuid(), tagName);
+      const tag = new TagFactory().create(this.utilsService.getUuid(), tagName);
       return tag;
     });
 

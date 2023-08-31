@@ -1,6 +1,5 @@
 import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
-import { v4 as uuidV4 } from 'uuid';
 import { Page } from 'src/bookmark/application/bookmark.pagination';
 import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +11,7 @@ import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
+import { UtilsService } from 'src/utils/utils.service';
 
 //북마크가 가져야 하는게 태그 엔티티인지 태그 도메인 객체인지 불명확. 이거 확실히 해야함
 @Injectable()
@@ -22,17 +22,14 @@ export class BookmarkRepository implements IBookmarkRepository {
     @Inject('TagRepository') private tagRepository: Repository<TagEntity>,
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
+    private utilsService: UtilsService,
   ) {}
   get: (id: string) => Promise<Bookmark | null>;
   delete: (id: string) => Promise<any>;
 
   createEntity(userId: string, url: string): BookmarkEntity {
-    const uuid = () => {
-      const tokens = uuidV4().split('-');
-      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-    };
     return this.bookmarkRepository.create({
-      id: uuid(),
+      id: this.utilsService.getUuid(),
       url: url,
       userId: userId,
     });

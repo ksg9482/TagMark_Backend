@@ -1,12 +1,12 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { v4 as uuidV4 } from 'uuid';
 import { ITagRepository } from 'src/tag/domain/repository/itag.repository';
 import { Tag } from 'src/tag/domain/tag';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class TagRepository implements ITagRepository {
@@ -14,6 +14,7 @@ export class TagRepository implements ITagRepository {
     @InjectRepository(TagEntity) 
     private tagRepository: Repository<TagEntity>,
     private tagFactory: TagFactory,
+    private utilsService: UtilsService,
   ) {}
 
   async get(inputId: string): Promise<Tag | null> {
@@ -28,11 +29,7 @@ export class TagRepository implements ITagRepository {
   }
 
   createEntity(tag: string): TagEntity {
-    const uuid = () => {
-      const tokens = uuidV4().split('-');
-      return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-    };
-    return this.tagRepository.create({ id: uuid(), tag: tag });
+    return this.tagRepository.create({ id: this.utilsService.getUuid(), tag: tag });
   }
 
   async save(tag: string): Promise<Tag> {
