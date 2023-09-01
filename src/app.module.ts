@@ -5,7 +5,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './validate/env.validation';
 // import { DataServicesModule } from './services/data-services/data-services.module';
-import { LoggerMiddleware } from './logger/logger.middleware';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
 import { UsersModule } from './user/user.module';
@@ -34,7 +34,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       //migrations: [__dirname + '/**/migrations/*.js'],
       //migrationsTableName: 'migrations',
     }),
-    AuthModule,
+    // AuthModule,
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY || 'privateKey',
       refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY || 'refreshPrivateKey',

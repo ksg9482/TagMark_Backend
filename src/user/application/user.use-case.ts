@@ -50,16 +50,14 @@ export class UserUseCases {
     return propertyDeletedUser;
   }
 
-  async login(loginData: { email: string; password: string }) {
-    const { email, password } = loginData;
+  async login(email: string, password: string) {
+    
     const user = await this.findByEmail(email);
-
     if (!user) {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
-
+    
     await this.checkPassword(password, user);
-
     const propertyDeletedUser = this.deleteUserProperty('password', user);
 
     const accessToken = this.jwtService.sign(propertyDeletedUser);
@@ -166,12 +164,12 @@ export class UserUseCases {
     return userForm;
   }
 
-  protected async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
     return user;
   }
 
-  protected async findById(id: string): Promise<User> {
+  async findById(id: string): Promise<User> {
     const user = await this.userRepository.get(id);
     if (!user) {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
@@ -180,7 +178,7 @@ export class UserUseCases {
     return user;
   }
 
-  protected deleteUserProperty(
+  deleteUserProperty(
     targetProperty: deleteUserProperty,
     user: User,
   ): User {
@@ -200,7 +198,7 @@ export class UserUseCases {
     return copyUser;
   }
 
-  private async checkPassword(password: string, user: User): Promise<boolean> {
+  async checkPassword(password: string, user: User): Promise<boolean> {
     const result = await this.secureService.checkPassword(password, user);
     if (!result) {
       throw new HttpException('Invalid password.', HttpStatus.BAD_REQUEST);

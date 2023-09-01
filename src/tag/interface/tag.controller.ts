@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -30,7 +31,9 @@ import {
   GetUserAllTagsResponseDto,
 } from 'src/tag/interface/dto';
 import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { AuthGuard } from 'src/auth.guard';
 
+@UseGuards(AuthGuard)
 @ApiTags('Tag')
 @Controller('api/tag')
 export class TagController {

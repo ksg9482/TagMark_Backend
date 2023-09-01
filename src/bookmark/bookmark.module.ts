@@ -10,6 +10,7 @@ import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagModule } from 'src/tag/tag.module';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { UtilsModule } from 'src/utils/utils.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 
 
@@ -32,6 +33,7 @@ const repositories = [
     TypeOrmModule.forFeature([BookmarkEntity, TagEntity]),
     TagModule,
     UtilsModule,
+    AuthModule,
   ],
   controllers: [BookmarkController],
   providers: [

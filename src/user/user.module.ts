@@ -28,8 +28,8 @@ const repositories = [
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
     UtilsModule,
-    HttpModule
-    //AuthModule, //auth에서 쓰는게 아니라 auth를 user에서 쓴다 -> 소스원천 통일
+    HttpModule,
+    AuthModule, //auth에서 쓰는게 아니라 auth를 user에서 쓴다 -> 소스원천 통일
   ],
   controllers: [UserController],
   providers: [
