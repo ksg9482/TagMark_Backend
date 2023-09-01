@@ -6,6 +6,7 @@ import { TagController } from './interface/tag.controller';
 import { TagRepository } from './infra/db/repository/tag.repository';
 import { TagUseCases } from './application/tag.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 
 
@@ -25,6 +26,7 @@ const repositories = [
   imports: [
     TypeOrmModule.forFeature([TagEntity]),
     UtilsModule,
+    AuthModule,
   ],
   controllers: [TagController],
   providers: [

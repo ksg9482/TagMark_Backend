@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UserUseCases } from 'src/user/application/user.use-case';
@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly secureService: SecureService,
-    private userUseCases: UserUseCases,
+    // private userUseCases: UserUseCases,
   ) {}
   getToken(req: Request) {
     const secureWrap = this.secureService.secure().wrapper();
@@ -26,13 +26,19 @@ export class AuthService {
   }
 
   accessTokenDecode(accessToken: string) {
-    const decoded = this.jwtService.verify(accessToken);
-    return decoded;
+    try {
+      const decoded = this.jwtService.verify(accessToken);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException()
+      
+    }
+    
   }
 
-  async getUserInfo(userId: string) {
-    const user = await this.userUseCases.me(userId);
-    Reflect.deleteProperty(user, 'password');
-    return user;
-  }
+  // async getUserInfo(userId: string) {
+  //   const user = await this.userUseCases.me(userId);
+  //   Reflect.deleteProperty(user, 'password');
+  //   return user;
+  // }
 }

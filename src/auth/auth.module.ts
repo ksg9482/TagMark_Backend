@@ -3,18 +3,16 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from 'src/jwt/jwt.module';
 // import { DataServicesModule } from 'src/services/data-services/data-services.module';
 //import { UserUsecasesModule } from 'src/use-cases/user';
-import { UsersModule } from 'src/user/user.module';
 import { UtilsModule } from 'src/utils/utils.module';
-import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [JwtModule, UtilsModule, UsersModule],
+  imports: [JwtModule, UtilsModule],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
     AuthService,
     Logger,
   ],

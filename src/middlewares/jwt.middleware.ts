@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { UserUseCases } from 'src/user/application/user.use-case';
-import { JwtService } from './jwt.service';
+import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {

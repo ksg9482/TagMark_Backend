@@ -12,6 +12,7 @@ import {
   Patch,
   Post,
   Res,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -41,6 +42,8 @@ import {
 import { UserUseCases } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { SecureService } from 'src/utils/secure.service';
+import { AuthService } from 'src/auth/auth.service';
+import { AuthGuard } from 'src/auth.guard';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -57,6 +60,7 @@ export class UserController {
     private userFactory: UserFactory,
     private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,
+    private authService: AuthService,
   ) {}
 
   @ApiOperation({
@@ -158,8 +162,11 @@ export class UserController {
     const loginResponse = new LoginResponseDto();
     try {
       const secureWrap = this.secureService.secure().wrapper();
+      const {email, password} = loginDto;
+
+      //토큰은 tokens 객체로 묶어야 하나?
       const { user, accessToken, refreshToken } = await this.userUseCases.login(
-        loginDto,
+        email, password
       );
       const encrytedToken = {
         accessToken: secureWrap.encryptWrapper(accessToken),
@@ -168,6 +175,7 @@ export class UserController {
 
       res.cookie('refreshToken', encrytedToken.refreshToken, cookieOption);
       res.cookie('accessToken', encrytedToken.accessToken, cookieOption);
+
       loginResponse.success = true;
       loginResponse.user = user;
       loginResponse.accessToken = encrytedToken.accessToken;
@@ -178,6 +186,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '유저 데이터 수정 API',
     description: '유저 정보를 수정한다.',
@@ -204,6 +213,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '유저 데이터 삭제 API',
     description: '유저 정보를 삭제한다.',
@@ -232,6 +242,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: '로그아웃 API', description: '로그아웃 한다.' })
   @ApiCreatedResponse({ description: '로그아웃 한다.' })
   @Get('logout')
@@ -252,6 +263,7 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '새로운 access token를 발급하는 API',
     description: 'refresh 토큰을 통해 새로운 access token을 생성한다.',

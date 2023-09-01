@@ -13,6 +13,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -47,7 +48,9 @@ import {
   GetSearchTagsResponseDto,
 } from 'src/bookmark/interface/dto';
 import { UtilsService } from 'src/utils/utils.service';
+import { AuthGuard } from 'src/auth.guard';
 
+@UseGuards(AuthGuard)
 @ApiTags('Bookmark')
 @Controller('api/bookmark')
 export class BookmarkController {
