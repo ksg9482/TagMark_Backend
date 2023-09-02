@@ -2,6 +2,7 @@ import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 import * as winstonDaily from 'winston-daily-rotate-file';
 
+//logger는 사실상 모든 영역에서 사용된다. module로 DI하는 것보다 전역으로 적용하는 편이 더 낫다고 생각한다.
 const env = process.env.NODE_ENV;
 const logDir = __dirname + '/../../logs';
 const dailyOptions = (level: string) => {

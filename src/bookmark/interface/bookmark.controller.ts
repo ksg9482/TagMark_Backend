@@ -81,7 +81,7 @@ export class BookmarkController {
     try {
       const { url, tagNames } = createBookmarkDto;
       const tags = tagNames || [];
-      const uuid = this.utilsService.getUuid()
+      const uuid = this.utilsService.getUuid();
       const createTags = tags.map((tag) => {
         return this.tagFactory.create(uuid, tag);
       });
