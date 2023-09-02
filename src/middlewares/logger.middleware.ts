@@ -9,7 +9,7 @@ import { Request, Response, NextFunction } from 'express';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  constructor(@Inject(Logger) private readonly logger: LoggerService) { }
+  constructor(@Inject(Logger) private readonly logger: LoggerService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     const { ip, method, originalUrl } = req;
