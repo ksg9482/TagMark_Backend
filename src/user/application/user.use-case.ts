@@ -81,16 +81,16 @@ export class UserUseCases {
   //changePassword changeNickname
   async editUser(
     userId: string,
-    editUserData: { changePassword: string; changeNickname: string },
+    editUserData: { password?: string; nickname?: string },
   ): Promise<any> {
-    const { changeNickname, changePassword } = editUserData;
+    const { nickname, password } = editUserData;
     const user = await this.findById(userId);
 
-    if (changeNickname !== undefined) {
-      user.updateNickname(changeNickname);
+    if (nickname !== undefined) {
+      user.updateNickname(nickname);
     }
-    if (changePassword !== undefined) {
-      user.updatePassword(changePassword);
+    if (password !== undefined) {
+      user.updatePassword(password);
     }
 
     const userUpadate = await this.userRepository.update(userId, user);
