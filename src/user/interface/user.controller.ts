@@ -44,6 +44,8 @@ import { UserFactory } from 'src/user/domain/user.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
+import { WinstonLogger } from 'src/logger/custom.logger.service';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -59,7 +61,8 @@ export class UserController {
     private userUseCases: UserUseCases,
     private userFactory: UserFactory,
     private readonly secureService: SecureService,
-    @Inject(Logger) private readonly logger: LoggerService,
+    // @Inject(Logger) private readonly logger: LoggerService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     private authService: AuthService,
   ) {}
 
@@ -162,11 +165,12 @@ export class UserController {
     const loginResponse = new LoginResponseDto();
     try {
       const secureWrap = this.secureService.secure().wrapper();
-      const {email, password} = loginDto;
+      const { email, password } = loginDto;
 
       //토큰은 tokens 객체로 묶어야 하나?
       const { user, accessToken, refreshToken } = await this.userUseCases.login(
-        email, password
+        email,
+        password,
       );
       const encrytedToken = {
         accessToken: secureWrap.encryptWrapper(accessToken),

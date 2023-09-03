@@ -5,7 +5,7 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
 import { setupSwagger } from './swagger';
 import { winstonLogger } from './logger/winston.logger';
-import { CustomLoggerService } from './logger/custom.logger.service';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -19,7 +19,7 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useLogger(app.get(CustomLoggerService));
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   setupSwagger(app);
 
   await app.listen(process.env.PORT || 8080);
