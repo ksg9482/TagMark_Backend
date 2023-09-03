@@ -1,12 +1,14 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsOptional, IsString } from 'class-validator';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { CreateBookmarkDto } from './create-bookmark.dto';
 
-export class EditBookmarkDto {
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ description: '변경할 URL' })
-  changeUrl: string;
+export class EditBookmarkDto extends PartialType(CreateBookmarkDto) {
+  // @IsString()
+  // @IsOptional()
+  // @ApiProperty({ description: '변경할 URL' })
+  // changeUrl: string;
 
   @IsArray()
   @IsOptional()

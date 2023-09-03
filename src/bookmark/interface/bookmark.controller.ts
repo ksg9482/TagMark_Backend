@@ -248,7 +248,7 @@ export class BookmarkController {
   ) {
     const editBookmarkResponse = new EditBookmarkResponseDto();
     try {
-      const changeUrl = editBookmarkDto.changeUrl;
+      const url = editBookmarkDto.url;
       const deleteTag =
         editBookmarkDto.deleteTag?.length > 0
           ? editBookmarkDto.deleteTag
@@ -265,11 +265,11 @@ export class BookmarkController {
         await this.tagUseCases.attachTag(bookmarkId, tags);
       }
 
-      if (changeUrl) {
+      if (url) {
         await this.bookmarkUseCases.editBookmarkUrl(
           userId,
           bookmarkId,
-          editBookmarkDto.changeUrl,
+          url,
         );
       }
 
