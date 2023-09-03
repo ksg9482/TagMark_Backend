@@ -1,22 +1,14 @@
-import { LoggerService, LogLevel } from '@nestjs/common';
-export class CustomLoggerService implements LoggerService {
-  debug(message: any, ...optionalParams: any[]): any {
-    console.log(message);
-  }
+import { Logger, LoggerService, LogLevel } from '@nestjs/common';
 
-  error(message: any, ...optionalParams: any[]): any {
-    console.log(message);
-  }
-
-  log(message: any, ...optionalParams: any[]): any {
-    console.log(message);
-  }
-
-  verbose(message: any, ...optionalParams: any[]): any {
-    console.log(message);
-  }
-
-  warn(message: any, ...optionalParams: any[]): any {
-    console.log(message);
-  }
+export declare class WinstonLogger implements LoggerService {
+  private readonly logger;
+  private context?;
+  constructor(logger: Logger);
+  setContext(context: string): void;
+  log(message: any, context?: string): any;
+  error(message: any, trace?: string, context?: string): any;
+  warn(message: any, context?: string): any;
+  debug?(message: any, context?: string): any;
+  verbose?(message: any, context?: string): any;
+  getWinstonLogger(): Logger;
 }

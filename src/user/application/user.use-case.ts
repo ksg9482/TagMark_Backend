@@ -51,12 +51,11 @@ export class UserUseCases {
   }
 
   async login(email: string, password: string) {
-    
     const user = await this.findByEmail(email);
     if (!user) {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
-    
+
     await this.checkPassword(password, user);
     const propertyDeletedUser = this.deleteUserProperty('password', user);
 
@@ -178,10 +177,7 @@ export class UserUseCases {
     return user;
   }
 
-  deleteUserProperty(
-    targetProperty: deleteUserProperty,
-    user: User,
-  ): User {
+  deleteUserProperty(targetProperty: deleteUserProperty, user: User): User {
     const copyUser: User = this.utilService.deepCopy(user);
 
     if (targetProperty === 'default') {
