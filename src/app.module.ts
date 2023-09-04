@@ -11,6 +11,7 @@ import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
 import { UsersModule } from './user/user.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { TagModule } from './tag/tag.module';
+import Configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -19,6 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
       validate,
+      load: [Configuration]
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

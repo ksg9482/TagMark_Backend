@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService, ConfigType } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
+import Configuration from 'src/config/configuration';
 import { User } from 'src/user/domain';
 
 @Injectable()
 export class SecureService {
+  constructor(
+    @Inject(Configuration.KEY) private config: ConfigType<typeof Configuration>,
+    ) {}
   async checkPassword(password: string, user: User): Promise<boolean> {
     try {
       return await bcrypt.compare(password, user.getPassword());
@@ -14,8 +19,7 @@ export class SecureService {
   }
 
   secure() {
-    const SECRET_KEY = process.env.CRYPTOJS_SECRET_KEY || 'SECRET_KEY';
-
+    const SECRET_KEY = this.config.cryptoSecretKey;
     const encrypt = (message: string) => {
       const encrypted = CryptoJS.AES.encrypt(message, SECRET_KEY);
       return encrypted.toString();

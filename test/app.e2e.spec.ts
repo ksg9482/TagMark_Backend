@@ -3,13 +3,14 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { Repository, DataSource } from 'typeorm';
-import { User } from 'src/frameworks/data-services/postgresql/model';
+// import { User } from 'src/frameworks/data-services/postgresql/model';
+import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let usersRepository: Repository<User>;
+  let usersRepository: Repository<UserEntity>;
   let config: ConfigService = new ConfigService();
   let connectDB: DataSource = new DataSource({
     type: 'postgres',
@@ -55,8 +56,8 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    usersRepository = moduleFixture.get<Repository<User>>(
-      getRepositoryToken(User),
+    usersRepository = moduleFixture.get<Repository<UserEntity>>(
+      getRepositoryToken(UserEntity),
     );
 
     await connectDB.initialize();
