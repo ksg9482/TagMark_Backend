@@ -61,8 +61,8 @@ export class UserController {
     private userUseCases: UserUseCases,
     private userFactory: UserFactory,
     private readonly secureService: SecureService,
-    // @Inject(Logger) private readonly logger: LoggerService,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
+    @Inject(Logger) private readonly logger: LoggerService,
+    // @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: WinstonLogger,
     private authService: AuthService,
   ) {}
 
