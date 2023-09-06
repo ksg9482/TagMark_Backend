@@ -100,8 +100,9 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async update(id: string, item: any): Promise<any> {
+  async update(id: string, item: Partial<User>): Promise<any> {
     //어떻게 데이터를 넘겨줘야 합리적일까? 데이터는 바꿀 데이터만? 아니면 바뀐 데이터가 적용되서 오면 db에 저장?
+
     return await this.userRepository.update(id, item);
   }
 
