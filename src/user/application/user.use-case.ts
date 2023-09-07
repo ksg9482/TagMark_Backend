@@ -96,7 +96,7 @@ export class UserUseCases {
       user.updatePassword(password);
     }
 
-    const userUpadate = await this.userRepository.update(userId, changeData);
+    const userUpadate = await this.userRepository.update(userId, user);
 
     return userUpadate;
   }

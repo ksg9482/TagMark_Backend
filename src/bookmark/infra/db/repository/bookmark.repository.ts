@@ -46,8 +46,14 @@ export class BookmarkRepository implements IBookmarkRepository {
     );
   }
 
-  async update(id: string, item: any): Promise<any> {
-    return await this.bookmarkRepository.update(id, item);
+  async update(id: string, item: Bookmark): Promise<any> {
+    const bookmark = item.getAll();
+    // const tags = bookmark.getTags().map((tag) => {
+    //   return this.tagFactory.create(tagEntity.id, tagEntity.tag);
+    // });
+    // const bookmarkEntity = this.bookmarkRepository.create({id:bookmark.getId(),url:bookmark.getUrl(), userId:bookmark.getUserId(), tags:bookmark.getTags()})
+    //엔티티와 도메인 모양이 다르다. 어떻게 해야 할까?
+    return await this.bookmarkRepository.update(id, {url:bookmark.getUrl()});
   }
 
   async getAll(): Promise<Bookmark[]> {
