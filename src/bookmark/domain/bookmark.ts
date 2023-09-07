@@ -27,13 +27,9 @@ export class Bookmark {
     return this.userId;
   }
 
-  getAll() {
-    return {
-      id: this.id,
-      url: this.url,
-      tags: this.tags,
-      userId: this.userId,
-    };
+  getAll():Bookmark {
+    const bookmark = new Bookmark(this.id, this.url, this.userId, this.tags)
+    return bookmark;
   }
 
   updateUrl(url: string) {

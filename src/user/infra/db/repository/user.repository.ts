@@ -100,10 +100,10 @@ export class UserRepository implements IUserRepository {
     );
   }
 
-  async update(id: string, item: Partial<User>): Promise<any> {
+  async update(id: string, item: User): Promise<any> {
     //어떻게 데이터를 넘겨줘야 합리적일까? 데이터는 바꿀 데이터만? 아니면 바뀐 데이터가 적용되서 오면 db에 저장?
-
-    return await this.userRepository.update(id, item);
+    const userentity = this.userRepository.create({id:item.getId(), email:item.getEmail(), password:item.getPassword(), nickname:item.getNickName(), role:item.getRole(), type:item.getType()})
+    return await this.userRepository.update(id, userentity);
   }
 
   //모든 유저를 도메인 객체에 담아서 반환하는 메서드가 필요한가?
