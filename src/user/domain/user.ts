@@ -1,46 +1,21 @@
 import { UserRole, UserType } from 'src/user/domain';
 export class User {
+  nickname: string;
+  password: string;
+  role: UserRole;
+  type: UserType;
   constructor(
-    protected id: string, //uuid
-    protected email: string,
-    protected nickname: string,
-    protected password: string,
-    protected role: UserRole,
-    protected type: UserType,
-  ) {}
-
-  getId(): Readonly<string> {
-    return this.id;
-  }
-
-  getEmail(): Readonly<string> {
-    return this.email;
-  }
-
-  getNickName(): Readonly<string> {
-    return this.nickname;
-  }
-
-  getPassword(): Readonly<string> {
-    return this.password;
-  }
-
-  getRole(): Readonly<UserRole> {
-    return this.role;
-  }
-
-  getType(): Readonly<UserType> {
-    return this.type;
-  }
-
-  updatePassword(password: string) {
-    this.password = password;
-    return this.password;
-  }
-
-  updateNickname(nickname: string) {
+  readonly id: string, //uuid
+  readonly email: string,
+  nickname: string,
+  password: string,
+  role: UserRole,
+  type: UserType,
+  ) {
     this.nickname = nickname;
-    return this.nickname;
+    this.password = password;
+    this.role = role;
+    this.type = type;
   }
 }
 
