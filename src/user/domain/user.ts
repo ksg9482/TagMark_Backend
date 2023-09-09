@@ -5,12 +5,12 @@ export class User {
   role: UserRole;
   type: UserType;
   constructor(
-  readonly id: string, //uuid
-  readonly email: string,
-  nickname: string,
-  password: string,
-  role: UserRole,
-  type: UserType,
+    readonly id: string, //uuid
+    readonly email: string,
+    nickname: string,
+    password: string,
+    role: UserRole,
+    type: UserType,
   ) {
     this.nickname = nickname;
     this.password = password;

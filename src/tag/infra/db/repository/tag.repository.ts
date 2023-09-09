@@ -11,7 +11,7 @@ import { UtilsService } from 'src/utils/utils.service';
 @Injectable()
 export class TagRepository implements ITagRepository {
   constructor(
-    @InjectRepository(TagEntity) 
+    @InjectRepository(TagEntity)
     private tagRepository: Repository<TagEntity>,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
@@ -29,13 +29,16 @@ export class TagRepository implements ITagRepository {
   }
 
   createEntity(tag: string): TagEntity {
-    return this.tagRepository.create({ id: this.utilsService.getUuid(), tag: tag });
+    return this.tagRepository.create({
+      id: this.utilsService.getUuid(),
+      tag: tag,
+    });
   }
 
-  async save(tag: string): Promise<Tag> {
+  async save(tag: Omit<Tag, 'id'>): Promise<Tag> {
     //create는 entity 생성, save는 entity를 db에 저장으로 명시.
     //create가 엔티티 생성인지, db에 생성인지 명확하지 않았음. create로 재활용
-    const tagEntity = this.createEntity(tag);
+    const tagEntity = this.createEntity(tag.tag);
     await this.tagRepository.save(tagEntity);
     return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
   }

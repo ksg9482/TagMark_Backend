@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { Page, PageRequest } from 'src/bookmark/application/bookmark.pagination';
+import {
+  Page,
+  PageRequest,
+} from 'src/bookmark/application/bookmark.pagination';
 import {
   BookmarkAndTag,
   BookmarkTagMap,
@@ -9,12 +12,15 @@ import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.re
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
 
-//DTO 의존성 해소용. 
-interface UserAllBookmarks extends PageRequest{ };
-interface SearchTags extends PageRequest{ };
+//DTO 의존성 해소용.
+type UserAllBookmarks = PageRequest;
+type SearchTags = PageRequest;
 
 export class BookmarkUseCases {
-  constructor(private bookmarkRepository: IBookmarkRepository, private utilsService: UtilsService) {}
+  constructor(
+    private bookmarkRepository: IBookmarkRepository,
+    private utilsService: UtilsService,
+  ) {}
 
   async createBookmark(
     userId: string,
@@ -39,11 +45,11 @@ export class BookmarkUseCases {
       return tag;
     });
 
-    const createdBookmark = await this.bookmarkRepository.save(
-      url,
-      userId,
-      tags,
-    );
+    const createdBookmark = await this.bookmarkRepository.save({
+      url: url,
+      userId: userId,
+      tags: tags,
+    });
 
     return createdBookmark;
   }

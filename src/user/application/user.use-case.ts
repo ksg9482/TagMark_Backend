@@ -36,15 +36,15 @@ export class UserUseCases {
       this.logger.error('Email Already exists.');
       throw new HttpException('Email Already exists.', HttpStatus.BAD_REQUEST);
     }
-    const tempRole = UserRole.USER;
-    const tempType = UserType.BASIC;
-    const createdUser = await this.userRepository.save(
-      email,
-      nickname || '',
-      password,
-      tempRole,
-      tempType,
-    );
+    const defaultRole = UserRole.USER;
+    const defaultType = UserType.BASIC;
+    const createdUser = await this.userRepository.save({
+      email: email,
+      nickname: nickname || '',
+      password: password,
+      role: defaultRole,
+      type: defaultType,
+    });
     const propertyDeletedUser = this.deleteUserProperty('default', createdUser);
 
     return propertyDeletedUser;

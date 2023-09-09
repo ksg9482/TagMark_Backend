@@ -3,7 +3,7 @@ import { IGenericRepository } from 'src/common/domain/repository/igeneric-reposi
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 
 export interface ITagRepository extends IGenericRepository<Tag> {
-  save: (tag: string) => Promise<Tag>;
+  // save: (tag: string) => Promise<Tag>;
   getUserAllTags: (userId: string) => Promise<TagWithCount[]>;
   attachTag: (bookmarkId: string, tags: Tag[]) => Promise<any[]>;
   detachTag: (bookmarkId: string, tagIds: string[]) => Promise<string>;

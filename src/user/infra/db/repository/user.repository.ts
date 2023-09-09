@@ -81,13 +81,8 @@ export class UserRepository implements IUserRepository {
       type,
     });
   }
-  async save(
-    email: string,
-    nickname: string,
-    password: string,
-    role: UserRole,
-    type: UserType,
-  ): Promise<User> {
+  async save(item: User): Promise<User> {
+    const { email, nickname, password, role, type } = item;
     const userEntity = this.createEntity(email, nickname, password, role, type);
     await this.userRepository.save(userEntity);
     return this.userFactory.reconstitute(
@@ -102,7 +97,7 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, item: User): Promise<any> {
     //어떻게 데이터를 넘겨줘야 합리적일까? 데이터는 바꿀 데이터만? 아니면 바뀐 데이터가 적용되서 오면 db에 저장?
-    const userentity = this.userRepository.create(item)
+    const userentity = this.userRepository.create(item);
     return await this.userRepository.update(id, userentity);
   }
 
