@@ -56,7 +56,7 @@ export class TagController {
     const createTagResponse = new CreateTagResponseDto();
     const { tag } = createTagDto;
     try {
-      const createdTag = await this.tagUseCases.createTag(tag);
+      const createdTag = await this.tagUseCases.createTag({ tag: tag });
       createTagResponse.success = true;
       createTagResponse.createdTag = createdTag;
       return createTagResponse;

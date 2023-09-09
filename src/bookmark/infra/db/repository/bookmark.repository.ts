@@ -18,7 +18,8 @@ import { UtilsService } from 'src/utils/utils.service';
 export class BookmarkRepository implements IBookmarkRepository {
   constructor(
     @InjectRepository(BookmarkEntity)
-    @Inject('BookmarkRepository') private bookmarkRepository: Repository<BookmarkEntity>,
+    @Inject('BookmarkRepository')
+    private bookmarkRepository: Repository<BookmarkEntity>,
     @Inject('TagRepository') private tagRepository: Repository<TagEntity>,
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
@@ -35,14 +36,15 @@ export class BookmarkRepository implements IBookmarkRepository {
     });
   }
 
-  async save(url: string, userId: string, tags: Tag[]): Promise<Bookmark> {
+  async save(bookmark: Omit<Bookmark, 'id'>): Promise<Bookmark> {
+    const { url, userId, tags } = bookmark;
     const bookmarkEntity = this.createEntity(userId, url);
     await this.bookmarkRepository.save(bookmarkEntity);
     return this.bookmarkFactory.reconstitute(
       bookmarkEntity.id,
       bookmarkEntity.url,
       bookmarkEntity.userId,
-      tags,
+      tags || [],
     );
   }
 
@@ -53,7 +55,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     // });
     // const bookmarkEntity = this.bookmarkRepository.create({id:bookmark.getId(),url:bookmark.getUrl(), userId:bookmark.getUserId(), tags:bookmark.getTags()})
     //엔티티와 도메인 모양이 다르다. 어떻게 해야 할까?
-    return await this.bookmarkRepository.update(id, {url:bookmark.url});
+    return await this.bookmarkRepository.update(id, { url: bookmark.url });
   }
 
   async getAll(): Promise<Bookmark[]> {

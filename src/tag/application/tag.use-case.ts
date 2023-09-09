@@ -20,8 +20,8 @@ export class TagUseCases {
 
   //결국 저장은 데이터 레이어로 넘어가서 엔티티에 맞춰야 한다.
   //그렇다면 여기서 엔티티를 만들어 넘겨줄게 아니라 엔티티 만들 재료를 넘겨줘야 한다.
-  async createTag(tag: string): Promise<Tag> {
-    const tagCheck = await this.getTagsByNames(tag);
+  async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
+    const tagCheck = await this.getTagsByNames(tag.tag);
     if (tagCheck) {
       return tagCheck[0];
     }

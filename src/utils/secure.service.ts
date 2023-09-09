@@ -9,7 +9,7 @@ import { User } from 'src/user/domain';
 export class SecureService {
   constructor(
     @Inject(Configuration.KEY) private config: ConfigType<typeof Configuration>,
-    ) {}
+  ) {}
   async checkPassword(password: string, user: User): Promise<boolean> {
     try {
       return await bcrypt.compare(password, user.password);
