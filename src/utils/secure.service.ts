@@ -12,7 +12,7 @@ export class SecureService {
     ) {}
   async checkPassword(password: string, user: User): Promise<boolean> {
     try {
-      return await bcrypt.compare(password, user.getPassword());
+      return await bcrypt.compare(password, user.password);
     } catch (error) {
       return false;
     }

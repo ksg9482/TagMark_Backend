@@ -91,7 +91,7 @@ export class TagUseCases {
 
   protected getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
     const tagArr = existTags.map((tag) => {
-      return tag.getTag();
+      return tag.tag;
     });
     return inputTags.filter((tag) => !tagArr.includes(tag));
   }

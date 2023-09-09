@@ -47,13 +47,13 @@ export class BookmarkRepository implements IBookmarkRepository {
   }
 
   async update(id: string, item: Bookmark): Promise<any> {
-    const bookmark = item.getAll();
+    const bookmark = item;
     // const tags = bookmark.getTags().map((tag) => {
     //   return this.tagFactory.create(tagEntity.id, tagEntity.tag);
     // });
     // const bookmarkEntity = this.bookmarkRepository.create({id:bookmark.getId(),url:bookmark.getUrl(), userId:bookmark.getUserId(), tags:bookmark.getTags()})
     //엔티티와 도메인 모양이 다르다. 어떻게 해야 할까?
-    return await this.bookmarkRepository.update(id, {url:bookmark.getUrl()});
+    return await this.bookmarkRepository.update(id, {url:bookmark.url});
   }
 
   async getAll(): Promise<Bookmark[]> {
@@ -163,16 +163,16 @@ export class BookmarkRepository implements IBookmarkRepository {
 
     const bookmarkIdAndTagIdArr = createdBookmarks.identifiers;
     const completedBookmarks = bookmarks.map((bookmark, i) => {
-      const tags = bookmark.getTags();
+      const tags = bookmark.tags || [];
       const reconstitutedTag = tags.map((tag) => {
-        const id = tag.getId();
-        const tagName = tag.getTag();
+        const id = tag.id;
+        const tagName = tag.tag;
         return this.tagFactory.reconstitute(id, tagName);
       });
       const bookmarks = this.bookmarkFactory.reconstitute(
         bookmarkIdAndTagIdArr[i].id,
-        bookmark.getUrl(),
-        bookmark.getUserId(),
+        bookmark.url,
+        bookmark.userId,
         reconstitutedTag,
       );
 

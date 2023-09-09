@@ -94,13 +94,13 @@ export class BookmarkController {
 
       const createdBookmark = await this.bookmarkUseCases.createBookmark(
         userId,
-        bookmark.getUrl(),
+        bookmark.url,
       );
       if (Array.isArray(createBookmarkDto.tagNames)) {
         const tags = await this.tagUseCases.getTagsByNames(
           createBookmarkDto.tagNames,
         );
-        await this.tagUseCases.attachTag(createdBookmark.getId(), tags);
+        await this.tagUseCases.attachTag(createdBookmark.id, tags);
       }
 
       createBookmarkResponse.success = true;
@@ -138,10 +138,10 @@ export class BookmarkController {
         tags: Tag[],
       ): Bookmark[] => {
         const result = bookmarks.map((bookmark) => {
-          const localTags = bookmark.getTags();
+          const localTags = bookmark.tags || [];
           const changedTags = localTags.map((localtag) => {
             const targetTag = tags.find((dbTag) => {
-              return dbTag.getTag() === localtag.getTag();
+              return dbTag.tag === localtag.tag;
             });
             return targetTag;
           });

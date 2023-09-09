@@ -85,15 +85,11 @@ export class UserUseCases {
   ): Promise<any> {
     const { nickname, password } = editUserData;
     const user = await this.findById(userId);
-    const changeData:Partial<User> = {}
     if (nickname !== undefined) {
-      //Cannot invoke an object which is possibly 'undefined' 에러 처리용 옵셔널 체이닝
-      changeData.updateNickname?.(nickname)
-      user.updateNickname(nickname);
+      user.nickname = nickname;
     }
     if (password !== undefined) {
-      changeData.updatePassword?.(password)
-      user.updatePassword(password);
+      user.password = password;
     }
 
     const userUpadate = await this.userRepository.update(userId, user);

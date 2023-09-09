@@ -77,7 +77,8 @@ export class BookmarkUseCases {
 
   async editBookmarkUrl(userId: string, bookmarkId: string, changeUrl: string) {
     const bookmark = await this.findBookmark(userId, bookmarkId);
-    bookmark.updateUrl(changeUrl);
+    bookmark.url = changeUrl;
+    //bookmark.updateUrl(changeUrl);
     await this.bookmarkRepository.update(bookmarkId, bookmark);
     return { message: 'Updated' };
   }
@@ -169,10 +170,10 @@ export class BookmarkUseCases {
 
   protected getBookmarkIdAndTagId(bookmarks: Bookmark[]) {
     const result = bookmarks.map((bookmark) => {
-      const bookmarkTags = bookmark.getTags();
+      const bookmarkTags = bookmark.tags;
       if (!Array.isArray(bookmarkTags)) return;
 
-      const bookmarkId = bookmark.getId();
+      const bookmarkId = bookmark.id;
       //앞 단에 예외 및 빈 배열 처리를 해서 반환하는 게 낫다.
       const tagIds = bookmarkTags.map((tag) => {
         return tag.id;

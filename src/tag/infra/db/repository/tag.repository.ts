@@ -51,7 +51,7 @@ export class TagRepository implements ITagRepository {
       return null;
     }
     tagEntities.id = id;
-    tagEntities.tag = item.getTag();
+    tagEntities.tag = item.tag;
     return await this.tagRepository.update(id, tagEntities);
   }
 
@@ -95,7 +95,7 @@ export class TagRepository implements ITagRepository {
         .from('bookmarks_tags', 'bookmarks_tags')
         .where(
           'bookmarks_tags."bookmarkId" = (:bookmarkId) and bookmarks_tags."tagId" = (:tagId)',
-          { bookmarkId: bookmarkId, tagId: tag.getId() },
+          { bookmarkId: bookmarkId, tagId: tag.id },
         )
         .getRawOne();
 
@@ -108,7 +108,7 @@ export class TagRepository implements ITagRepository {
         .createQueryBuilder()
         .insert()
         .into('bookmarks_tags')
-        .values({ bookmarkId: bookmarkId, tagId: tag.getId() })
+        .values({ bookmarkId: bookmarkId, tagId: tag.id })
         .execute();
 
       arr.push(attachTag);
