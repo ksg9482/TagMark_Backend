@@ -3,14 +3,13 @@ import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class UtilsService {
-
   /**
    * uuid를 가공하여 인덱스화 기능을 상승시킨 id를 반환한다.
    */
-  getUuid():string {
+  getUuid(): string {
     const tokens = uuidV4().split('-');
     return tokens[2] + tokens[1] + tokens[0] + tokens[3] + tokens[4];
-  };
+  }
 
   deepCopy(obj: any) {
     if (obj instanceof Object) {
