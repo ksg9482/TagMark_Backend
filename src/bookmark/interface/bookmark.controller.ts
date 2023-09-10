@@ -266,11 +266,7 @@ export class BookmarkController {
       }
 
       if (url) {
-        await this.bookmarkUseCases.editBookmarkUrl(
-          userId,
-          bookmarkId,
-          url,
-        );
+        await this.bookmarkUseCases.editBookmarkUrl(userId, bookmarkId, url);
       }
 
       editBookmarkResponse.success = true;

@@ -15,10 +15,10 @@ export class PageRequest {
 
     if (this.pageNo === undefined || this.pageNo < minimumPageNo) {
       this.pageNo = minimumPageNo;
-    };
+    }
     if (this.pageSize === undefined || this.pageSize < minimumPageSize) {
       this.pageSize = minimumPageSize;
-    };
+    }
 
     return (Number(this.pageNo) - 1) * Number(this.pageSize);
   }

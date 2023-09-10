@@ -18,17 +18,15 @@ export class AuthGuard implements CanActivate {
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     return this.validateRequest(request);
   }
 
   private validateRequest(request: Request) {
-    if(request.headers.authorization === undefined) {
-      return false
-    };
+    if (request.headers.authorization === undefined) {
+      return false;
+    }
     const jwtString = request.headers.authorization.split('Bearer ')[1];
 
     this.authServices.accessTokenDecode(jwtString);

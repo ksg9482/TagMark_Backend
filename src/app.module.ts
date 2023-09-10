@@ -20,7 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
       validate,
-      load: [Configuration]
+      load: [Configuration],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
