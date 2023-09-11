@@ -4,12 +4,10 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
 import { setupSwagger } from './swagger';
-import { winstonLogger } from './logger/winston.logger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    //logger: winstonLogger,
     bufferLogs: true,
   });
   app.useGlobalFilters(new HttpExceptionFilter());
