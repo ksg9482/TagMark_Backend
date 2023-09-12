@@ -5,9 +5,9 @@ import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { CreateTagDto } from './create-tag.dto';
 
 export class EditTagDto extends PartialType(CreateTagDto) {
-  // @IsString()
-  // @ApiProperty({ description: '태그명' })
-  // changeTag: string;
+  @IsString()
+  @ApiProperty({ description: '태그명' })
+  tag: string;
 }
 
 export class EditTagResponseDto extends BaseResponseDto {}

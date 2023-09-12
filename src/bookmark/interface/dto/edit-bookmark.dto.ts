@@ -5,10 +5,10 @@ import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { CreateBookmarkDto } from './create-bookmark.dto';
 
 export class EditBookmarkDto extends PartialType(CreateBookmarkDto) {
-  // @IsString()
-  // @IsOptional()
-  // @ApiProperty({ description: '변경할 URL' })
-  // changeUrl: string;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: '변경할 URL' })
+  url: string;
 
   @IsArray()
   @IsOptional()
