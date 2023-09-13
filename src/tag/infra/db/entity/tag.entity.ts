@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BookmarkEntity as Bookmark } from "src/bookmark/infra/db/entity/bookmark.entity";
 import { Bookmarks_TagsEntity as Bookmarks_Tags } from "src/bookmark/infra/db/entity/bookmarks_tags.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('Tag')
 export class TagEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   @ApiProperty({ description: 'id' })
   id: string;
 

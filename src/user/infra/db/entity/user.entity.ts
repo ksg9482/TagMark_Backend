@@ -8,6 +8,7 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';
@@ -16,7 +17,7 @@ import { UserRole, UserType } from 'src/user/domain';
 
 @Entity('User')
 export class UserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   @ApiProperty({ description: 'id' })
   id: string;
 
