@@ -101,7 +101,6 @@ export class UserController {
     const createUserResponse = new CreateUserResponseDto();
     try {
       const { email, password, nickname } = userDto;
-
       const createdUser = await this.userUseCases.createUser(
         email,
         password,

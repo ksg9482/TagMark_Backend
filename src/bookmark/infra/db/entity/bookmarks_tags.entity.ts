@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TagEntity as Tag } from 'src/tag/infra/db/entity/tag.entity';
@@ -11,7 +12,7 @@ import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmar
 
 @Entity()
 export class Bookmarks_TagsEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: string;
 
   @ManyToOne(() => Bookmark, (bookmark) => bookmark.tags, {

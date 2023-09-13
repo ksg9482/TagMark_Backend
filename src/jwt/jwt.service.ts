@@ -12,11 +12,13 @@ type DeletePasswordUser = Omit<User, 'password'>;
 
 @Injectable()
 export class JwtService {
-  jwtAlgorithm: 'HS256';
+  jwtAlgorithm:jwt.Algorithm;
   constructor(
     @Inject('CONFIG_OPTIONS')
     private readonly options: JwtModuleOptions,
-  ) {}
+  ) {
+    this.jwtAlgorithm = 'HS256';
+  }
 
   sign(userData: User): string {
     const accessTokenExpireTime = '15m';

@@ -19,7 +19,7 @@ describe('AppController (e2e)', () => {
     username: config.get('DB_USERNAME'),
     password: config.get('DB_PASSWORD'),
     database: config.get('DB_NAME'),
-    entities: [__dirname + '../**/*.model{.ts,.js}'],
+    entities: [__dirname + '../**/*.entity{.ts,.js}'],
   });
   let accessToken: string;
   let refreshToken: string;
@@ -70,7 +70,7 @@ describe('AppController (e2e)', () => {
   const userResponseDataOne = {
     success: true,
     createdUser: {
-      id: 1,
+      id: '42ee904c778d1efebe40c0768d766082',
       email: 'test1@test.com',
       nickname: '익명',
       role: 'USER',
@@ -175,11 +175,11 @@ describe('AppController (e2e)', () => {
   const bookmarkResponseDataOne = {
     success: true,
     createdBookmark: {
-      id: 1,
+      id: '42ee904c778d1efebe40c0768d766082',
       url: bookmarkParamsOne.url,
       userId: userResponseDataOne.createdUser.id,
       tags: [
-        { id: 1, tag: '여행' },
+        { id: '42ee904c778d1efebe40c0768d766082', tag: '여행' },
         { id: 2, tag: '요리' },
       ],
     },

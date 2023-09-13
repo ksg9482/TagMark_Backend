@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TagEntity as Tag } from 'src/tag/infra/db/entity/tag.entity';
@@ -14,7 +15,7 @@ import { UserEntity as User } from 'src/user/infra/db/entity/user.entity';
 
 @Entity()
 export class BookmarkEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   @ApiProperty({ description: 'id' })
   id: string;
 
