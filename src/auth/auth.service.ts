@@ -18,11 +18,15 @@ export class AuthService {
     if (!authorization) {
       throw new Error('No Access Token');
     }
+
     const type = authorization[0];
-    const accessToken = secureWrap.decryptWrapper(authorization[1]);
-    if (type === AuthorizationType.Bearer) {
-      return accessToken;
+    if (type !== AuthorizationType.Bearer) {
+      throw new Error('No Access Token');
     }
+
+    const accessToken = secureWrap.decryptWrapper(authorization[1]);
+    return accessToken;
+    
   }
 
   accessTokenDecode(accessToken: string) {
@@ -31,7 +35,6 @@ export class AuthService {
       return decoded;
     } catch (error) {
       throw new UnauthorizedException()
-      
     }
     
   }

@@ -31,8 +31,8 @@ export class UserRepository implements IUserRepository {
     const { id, nickname, email, password, role, type } = userEntity;
     return this.userFactory.reconstitute(
       id,
-      nickname,
       email,
+      nickname,
       password,
       role,
       type,
@@ -57,8 +57,8 @@ export class UserRepository implements IUserRepository {
     const { id, nickname, email, password, role, type } = userEntity;
     return this.userFactory.reconstitute(
       id,
-      nickname,
       email,
+      nickname,
       password,
       role,
       type,
@@ -83,10 +83,9 @@ export class UserRepository implements IUserRepository {
   }
   async save(item: User): Promise<User> {
     const { email, nickname, password, role, type } = item;
-
+    
     const userEntity = this.createEntity(email, nickname, password, role, type);
-    console.log(userEntity)
-
+    
     await this.userRepository.save(userEntity);
     return this.userFactory.reconstitute(
       userEntity.id,
@@ -113,8 +112,8 @@ export class UserRepository implements IUserRepository {
     return userEntities.map((entity) => {
       return this.userFactory.reconstitute(
         entity.id,
-        entity.nickname,
         entity.email,
+        entity.nickname,
         entity.password,
         entity.role,
         entity.type,
@@ -132,8 +131,8 @@ export class UserRepository implements IUserRepository {
     const { id, nickname, email, password, role, type } = userEntity;
     return this.userFactory.reconstitute(
       id,
-      nickname,
       email,
+      nickname,
       password,
       role,
       type,
