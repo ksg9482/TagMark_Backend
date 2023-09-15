@@ -129,8 +129,8 @@ describe('AppController (e2e)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 변경된다', async () => {
         const changeParams = { changeNickname: 'new-nickname' };
         const result = await privateTest()
-          .patch('/api/user', accessToken)
-          .send(changeParams);
+        .patch('/api/user', accessToken)
+        .send(changeParams);
 
         expect(result.status).toBe(200);
         expect(result.body.success).toBe(true);
@@ -288,7 +288,7 @@ describe('AppController (e2e)', () => {
       it('태그 전부를 만족하는 북마크를 전부 반환한다.', async () => {
         const query = encodeURI('?tags=여행,요리');
         const result = await privateTest().get(
-          `/api/tag/search-and${query}`,
+          `/api/bookmark/search-and${query}`,
           accessToken,
         );
 
@@ -306,7 +306,7 @@ describe('AppController (e2e)', () => {
       it('태그 일부를 만족하는 북마크를 전부 반환한다.', async () => {
         const query = encodeURI('?tags=여행,요리');
         const result = await privateTest().get(
-          `/api/tag/search-or${query}`,
+          `/api/bookmark/search-or${query}`,
           accessToken,
         );
         expect(result.status).toBe(200);
