@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import {
   Page,
@@ -18,6 +18,7 @@ type SearchTags = PageRequest;
 
 export class BookmarkUseCases {
   constructor(
+    @Inject('BookmarkRepository')
     private bookmarkRepository: IBookmarkRepository,
     private utilsService: UtilsService,
   ) {}
@@ -39,7 +40,6 @@ export class BookmarkUseCases {
     if (tagNames === undefined) {
       tagNames = [];
     }
-
     const tags = tagNames.map((tagName) => {
       const tag = new TagFactory().create(this.utilsService.getUuid(), tagName);
       return tag;

@@ -14,14 +14,14 @@ export class EditUserDto extends PartialType(CreateUserDto) {
   @IsString()
   @IsOptional()
   @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
-  changePassword: string;
+  password?: string;
 
   @ApiProperty({ description: '변경하려는 닉네임' })
   @IsString()
   @IsOptional()
   @MinLength(1)
   @MaxLength(20)
-  changeNickname: string;
+  nickname?: string;
 }
 
 export class EditUserResponseDto extends BaseResponseDto {}

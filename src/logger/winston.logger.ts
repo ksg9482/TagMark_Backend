@@ -26,25 +26,26 @@ const baseFormat = winston.format.combine(
 
 const prettyFormat = winston.format.combine(
   baseFormat,
-  utilities.format.nestLike('Tag-Mark', { //로그 출처인 appName('앱이름') 설정
-    prettyPrint:true
-  })
+  utilities.format.nestLike('Tag-Mark', {
+    //로그 출처인 appName('앱이름') 설정
+    prettyPrint: true,
+  }),
 );
 
 @Module({
   imports: [
     WinstonModule.forRoot({
-      transports:[
+      transports: [
         new winston.transports.Console({
           level: 'silly', //process.env.NODE_ENV === 'production' ? 'info' : 'silly',
-          format: prettyFormat
+          format: prettyFormat,
         }),
         new winstonDaily(dailyOptions('log')),
         new winstonDaily(dailyOptions('info')),
         new winstonDaily(dailyOptions('warn')),
         new winstonDaily(dailyOptions('error')),
-      ]
-    })
-  ]
+      ],
+    }),
+  ],
 })
-export class WinstonDailyModule {}  
+export class WinstonDailyModule {}

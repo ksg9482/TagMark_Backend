@@ -10,9 +10,8 @@ import { Request, Response } from 'express';
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   logger: typeof Logger;
-  constructor(
-  ){
-    this.logger = Logger
+  constructor() {
+    this.logger = Logger;
   }
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -20,8 +19,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
     const error: any = exception.getResponse();
-    
+
     this.logger.error('Request url : ', request.url);
+    this.logger.error('Request method : ', request.method);
     this.logger.error('error Info : ', error);
     this.logger.error('Time : ', new Date().toISOString());
 

@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { ITagRepository } from 'src/tag/domain/repository/itag.repository';
 import { Tag } from 'src/tag/domain/tag';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
@@ -8,6 +9,7 @@ import { TagFactory } from '../domain/tag.factory';
 //dto를 그대로 받으면 dto에 컨트롤러와 서비스가 의존하게 되어 연결이 강해진다.
 export class TagUseCases {
   constructor(
+    @Inject('TagRepository')
     private tagRepository: ITagRepository,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
@@ -40,7 +42,6 @@ export class TagUseCases {
   protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
     const result: Tag[] = [];
     const findedTags = await this.tagRepository.findByTagNames(tagNames);
-
     const notExistTags = this.getNotExistTag(findedTags, tagNames);
     if (notExistTags) {
       const createTags = notExistTags.map((tag) => {
@@ -50,12 +51,12 @@ export class TagUseCases {
       const resultTags = [...findedTags, ...createTags];
       result.push(...resultTags);
     }
-
     return result;
   }
 
   async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
+
     return attach;
   }
 

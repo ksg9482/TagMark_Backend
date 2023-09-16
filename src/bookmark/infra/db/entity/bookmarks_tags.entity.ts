@@ -9,8 +9,11 @@ import {
 } from 'typeorm';
 import { TagEntity as Tag } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';
+import { UtilsService } from 'src/utils/utils.service';
 
-@Entity()
+const util = new UtilsService();
+util.getUuid();
+@Entity('Bookmarks_Tags')
 export class Bookmarks_TagsEntity {
   @PrimaryColumn()
   id: string;

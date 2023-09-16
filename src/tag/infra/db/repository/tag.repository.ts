@@ -92,31 +92,34 @@ export class TagRepository implements ITagRepository {
 
   async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const arr: any[] = [];
-    tags.forEach(async (tag) => {
+    for (let i = 0; i < tags.length; i++) {
+      const tag = tags[i];
       const check = await this.tagRepository
         .createQueryBuilder()
-        .from('bookmarks_tags', 'bookmarks_tags')
+        .select('*')
+        .from('Bookmarks_Tags', 'Bookmarks_Tags')
         .where(
-          'bookmarks_tags."bookmarkId" = (:bookmarkId) and bookmarks_tags."tagId" = (:tagId)',
+          '"Bookmarks_Tags"."bookmarkId" = (:bookmarkId) and "Bookmarks_Tags"."tagId" = (:tagId)',
           { bookmarkId: bookmarkId, tagId: tag.id },
         )
         .getRawOne();
-
       if (check) {
         arr.push(check);
-        return;
       }
 
       const attachTag = await this.tagRepository
         .createQueryBuilder()
         .insert()
-        .into('bookmarks_tags')
-        .values({ bookmarkId: bookmarkId, tagId: tag.id })
+        .into('Bookmarks_Tags')
+        .values({
+          id: this.utilsService.getUuid(),
+          bookmarkId: bookmarkId,
+          tagId: tag.id,
+        })
         .execute();
 
       arr.push(attachTag);
-    });
-
+    }
     return arr;
   }
 
@@ -124,9 +127,9 @@ export class TagRepository implements ITagRepository {
     const deletedTag = await this.tagRepository
       .createQueryBuilder()
       .delete()
-      .from('bookmarks_tags', 'bookmarks_tags')
+      .from('Bookmarks_Tags', 'Bookmarks_Tags')
       .where(
-        `bookmarks_tags."bookmarkId" = (:bookmarkId) AND bookmarks_tags."tagId" IN (:...tagIds)`,
+        `"Bookmarks_Tags"."bookmarkId" = (:bookmarkId) AND "Bookmarks_Tags"."tagId" IN (:...tagIds)`,
         { bookmarkId: bookmarkId, tagIds: tagIds },
       )
       .execute();
@@ -138,10 +141,9 @@ export class TagRepository implements ITagRepository {
     const tagInsertBultk = await this.tagRepository
       .createQueryBuilder()
       .insert()
-      .into('tag')
+      .into('Tag')
       .values(tags)
       .execute();
-
     return tagInsertBultk;
   }
 
@@ -150,14 +152,14 @@ export class TagRepository implements ITagRepository {
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
       .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
+        `Bookmarks_Tags`,
+        `Bookmarks_Tags`,
+        `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .innerJoin(
         `bookmark`,
         `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
+        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId) OR bookmark."userId" IS NULL`, {
         userId: userId,

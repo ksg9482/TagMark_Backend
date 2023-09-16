@@ -8,34 +8,16 @@ import { TagUseCases } from './application/tag.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
 import { AuthModule } from 'src/auth/auth.module';
 
+const factories = [TagFactory];
 
+const useCases = [TagUseCases];
 
-const factories = [
-  TagFactory,
-];
-
-const useCases = [
-  TagUseCases
-]
-
-const repositories = [
-  { provide: 'TagRepository', useClass: TagRepository },
-];
+const repositories = [{ provide: 'TagRepository', useClass: TagRepository }];
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([TagEntity]),
-    UtilsModule,
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([TagEntity]), UtilsModule, AuthModule],
   controllers: [TagController],
-  providers: [
-    Logger,
-    ...factories,
-    ...useCases,
-    ...repositories,
-  ],
-  exports:[...useCases,...factories]
-
+  providers: [Logger, ...factories, ...useCases, ...repositories],
+  exports: [...useCases, ...factories, ...repositories],
 })
-export class TagModule { }
+export class TagModule {}
