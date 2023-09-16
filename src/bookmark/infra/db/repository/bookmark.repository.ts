@@ -50,6 +50,8 @@ export class BookmarkRepository implements IBookmarkRepository {
 
   async update(id: string, item: Bookmark): Promise<any> {
     const bookmark = item;
+    console.log(id, item);
+
     // const tags = bookmark.getTags().map((tag) => {
     //   return this.tagFactory.create(tagEntity.id, tagEntity.tag);
     // });
@@ -130,11 +132,11 @@ export class BookmarkRepository implements IBookmarkRepository {
       .select(`"bookmark".*`)
       .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
       .leftJoin(
-        'bookmarks_tags',
-        'bookmarks_tags',
-        'bookmarks_tags.bookmarkId = bookmark.id',
+        'Bookmarks_Tags',
+        'Bookmarks_Tags',
+        '"Bookmarks_Tags"."bookmarkId" = bookmark.id',
       )
-      .leftJoin('tag', 'tag', 'tag.id = bookmarks_tags.tagId')
+      .leftJoin('Tag', 'tag', 'tag.id = "Bookmarks_Tags"."tagId"')
       .where(`"userId" = :userId`, { userId: userId })
       .groupBy('bookmark.id')
       .orderBy('bookmark."createdAt"', 'DESC')
@@ -206,14 +208,14 @@ export class BookmarkRepository implements IBookmarkRepository {
       .createQueryBuilder('tag')
       .select(`DISTINCT "bookmark"."id"`, 'ids')
       .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
+        `Bookmarks_Tags`,
+        `Bookmarks_Tags`,
+        `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
         `bookmark`,
         `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
+        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags });
@@ -226,14 +228,14 @@ export class BookmarkRepository implements IBookmarkRepository {
         'tags',
       )
       .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
+        `Bookmarks_Tags`,
+        `Bookmarks_Tags`,
+        `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
         `bookmark`,
         `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
+        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(
@@ -259,14 +261,14 @@ export class BookmarkRepository implements IBookmarkRepository {
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
       .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
+        `Bookmarks_Tags`,
+        `Bookmarks_Tags`,
+        `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
         `bookmark`,
         `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
+        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags })
@@ -281,14 +283,14 @@ export class BookmarkRepository implements IBookmarkRepository {
         'tags',
       )
       .leftJoin(
-        `bookmarks_tags`,
-        `bookmarks_tags`,
-        `bookmarks_tags."tagId" = tag.id`,
+        `Bookmarks_Tags`,
+        `Bookmarks_Tags`,
+        `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
         `bookmark`,
         `bookmark`,
-        `bookmark.id = bookmarks_tags."bookmarkId"`,
+        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(

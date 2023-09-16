@@ -11,8 +11,8 @@ import { ConfigService } from '@nestjs/config';
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let usersRepository: Repository<UserEntity>;
-  let config: ConfigService = new ConfigService();
-  let connectDB: DataSource = new DataSource({
+  const config: ConfigService = new ConfigService();
+  const connectDB: DataSource = new DataSource({
     type: 'postgres',
     host: config.get('DB_HOST'),
     port: Number(config.get('DB_PORT')),
@@ -127,10 +127,10 @@ describe('AppController (e2e)', () => {
 
     describe('/ (patch)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 변경된다', async () => {
-        const changeParams = { changeNickname: 'new-nickname' };
+        const changeParams = { nickname: 'new-nickname' };
         const result = await privateTest()
-        .patch('/api/user', accessToken)
-        .send(changeParams);
+          .patch('/api/user', accessToken)
+          .send(changeParams);
 
         expect(result.status).toBe(200);
         expect(result.body.success).toBe(true);
@@ -139,9 +139,7 @@ describe('AppController (e2e)', () => {
         const userCheck = await privateTest().get('/api/user', accessToken);
         expect(userCheck.status).toBe(200);
         expect(userCheck.body.success).toBe(true);
-        expect(userCheck.body.user['nickname']).toBe(
-          changeParams.changeNickname,
-        );
+        expect(userCheck.body.user['nickname']).toBe(changeParams.nickname);
       });
     });
 

@@ -9,7 +9,6 @@ import {
   Logger,
   LoggerService,
   Param,
-  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -218,7 +217,7 @@ export class TagController {
   @ApiQuery({ name: 'tag_ids', type: 'Array<number>' })
   @Delete('/:bookmark_id')
   async detachTag(
-    @Param('bookmark_id', ParseIntPipe) bookmarkId: string,
+    @Param('bookmark_id') bookmarkId: string,
     @Query('tag_ids') tagIds: string,
   ) {
     const deleteTagResponse = new DeleteTagResponseDto();

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BookmarkEntity as Bookmark } from "src/bookmark/infra/db/entity/bookmark.entity";
-import { Bookmarks_TagsEntity as Bookmarks_Tags } from "src/bookmark/infra/db/entity/bookmarks_tags.entity";
-import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';
+import { Bookmarks_TagsEntity as Bookmarks_Tags } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('Tag')
 export class TagEntity {
@@ -15,7 +15,7 @@ export class TagEntity {
 
   @OneToMany(
     () => Bookmarks_Tags,
-    (bookmarks_tags) => bookmarks_tags.bookmark,
+    (Bookmarks_Tags) => Bookmarks_Tags.bookmark,
     { onDelete: 'CASCADE' },
   )
   bookmarks?: Bookmark[];

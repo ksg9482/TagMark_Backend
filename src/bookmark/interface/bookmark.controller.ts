@@ -9,7 +9,6 @@ import {
   Logger,
   LoggerService,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -96,13 +95,14 @@ export class BookmarkController {
         userId,
         bookmark.url,
       );
+
       if (Array.isArray(createBookmarkDto.tagNames)) {
         const tags = await this.tagUseCases.getTagsByNames(
           createBookmarkDto.tagNames,
         );
         await this.tagUseCases.attachTag(createdBookmark.id, tags);
+        createdBookmark.tags = tags;
       }
-
       createBookmarkResponse.success = true;
       createBookmarkResponse.createdBookmark = createdBookmark;
       return createBookmarkResponse;
@@ -189,7 +189,6 @@ export class BookmarkController {
     page: GetUserAllBookmarksDto,
   ) {
     const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
-
     try {
       const bookmarks: any = await this.bookmarkUseCases.getUserAllBookmarks(
         userId,
@@ -243,7 +242,7 @@ export class BookmarkController {
   @Patch('/:id')
   async editBookmark(
     @AuthUser() userId: string,
-    @Param('id', ParseIntPipe) bookmarkId: string,
+    @Param('id') bookmarkId: string,
     @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto,
   ) {
     const editBookmarkResponse = new EditBookmarkResponseDto();
@@ -380,7 +379,7 @@ export class BookmarkController {
   @Delete('/:id')
   async deleteBookmark(
     @AuthUser() userId: string,
-    @Param('id', ParseIntPipe) bookmarkId: string,
+    @Param('id') bookmarkId: string,
   ) {
     const deleteBookmarkResponse = new DeleteBookmarkResponseDto();
     try {

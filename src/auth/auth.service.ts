@@ -9,8 +9,7 @@ import { AuthorizationType } from './auth.interface';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly secureService: SecureService,
-    // private userUseCases: UserUseCases,
+    private readonly secureService: SecureService, // private userUseCases: UserUseCases,
   ) {}
   getToken(req: Request) {
     const secureWrap = this.secureService.secure().wrapper();
@@ -26,7 +25,6 @@ export class AuthService {
 
     const accessToken = secureWrap.decryptWrapper(authorization[1]);
     return accessToken;
-    
   }
 
   accessTokenDecode(accessToken: string) {
@@ -34,9 +32,8 @@ export class AuthService {
       const decoded = this.jwtService.verify(accessToken);
       return decoded;
     } catch (error) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException();
     }
-    
   }
 
   // async getUserInfo(userId: string) {

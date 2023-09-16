@@ -2,14 +2,16 @@ import { Tag } from 'src/tag/domain/tag';
 
 export class Bookmark {
   url: string;
+  tags: Tag[];
   //tags: Tag[] | undefined;
   constructor(
     readonly id: string,
     readonly userId: string,
     url: string,
-    readonly tags?: Tag[], //북마크에 담긴 tag를 조작할 일이 있을까?
+    tags?: Tag[],
   ) {
     this.url = url;
+    this.tags = tags || [];
     //this.tags = tags;
   }
 
