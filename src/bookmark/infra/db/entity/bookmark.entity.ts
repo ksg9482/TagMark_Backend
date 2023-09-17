@@ -9,10 +9,10 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { TagEntity as Tag } from 'src/tag/infra/db/entity/tag.entity';
-import { Bookmarks_TagsEntity as Bookmarks_Tags } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
+import { Bookmarks_TagsEntity as bookmark_tag } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
 import { UserEntity as User } from 'src/user/infra/db/entity/user.entity';
 
-@Entity('Bookmark')
+@Entity('bookmark')
 export class BookmarkEntity {
   @PrimaryColumn()
   @ApiProperty({ description: 'id' })
@@ -33,7 +33,7 @@ export class BookmarkEntity {
   @ApiProperty({ description: '북마크 생성한 유저 아이디' })
   userId: string;
 
-  @OneToMany(() => Bookmarks_Tags, (Bookmarks_Tags) => Bookmarks_Tags.tag)
+  @OneToMany(() => bookmark_tag, (bookmark_tag) => bookmark_tag.tag)
   @ApiProperty({ description: '태그 배열', type: () => [Tag] })
   tags: Tag[];
 

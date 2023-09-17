@@ -135,14 +135,14 @@ export class BookmarkRepository implements IBookmarkRepository {
     const { count } = await this.getcount(userId);
     const bookmarks = await this.bookmarkRepository
       .createQueryBuilder('bookmark')
-      .select(`"bookmark".*`)
+      .select(`bookmark.*`)
       .addSelect(`array_agg(json_build_object(${tagProperty()}))`, 'tags')
       .leftJoin(
-        'Bookmarks_Tags',
-        'Bookmarks_Tags',
-        '"Bookmarks_Tags"."bookmarkId" = bookmark.id',
+        'bookmark_tag',
+        'bookmark_tag',
+        'bookmark_tag."bookmarkId" = bookmark.id',
       )
-      .leftJoin('Tag', 'tag', 'tag.id = "Bookmarks_Tags"."tagId"')
+      .leftJoin('tag', 'tag', 'tag.id = bookmark_tag."tagId"')
       .where(`"userId" = :userId`, { userId: userId })
       .groupBy('bookmark.id')
       .orderBy('bookmark."createdAt"', 'DESC')
@@ -156,7 +156,7 @@ export class BookmarkRepository implements IBookmarkRepository {
   async getcount(userId: string): Promise<any> {
     const bookmarkCount = await this.bookmarkRepository
       .createQueryBuilder('bookmark')
-      .select(`COUNT("bookmark".id)`)
+      .select(`COUNT(bookmark.id)`)
       .where(`"userId" = :userId`, { userId: userId })
       .getRawMany();
 
@@ -212,19 +212,19 @@ export class BookmarkRepository implements IBookmarkRepository {
     //태그내용이 다 안나오니까 서브쿼리 사용 -> 셀프조인으로 안되나??
     const getMachedBookmarkId = this.tagRepository
       .createQueryBuilder('tag')
-      .select(`DISTINCT "bookmark"."id"`, 'ids')
+      .select(`DISTINCT bookmark."id"`, 'ids')
       .leftJoin(
-        `Bookmarks_Tags`,
-        `Bookmarks_Tags`,
-        `"Bookmarks_Tags"."tagId" = tag.id`,
+        `bookmark_tag`,
+        `bookmark_tag`,
+        `bookmark_tag."tagId" = tag.id`,
       )
       .leftJoin(
-        `Bookmark`,
         `bookmark`,
-        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
+        `bookmark`,
+        `bookmark.id = bookmark_tag."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags });
+      .andWhere(`tag."tag" in (:...tags)`, { tags: tags });
 
     const bookmarks = await this.tagRepository
       .createQueryBuilder('tag')
@@ -234,18 +234,18 @@ export class BookmarkRepository implements IBookmarkRepository {
         'tags',
       )
       .leftJoin(
-        `Bookmarks_Tags`,
-        `Bookmarks_Tags`,
-        `"Bookmarks_Tags"."tagId" = tag.id`,
+        `bookmark_tag`,
+        `bookmark_tag`,
+        `bookmark_tag."tagId" = tag.id`,
       )
       .leftJoin(
-        `Bookmark`,
         `bookmark`,
-        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
+        `bookmark`,
+        `bookmark.id = bookmark_tag."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(
-        `"bookmark"."id" in (${getMachedBookmarkId.getQuery()})`,
+        `bookmark."id" in (${getMachedBookmarkId.getQuery()})`,
         getMachedBookmarkId.getParameters(),
       )
       .groupBy(`bookmark.id`)
@@ -267,17 +267,17 @@ export class BookmarkRepository implements IBookmarkRepository {
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
       .leftJoin(
-        `Bookmarks_Tags`,
-        `Bookmarks_Tags`,
-        `"Bookmarks_Tags"."tagId" = tag.id`,
+        `bookmark_tag`,
+        `bookmark_tag`,
+        `bookmark_tag."tagId" = tag.id`,
       )
       .leftJoin(
-        `Bookmark`,
         `bookmark`,
-        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
+        `bookmark`,
+        `bookmark.id = bookmark_tag."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
-      .andWhere(`"tag"."tag" in (:...tags)`, { tags: tags })
+      .andWhere(`tag."tag" in (:...tags)`, { tags: tags })
       .groupBy(`bookmark.id`)
       .having(`count(bookmark.id) > ${tags.length - 1}`);
 
@@ -289,18 +289,18 @@ export class BookmarkRepository implements IBookmarkRepository {
         'tags',
       )
       .leftJoin(
-        `Bookmarks_Tags`,
-        `Bookmarks_Tags`,
-        `"Bookmarks_Tags"."tagId" = tag.id`,
+        `bookmark_tag`,
+        `bookmark_tag`,
+        `bookmark_tag."tagId" = tag.id`,
       )
       .leftJoin(
-        `Bookmark`,
         `bookmark`,
-        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
+        `bookmark`,
+        `bookmark.id = bookmark_tag."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(
-        `"bookmark"."id" in (${getMachedBookmarkId.getQuery()})`,
+        `bookmark."id" in (${getMachedBookmarkId.getQuery()})`,
         getMachedBookmarkId.getParameters(),
       )
       .groupBy(`bookmark.id`)

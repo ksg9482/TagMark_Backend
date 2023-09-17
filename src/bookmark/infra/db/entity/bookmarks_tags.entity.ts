@@ -13,7 +13,7 @@ import { UtilsService } from 'src/utils/utils.service';
 
 const util = new UtilsService();
 util.getUuid();
-@Entity('Bookmarks_Tags')
+@Entity('bookmark_tag')
 export class Bookmarks_TagsEntity {
   @PrimaryColumn()
   id: string;
