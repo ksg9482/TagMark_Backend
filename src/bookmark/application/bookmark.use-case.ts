@@ -92,7 +92,6 @@ export class BookmarkUseCases {
   async deleteBookmark(userId: string, bookmarkId: string) {
     await this.findBookmark(userId, bookmarkId);
     await this.bookmarkRepository.delete(bookmarkId);
-
     return { message: 'Deleted' };
   }
 

@@ -157,7 +157,7 @@ export class TagRepository implements ITagRepository {
         `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .innerJoin(
-        `bookmark`,
+        `Bookmark`,
         `bookmark`,
         `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )

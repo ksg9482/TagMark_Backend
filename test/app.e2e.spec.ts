@@ -84,6 +84,8 @@ describe('AppController (e2e)', () => {
         const result = await privateTest()
           .post('/api/user')
           .send(userParamsOne);
+
+        userResponseDataOne.createdUser.id = result.body.createdUser.id;
         expect(result.status).toBe(201);
         expect(result.body.success).toBe(true);
         expect(result.body.createdUser['email']).toBe(
@@ -197,6 +199,8 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsThree);
 
+        bookmarkResponseDataOne.createdBookmark.id =
+          result.body.createdBookmark.id;
         expect(result.status).toBe(201);
         expect(result.body.success).toBe(true);
         expect(result.body.createdBookmark['tags'][0]['tag']).toBe(
@@ -221,6 +225,45 @@ describe('AppController (e2e)', () => {
         );
         expect(bookmarkArr[bookmarkArr.length - 1]['url']).toBe(
           bookmarkResponseDataOne.createdBookmark['url'],
+        );
+      });
+    });
+
+    describe('/search-and (get)', () => {
+      it('태그 전부를 만족하는 북마크를 전부 반환한다.', async () => {
+        const query = encodeURI('?tags=여행,요리');
+        const result = await privateTest().get(
+          `/api/bookmark/search-and${query}`,
+          accessToken,
+        );
+
+        expect(result.status).toBe(200);
+        expect(result.body.success).toBe(true);
+        const bookmarks = result.body.bookmarks;
+        expect(bookmarks[0]['url']).toBe('https://www.test1.com');
+        expect(bookmarks[0]['tags'][0]['tag']).toBe(
+          bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
+        );
+      });
+    });
+
+    describe('/search-or (get)', () => {
+      it('태그 일부를 만족하는 북마크를 전부 반환한다.', async () => {
+        const query = encodeURI('?tags=여행,요리');
+        const result = await privateTest().get(
+          `/api/bookmark/search-or${query}`,
+          accessToken,
+        );
+        expect(result.status).toBe(200);
+        expect(result.body.success).toBe(true);
+
+        const bookmarks: Array<any> = result.body.bookmarks;
+        expect(bookmarks.length).toBe(2);
+        expect(bookmarks[bookmarks.length - 1]['url']).toBe(
+          'https://www.test1.com',
+        );
+        expect(bookmarks[bookmarks.length - 1]['tags'][0]['tag']).toBe(
+          bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
         );
       });
     });
@@ -281,45 +324,6 @@ describe('AppController (e2e)', () => {
         });
       });
     });
-
-    describe('/search-and (get)', () => {
-      it('태그 전부를 만족하는 북마크를 전부 반환한다.', async () => {
-        const query = encodeURI('?tags=여행,요리');
-        const result = await privateTest().get(
-          `/api/bookmark/search-and${query}`,
-          accessToken,
-        );
-
-        expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
-        const bookmarks = result.body.bookmarks;
-        expect(bookmarks[0]['url']).toBe('https://www.test-change.com');
-        expect(bookmarks[0]['tags'][0]['tag']).toBe(
-          bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
-        );
-      });
-    });
-
-    describe('/search-or (get)', () => {
-      it('태그 일부를 만족하는 북마크를 전부 반환한다.', async () => {
-        const query = encodeURI('?tags=여행,요리');
-        const result = await privateTest().get(
-          `/api/bookmark/search-or${query}`,
-          accessToken,
-        );
-        expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
-
-        const bookmarks: Array<any> = result.body.bookmarks;
-        expect(bookmarks.length).toBe(2);
-        expect(bookmarks[bookmarks.length - 1]['url']).toBe(
-          'https://www.test-change.com',
-        );
-        expect(bookmarks[bookmarks.length - 1]['tags'][0]['tag']).toBe(
-          bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
-        );
-      });
-    });
   });
 
   describe('/:bookmark_id (delete)', () => {
@@ -341,7 +345,7 @@ describe('AppController (e2e)', () => {
       const bookmarkId = bookmarkResponseDataOne.createdBookmark.id;
       it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
         const result = await privateTest().delete(
-          `/api/bookmark/${bookmarkId}`,
+          `/api/bookmark/${bookmarkResponseDataOne.createdBookmark.id}`,
           accessToken,
         );
 
