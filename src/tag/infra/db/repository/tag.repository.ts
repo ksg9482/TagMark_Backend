@@ -97,9 +97,9 @@ export class TagRepository implements ITagRepository {
       const check = await this.tagRepository
         .createQueryBuilder()
         .select('*')
-        .from('Bookmarks_Tags', 'Bookmarks_Tags')
+        .from('bookmark_tag', 'bookmark_tag')
         .where(
-          '"Bookmarks_Tags"."bookmarkId" = (:bookmarkId) and "Bookmarks_Tags"."tagId" = (:tagId)',
+          'bookmark_tag."bookmarkId" = (:bookmarkId) and bookmark_tag."tagId" = (:tagId)',
           { bookmarkId: bookmarkId, tagId: tag.id },
         )
         .getRawOne();
@@ -110,7 +110,7 @@ export class TagRepository implements ITagRepository {
       const attachTag = await this.tagRepository
         .createQueryBuilder()
         .insert()
-        .into('Bookmarks_Tags')
+        .into('bookmark_tag')
         .values({
           id: this.utilsService.getUuid(),
           bookmarkId: bookmarkId,
@@ -127,9 +127,9 @@ export class TagRepository implements ITagRepository {
     const deletedTag = await this.tagRepository
       .createQueryBuilder()
       .delete()
-      .from('Bookmarks_Tags', 'Bookmarks_Tags')
+      .from('bookmark_tag', 'bookmark_tag')
       .where(
-        `"Bookmarks_Tags"."bookmarkId" = (:bookmarkId) AND "Bookmarks_Tags"."tagId" IN (:...tagIds)`,
+        `bookmark_tag."bookmarkId" = (:bookmarkId) AND bookmark_tag."tagId" IN (:...tagIds)`,
         { bookmarkId: bookmarkId, tagIds: tagIds },
       )
       .execute();
@@ -141,7 +141,7 @@ export class TagRepository implements ITagRepository {
     const tagInsertBultk = await this.tagRepository
       .createQueryBuilder()
       .insert()
-      .into('Tag')
+      .into('tag')
       .values(tags)
       .execute();
     return tagInsertBultk;
@@ -152,14 +152,14 @@ export class TagRepository implements ITagRepository {
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
       .leftJoin(
-        `Bookmarks_Tags`,
-        `Bookmarks_Tags`,
-        `"Bookmarks_Tags"."tagId" = tag.id`,
+        `bookmark_tag`,
+        `bookmark_tag`,
+        `bookmark_tag."tagId" = tag.id`,
       )
       .innerJoin(
-        `Bookmark`,
         `bookmark`,
-        `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
+        `bookmark`,
+        `bookmark.id = bookmark_tag."bookmarkId"`,
       )
       .where(`bookmark."userId" = (:userId) OR bookmark."userId" IS NULL`, {
         userId: userId,
