@@ -20,14 +20,19 @@ export class BookmarkRepository implements IBookmarkRepository {
     @InjectRepository(BookmarkEntity)
     @Inject('BookmarkRepository')
     private bookmarkRepository: Repository<BookmarkEntity>,
-    @Inject('TagRepository') private tagRepository: Repository<TagEntity>,
+    @InjectRepository(TagEntity)
+    @Inject('TagRepository')
+    private tagRepository: Repository<TagEntity>,
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
   ) {}
   get: (id: string) => Promise<Bookmark | null>;
-  delete: (id: string) => Promise<any>;
 
+  async delete(id: string) {
+    const deleteBookmark = await this.bookmarkRepository.delete(id);
+    return deleteBookmark;
+  }
   createEntity(userId: string, url: string): BookmarkEntity {
     return this.bookmarkRepository.create({
       id: this.utilsService.getUuid(),
@@ -40,6 +45,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     const { url, userId, tags } = bookmark;
     const bookmarkEntity = this.createEntity(userId, url);
     await this.bookmarkRepository.save(bookmarkEntity);
+    console.log(bookmarkEntity.id);
     return this.bookmarkFactory.reconstitute(
       bookmarkEntity.id,
       bookmarkEntity.url,
@@ -50,8 +56,6 @@ export class BookmarkRepository implements IBookmarkRepository {
 
   async update(id: string, item: Bookmark): Promise<any> {
     const bookmark = item;
-    console.log(id, item);
-
     // const tags = bookmark.getTags().map((tag) => {
     //   return this.tagFactory.create(tagEntity.id, tagEntity.tag);
     // });
@@ -89,7 +93,9 @@ export class BookmarkRepository implements IBookmarkRepository {
         id: bookmarkId,
         userId: inputUserId,
       },
+      relations: ['tags'],
     });
+    console.log(bookmarkEntity);
     if (!bookmarkEntity) {
       return null;
     }
@@ -213,7 +219,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
-        `bookmark`,
+        `Bookmark`,
         `bookmark`,
         `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
@@ -233,7 +239,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
-        `bookmark`,
+        `Bookmark`,
         `bookmark`,
         `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
@@ -266,7 +272,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
-        `bookmark`,
+        `Bookmark`,
         `bookmark`,
         `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
@@ -288,7 +294,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `"Bookmarks_Tags"."tagId" = tag.id`,
       )
       .leftJoin(
-        `bookmark`,
+        `Bookmark`,
         `bookmark`,
         `bookmark.id = "Bookmarks_Tags"."bookmarkId"`,
       )
