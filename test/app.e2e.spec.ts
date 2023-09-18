@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { Repository, DataSource } from 'typeorm';
@@ -94,6 +94,17 @@ describe('AppController (e2e)', () => {
       });
     });
 
+    describe('/ (post)', () => {
+      it('이미 가입한 이메일은 다시 가입할 수 없다.', async () => {
+        const result = await privateTest()
+          .post('/api/user')
+          .send(userParamsOne);
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe('Email Already exists.');
+      });
+    });
+
     describe('/login (post)', () => {
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
         const result = await privateTest()
@@ -175,12 +186,12 @@ describe('AppController (e2e)', () => {
   const bookmarkResponseDataOne = {
     success: true,
     createdBookmark: {
-      id: '42ee904c778d1efebe40c0768d766082',
+      id: 'mockBookmarkId',
       url: bookmarkParamsOne.url,
       userId: userResponseDataOne.createdUser.id,
       tags: [
-        { id: '42ee904c778d1efebe40c0768d766082', tag: '여행' },
-        { id: 2, tag: '요리' },
+        { id: 'mockTagId_1', tag: '여행' },
+        { id: 'mockTagId_2', tag: '요리' },
       ],
     },
   };
