@@ -245,6 +245,8 @@ export class BookmarkController {
     @Param('id') bookmarkId: string,
     @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto,
   ) {
+    console.log(userId, bookmarkId, editBookmarkDto)
+
     const editBookmarkResponse = new EditBookmarkResponseDto();
     try {
       const url = editBookmarkDto.url;

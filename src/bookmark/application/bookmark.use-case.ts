@@ -30,7 +30,7 @@ export class BookmarkUseCases {
   ): Promise<Bookmark> {
     const bookmark = await this.bookmarkCheck(url);
 
-    if (bookmark) {
+    if (bookmark !== null) {
       throw new HttpException(
         'Bookmark is aleady exist',
         HttpStatus.BAD_REQUEST,
@@ -96,11 +96,12 @@ export class BookmarkUseCases {
   }
 
   async findBookmark(userId: string, bookmarkId: string): Promise<Bookmark> {
+    console.log(userId, bookmarkId)
+
     const bookmark = await this.bookmarkRepository.getUserBookmark(
       userId,
       bookmarkId,
     );
-
     if (!bookmark) {
       throw new HttpException('Bookmark not found', HttpStatus.BAD_REQUEST);
     }
