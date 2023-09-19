@@ -45,7 +45,6 @@ export class BookmarkRepository implements IBookmarkRepository {
     const { url, userId, tags } = bookmark;
     const bookmarkEntity = this.createEntity(userId, url);
     await this.bookmarkRepository.save(bookmarkEntity);
-    console.log(bookmarkEntity.id);
     return this.bookmarkFactory.reconstitute(
       bookmarkEntity.id,
       bookmarkEntity.url,
@@ -95,7 +94,6 @@ export class BookmarkRepository implements IBookmarkRepository {
       },
       relations: ['tags'],
     });
-    console.log(bookmarkEntity);
     if (!bookmarkEntity) {
       return null;
     }
@@ -111,6 +109,7 @@ export class BookmarkRepository implements IBookmarkRepository {
       where: {
         url: inputUrl,
       },
+      relations:['tags']
     });
     if (!bookmarkEntity) {
       return null;

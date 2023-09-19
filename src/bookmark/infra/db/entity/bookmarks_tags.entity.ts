@@ -5,7 +5,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TagEntity as Tag } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';

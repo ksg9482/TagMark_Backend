@@ -9,7 +9,6 @@ import {
   Entity,
   OneToMany,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';
 import { MaxLength, MinLength } from 'class-validator';

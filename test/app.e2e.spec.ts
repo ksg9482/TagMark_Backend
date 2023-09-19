@@ -92,9 +92,7 @@ describe('AppController (e2e)', () => {
           userResponseDataOne.createdUser['email'],
         );
       });
-    });
 
-    describe('/ (post)', () => {
       it('이미 가입한 이메일은 다시 가입할 수 없다.', async () => {
         const result = await privateTest()
           .post('/api/user')
@@ -122,6 +120,107 @@ describe('AppController (e2e)', () => {
         refreshToken = decodeURIComponent(
           result.header['set-cookie'][0].split(';')[0],
         );
+      });
+
+      it('아이디가 입력되지 않으면 접속할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:'',
+          password:userParamsOne.password
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["email should not be empty", "email must be an email"]);
+      });
+
+      it('비밀번호가 입력되지 않으면 접속할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:userParamsOne.email,
+          password:''
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["password should not be empty", "password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression"]);
+      });
+
+      it('아이디가 이메일 양식이 아니면 접속할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:'notEmailFormId',
+          password:userParamsOne.password
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        //배열로 왔움
+        expect(result.body.message).toStrictEqual(['email must be an email']);
+      });
+
+      it('비밀번호 길이가 6보다 짧으면 접속할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:userParamsOne.email,
+          password:'1'
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        //배열로 왔움
+        expect(result.body.message).toStrictEqual(['password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression']);
+      });
+
+      it('비밀번호 길이가 30보다 길면 접속할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:userParamsOne.email,
+          password:'1234567890123456789012345678901234567890'
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        //배열로 왔움
+        expect(result.body.message).toStrictEqual(['password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression']);
+      });
+
+      it('틀린 아이디를 입력하면 로그인 할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:'mistake@test.com',
+          password:userParamsOne.password
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe('User not exists.');
+      });
+
+      it('틀린 비밀번호를 입력하면 로그인 할 수 없다', async () => {
+        const mistakeLoginUser = {
+          email:userParamsOne.email,
+          password:'mistakePassword'
+        }
+        const result = await privateTest()
+          .post('/api/user/login')
+          .send(mistakeLoginUser);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe('Invalid password.');
       });
     });
 
@@ -221,6 +320,16 @@ describe('AppController (e2e)', () => {
           bookmarkResponseDataOne.createdBookmark['url'],
         );
       });
+
+      it('중복된 url을 가진 북마크는 새로 생성 할 수 없다.', async () => {
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(bookmarkParamsOne);
+          
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe('Bookmark is aleady exist');
+      });
     });
 
     describe('/ (get)', () => {
@@ -280,16 +389,26 @@ describe('AppController (e2e)', () => {
     });
 
     describe('/:id (patch)', () => {
-      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id;
       it('정상적인 데이터를 전송하면 북마크를 변경한다.', async () => {
         const result = await privateTest()
-          .patch(`/api/bookmark/${bookmarkId}`, accessToken)
-          .send({ changeUrl: 'https://www.test-change.com' });
+          .patch(`/api/bookmark/${bookmarkResponseDataOne.createdBookmark.id}`, accessToken)
+          .send({ url: 'https://www.test-change.com' });
 
         expect(result.status).toBe(200);
         expect(result.body.success).toBe(true);
         expect(result.body.message).toBe('Updated');
       });
+
+      // it('잘못된 북마크 아이디를 전송하면 북마크를 수정할 수 없다.', async () => {
+      //   const mistakeBookmarkId = 'mistakeBookmarkId'
+      //   const result = await privateTest()
+      //     .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
+      //     .send({ url: 'https://www.test-change.com' });
+
+      //   expect(result.status).toBe(400);
+      //   expect(result.body.success).toBe(false);
+      //   expect(result.body.message).toBe('Bookmark not found');
+      // });
     });
   });
 
