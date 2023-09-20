@@ -224,9 +224,20 @@ describe('AppController (e2e)', () => {
       });
     });
 
+    describe('auth', () => {
+      it('엑세스 토큰이 없으면 엑세스 토큰이 요구되는 기능에 접근하지 못한다', async () => {
+        const result = await privateTest().get('/api/user');
+        console.log(result)
+        expect(result.status).toBe(200);
+        expect(result.body.success).toBe(true);
+        expect(result.body.user['email']).toBe(
+          userResponseDataOne.createdUser['email'],
+        );
+      });
+    });
+
     describe('/ (get)', () => {
       it('로그인한 유저의 정보를 반환한다', async () => {
-        const keys = ['id', 'email', 'nickname', 'role', 'type'];
         const result = await privateTest().get('/api/user', accessToken);
 
         expect(result.status).toBe(200);
@@ -330,6 +341,33 @@ describe('AppController (e2e)', () => {
         expect(result.body.success).toBe(false);
         expect(result.body.message).toBe('Bookmark is aleady exist');
       });
+
+      it('북마크 url이 없으면 생성 할 수 없다.', async () => {
+        const noUrlBookmark = {
+          tagNames:bookmarkParamsOne.tagNames
+        }
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(noUrlBookmark);
+          
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["url should not be empty", "url must be a string"]);
+      });
+
+      it('북마크 url이 빈 문자열이면 생성 할 수 없다.', async () => {
+        const emptyUrlBookmark = {
+          url:'',
+          tagNames:bookmarkParamsOne.tagNames
+        }
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(emptyUrlBookmark);
+          
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["url should not be empty"]);
+      });
     });
 
     describe('/ (get)', () => {
@@ -399,16 +437,38 @@ describe('AppController (e2e)', () => {
         expect(result.body.message).toBe('Updated');
       });
 
-      // it('잘못된 북마크 아이디를 전송하면 북마크를 수정할 수 없다.', async () => {
-      //   const mistakeBookmarkId = 'mistakeBookmarkId'
-      //   const result = await privateTest()
-      //     .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
-      //     .send({ url: 'https://www.test-change.com' });
+      it('잘못된 북마크 아이디를 전송하면 북마크를 수정할 수 없다.', async () => {
+        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const result = await privateTest()
+          .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
+          .send({ url: 'https://www.test-change.com' });
 
-      //   expect(result.status).toBe(400);
-      //   expect(result.body.success).toBe(false);
-      //   expect(result.body.message).toBe('Bookmark not found');
-      // });
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe('Bookmark not found');
+      });
+
+      it('변경할 북마크가 빈 문자열이면 북마크를 수정할 수 없다.', async () => {
+        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const result = await privateTest()
+          .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
+          .send({url:''});
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(['url should not be empty']);
+      });
+
+      it('변경할 북마크가 빈 객체면 북마크를 수정할 수 없다.', async () => {
+        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const result = await privateTest()
+          .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
+          .send({});
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["url should not be empty", "url must be a string"]);
+      });
     });
   });
 
@@ -433,6 +493,38 @@ describe('AppController (e2e)', () => {
         expect(result.body.createdTag['tag']).toBe(
           tagResponseData.createdTag['tag'],
         );
+      });
+
+      it('태그 객체가 없으면 태그를 생성 할 수 없다.', async () => {
+        const result = await privateTest()
+          .post('/api/tag', accessToken)
+          .send({});
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["tag should not be empty", "tag must be a string"]);
+      });
+
+      it('태그가 빈 문자열이면 태그를 생성 할 수 없다.', async () => {
+        const emptyTag = {tag:''}
+        const result = await privateTest()
+          .post('/api/tag', accessToken)
+          .send(emptyTag);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["tag should not be empty"]);
+      });
+
+      it('태그가 숫자면 태그를 생성 할 수 없다.', async () => {
+        const emptyTag = {tag:1}
+        const result = await privateTest()
+          .post('/api/tag', accessToken)
+          .send(emptyTag);
+
+        expect(result.status).toBe(400);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toStrictEqual(["tag must be a string"]);
       });
     });
 

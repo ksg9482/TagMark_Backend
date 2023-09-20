@@ -1,12 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { CreateBookmarkDto } from './create-bookmark.dto';
 
-export class EditBookmarkDto extends PartialType(CreateBookmarkDto) {
+export class EditBookmarkDto extends OmitType(CreateBookmarkDto, ['tagNames']) {
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   @ApiProperty({ description: '변경할 URL' })
   url: string;
 
