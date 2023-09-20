@@ -245,8 +245,11 @@ export class BookmarkController {
     @Param('id') bookmarkId: string,
     @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto,
   ) {
-    console.log(userId, bookmarkId, editBookmarkDto)
-
+    console.log(editBookmarkDto)
+    if(editBookmarkDto.url && editBookmarkDto.url.length <= 0){
+      const errorMessage = 'Bookmark URL should not be empty';
+      return new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+    }
     const editBookmarkResponse = new EditBookmarkResponseDto();
     try {
       const url = editBookmarkDto.url;
