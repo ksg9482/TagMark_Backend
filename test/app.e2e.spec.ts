@@ -222,17 +222,17 @@ describe('AppController (e2e)', () => {
         expect(result.body.success).toBe(false);
         expect(result.body.message).toBe('Invalid password.');
       });
+
+      //숫자 비밀번호도 통과
     });
 
     describe('auth', () => {
       it('엑세스 토큰이 없으면 엑세스 토큰이 요구되는 기능에 접근하지 못한다', async () => {
-        const result = await privateTest().get('/api/user');
-        console.log(result)
-        expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
-        expect(result.body.user['email']).toBe(
-          userResponseDataOne.createdUser['email'],
-        );
+        const result = await privateTest().get('/api/bookmark');
+
+        expect(result.status).toBe(403);
+        expect(result.body.success).toBe(false);
+        expect(result.body.message).toBe("Forbidden resource");
       });
     });
 
@@ -468,6 +468,38 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
         expect(result.body.message).toStrictEqual(["url should not be empty", "url must be a string"]);
+      });
+    });
+
+    describe('/sync (post)', () => {
+      //bookmarks
+      //tagNames
+      const syncBookmarkData = {
+        //url:'https://test.com',
+        bookmarks:[{
+          url: 'https://test.com',
+          id:'1',
+        }],
+      }
+      /**
+       * bookmarks: {
+        url: string;
+        id: any;
+        tags: Tag[];
+    }[];
+    tagNames: unknown[];
+       * 
+       */
+      it('로컬에 저장된 북마크와 태그 데이터를 처리한다.', async () => {
+        console.log(syncBookmarkData);
+        
+        const result = await privateTest()
+          .post(`/api/bookmark/sync`, accessToken)
+          .send(syncBookmarkData);
+
+        expect(result.status).toBe(201);
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('synced');
       });
     });
   });

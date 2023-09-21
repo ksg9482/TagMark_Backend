@@ -7,12 +7,17 @@ export class SyncBookmarkDto {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty({ description: '북마크 배열' })
-  bookmarks: Bookmark[];
-
+  // bookmarks: {
+  //   url?:string,
+  //   id?:string,
+  //   tags?:any
+  // }[]
+  bookmarks: Partial<Bookmark>[]
+  
   @IsArray()
   @IsOptional()
   @ApiProperty({ description: '태그 이름 배열' })
-  tagNames: string[];
+  tagNames?: string[];
 }
 
 export class SyncBookmarkResponseDto extends BaseResponseDto {

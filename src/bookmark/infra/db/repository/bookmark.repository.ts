@@ -163,11 +163,26 @@ export class BookmarkRepository implements IBookmarkRepository {
   }
 
   async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
+    const urls = bookmarks.map((bookmark)=>{return bookmark.url})
+    const findBookmarkByUrls = await this.bookmarkRepository
+    .createQueryBuilder('bookmark')
+    .select('*')
+    .where(`url IN (:urls)`, {urls:urls})
+    .getRawMany();
+
+    const noIdUrls = urls
+    .filter((url)=>{
+      return !findBookmarkByUrls.includes(url)
+    })
+    .map((url)=>{
+      return {url:url, id:this.utilsService.getUuid(), userId:bookmarks[0].userId}
+    })
+    console.log(noIdUrls)
     const createdBookmarks = await this.bookmarkRepository
-      .createQueryBuilder()
+      .createQueryBuilder('bookmark')
       .insert()
-      .into(Bookmark)
-      .values(bookmarks)
+      .into('bookmark')
+      .values(noIdUrls)
       .execute();
 
     const bookmarkIdAndTagIdArr = createdBookmarks.identifiers;
