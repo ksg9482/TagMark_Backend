@@ -9,6 +9,7 @@ import {
   Logger,
   LoggerService,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   Query,
@@ -130,11 +131,11 @@ export class BookmarkController {
     try {
       const tagNames = loginsyncBookmarkDto.tagNames;
 
-      const dbTags = await this.tagUseCases.getTagsByNames(tagNames);
+      const dbTags = tagNames ? await this.tagUseCases.getTagsByNames(tagNames) : [];
 
       const setSyncBookmarkForm = (
         userId: string,
-        bookmarks: Bookmark[],
+        bookmarks: Partial<Bookmark>[],
         tags: Tag[],
       ): Bookmark[] => {
         const result = bookmarks.map((bookmark) => {
@@ -150,13 +151,12 @@ export class BookmarkController {
         });
         return result as any;
       };
-
+      const bookmarks = loginsyncBookmarkDto.bookmarks || [];
       const syncedBookmarks = setSyncBookmarkForm(
         userId,
-        loginsyncBookmarkDto.bookmarks,
+        bookmarks,
         dbTags,
       );
-
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
       syncBookmarkResponse.success = true;
@@ -245,8 +245,7 @@ export class BookmarkController {
     @Param('id') bookmarkId: string,
     @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto,
   ) {
-    console.log(editBookmarkDto)
-    if(editBookmarkDto.url && editBookmarkDto.url.length <= 0){
+     if(editBookmarkDto.url && editBookmarkDto.url.length <= 0){
       const errorMessage = 'Bookmark URL should not be empty';
       return new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
