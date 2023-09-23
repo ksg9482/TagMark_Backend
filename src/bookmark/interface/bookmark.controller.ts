@@ -131,7 +131,9 @@ export class BookmarkController {
     try {
       const tagNames = loginsyncBookmarkDto.tagNames;
 
-      const dbTags = tagNames ? await this.tagUseCases.getTagsByNames(tagNames) : [];
+      const dbTags = tagNames
+        ? await this.tagUseCases.getTagsByNames(tagNames)
+        : [];
 
       const setSyncBookmarkForm = (
         userId: string,
@@ -144,19 +146,18 @@ export class BookmarkController {
             const targetTag = tags.find((dbTag) => {
               return dbTag.tag === localtag.tag;
             });
+
             return targetTag;
           });
+
           Reflect.deleteProperty(bookmark, 'id');
           return { ...bookmark, tags: changedTags, userId: userId };
         });
         return result as any;
       };
       const bookmarks = loginsyncBookmarkDto.bookmarks || [];
-      const syncedBookmarks = setSyncBookmarkForm(
-        userId,
-        bookmarks,
-        dbTags,
-      );
+      const syncedBookmarks = setSyncBookmarkForm(userId, bookmarks, dbTags);
+
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
       syncBookmarkResponse.success = true;
@@ -245,7 +246,7 @@ export class BookmarkController {
     @Param('id') bookmarkId: string,
     @Body(new ValidationPipe()) editBookmarkDto: EditBookmarkDto,
   ) {
-     if(editBookmarkDto.url && editBookmarkDto.url.length <= 0){
+    if (editBookmarkDto.url && editBookmarkDto.url.length <= 0) {
       const errorMessage = 'Bookmark URL should not be empty';
       return new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }

@@ -72,14 +72,13 @@ export class BookmarkUseCases {
   }
 
   async syncBookmark(bookmarks: Bookmark[]) {
-    bookmarks.map((bookmark)=>{
-      bookmark.id
-      return bookmark.id
-    })
+    bookmarks.map((bookmark) => {
+      bookmark.id;
+      return bookmark.id;
+    });
     const bookmarkInsert = await this.bookmarkRepository.syncBookmark(
       bookmarks,
     );
-
     await this.saveBookmarkTag(bookmarkInsert);
 
     return bookmarkInsert;
@@ -100,7 +99,6 @@ export class BookmarkUseCases {
   }
 
   async findBookmark(userId: string, bookmarkId: string): Promise<Bookmark> {
-
     const bookmark = await this.bookmarkRepository.getUserBookmark(
       userId,
       bookmarkId,

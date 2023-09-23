@@ -12,8 +12,8 @@ export class SyncBookmarkDto {
   //   id?:string,
   //   tags?:any
   // }[]
-  bookmarks: Partial<Bookmark>[]
-  
+  bookmarks: Partial<Bookmark>[];
+
   @IsArray()
   @IsOptional()
   @ApiProperty({ description: '태그 이름 배열' })

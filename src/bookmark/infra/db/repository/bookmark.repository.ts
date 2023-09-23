@@ -109,7 +109,7 @@ export class BookmarkRepository implements IBookmarkRepository {
       where: {
         url: inputUrl,
       },
-      relations:['tags']
+      relations: ['tags'],
     });
     if (!bookmarkEntity) {
       return null;
@@ -163,21 +163,26 @@ export class BookmarkRepository implements IBookmarkRepository {
   }
 
   async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
-    const urls = bookmarks.map((bookmark)=>{return bookmark.url})
+    const urls = bookmarks.map((bookmark) => {
+      return bookmark.url;
+    });
     const findBookmarkByUrls = await this.bookmarkRepository
-    .createQueryBuilder('bookmark')
-    .select('*')
-    .where(`url IN (:urls)`, {urls:urls})
-    .getRawMany();
+      .createQueryBuilder('bookmark')
+      .select('*')
+      .where(`url IN (:urls)`, { urls: urls })
+      .getRawMany();
 
     const noIdUrls = urls
-    .filter((url)=>{
-      return !findBookmarkByUrls.includes(url)
-    })
-    .map((url)=>{
-      return {url:url, id:this.utilsService.getUuid(), userId:bookmarks[0].userId}
-    })
-    console.log(noIdUrls)
+      .filter((url) => {
+        return !findBookmarkByUrls.includes(url);
+      })
+      .map((url) => {
+        return {
+          url: url,
+          id: this.utilsService.getUuid(),
+          userId: bookmarks[0].userId,
+        };
+      });
     const createdBookmarks = await this.bookmarkRepository
       .createQueryBuilder('bookmark')
       .insert()
@@ -207,13 +212,15 @@ export class BookmarkRepository implements IBookmarkRepository {
   }
 
   async attachbulk(bookmarkTagMap: BookmarkTagMap[]): Promise<any> {
+    const insertId = bookmarkTagMap.map((bookmarkTag) => {
+      return { ...bookmarkTag, id: this.utilsService.getUuid() };
+    });
     const attachBookmark = await this.bookmarkRepository
       .createQueryBuilder()
       .insert()
       .into(Bookmarks_TagsEntity)
-      .values(bookmarkTagMap)
+      .values(insertId)
       .execute();
-
     return attachBookmark;
   }
 
@@ -227,11 +234,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     const getMachedBookmarkId = this.tagRepository
       .createQueryBuilder('tag')
       .select(`DISTINCT bookmark."id"`, 'ids')
-      .leftJoin(
-        `bookmark_tag`,
-        `bookmark_tag`,
-        `bookmark_tag."tagId" = tag.id`,
-      )
+      .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
       .leftJoin(
         `bookmark`,
         `bookmark`,
@@ -247,11 +250,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`,
         'tags',
       )
-      .leftJoin(
-        `bookmark_tag`,
-        `bookmark_tag`,
-        `bookmark_tag."tagId" = tag.id`,
-      )
+      .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
       .leftJoin(
         `bookmark`,
         `bookmark`,
@@ -280,11 +279,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     const getMachedBookmarkId = this.tagRepository
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
-      .leftJoin(
-        `bookmark_tag`,
-        `bookmark_tag`,
-        `bookmark_tag."tagId" = tag.id`,
-      )
+      .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
       .leftJoin(
         `bookmark`,
         `bookmark`,
@@ -302,11 +297,7 @@ export class BookmarkRepository implements IBookmarkRepository {
         `array_agg(json_build_object('id', "tag"."id",'tag', "tag"."tag"))`,
         'tags',
       )
-      .leftJoin(
-        `bookmark_tag`,
-        `bookmark_tag`,
-        `bookmark_tag."tagId" = tag.id`,
-      )
+      .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
       .leftJoin(
         `bookmark`,
         `bookmark`,
