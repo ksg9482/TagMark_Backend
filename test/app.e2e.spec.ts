@@ -78,6 +78,16 @@ describe('AppController (e2e)', () => {
     },
   };
 
+  describe('auth', () => {
+    it('엑세스 토큰이 없으면 엑세스 토큰이 요구되는 기능에 접근하지 못한다', async () => {
+      const result = await privateTest().get('/api/bookmark');
+
+      expect(result.status).toBe(403);
+      expect(result.body.success).toBe(false);
+      expect(result.body.message).toBe('Forbidden resource');
+    });
+  });
+
   describe('user e2e', () => {
     describe('/ (post)', () => {
       it('정상적인 데이터를 전송하면 회원가입한다.', async () => {
@@ -124,37 +134,43 @@ describe('AppController (e2e)', () => {
 
       it('아이디가 입력되지 않으면 접속할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:'',
-          password:userParamsOne.password
-        }
+          email: '',
+          password: userParamsOne.password,
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["email should not be empty", "email must be an email"]);
+        expect(result.body.message).toStrictEqual([
+          'email should not be empty',
+          'email must be an email',
+        ]);
       });
 
       it('비밀번호가 입력되지 않으면 접속할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:userParamsOne.email,
-          password:''
-        }
+          email: userParamsOne.email,
+          password: '',
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["password should not be empty", "password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression"]);
+        expect(result.body.message).toStrictEqual([
+          'password should not be empty',
+          'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
+        ]);
       });
 
       it('아이디가 이메일 양식이 아니면 접속할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:'notEmailFormId',
-          password:userParamsOne.password
-        }
+          email: 'notEmailFormId',
+          password: userParamsOne.password,
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
@@ -167,9 +183,9 @@ describe('AppController (e2e)', () => {
 
       it('비밀번호 길이가 6보다 짧으면 접속할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:userParamsOne.email,
-          password:'1'
-        }
+          email: userParamsOne.email,
+          password: '1',
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
@@ -177,14 +193,16 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
         //배열로 왔움
-        expect(result.body.message).toStrictEqual(['password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression']);
+        expect(result.body.message).toStrictEqual([
+          'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
+        ]);
       });
 
       it('비밀번호 길이가 30보다 길면 접속할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:userParamsOne.email,
-          password:'1234567890123456789012345678901234567890'
-        }
+          email: userParamsOne.email,
+          password: '1234567890123456789012345678901234567890',
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
@@ -192,14 +210,16 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
         //배열로 왔움
-        expect(result.body.message).toStrictEqual(['password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression']);
+        expect(result.body.message).toStrictEqual([
+          'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
+        ]);
       });
 
       it('틀린 아이디를 입력하면 로그인 할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:'mistake@test.com',
-          password:userParamsOne.password
-        }
+          email: 'mistake@test.com',
+          password: userParamsOne.password,
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
@@ -211,9 +231,9 @@ describe('AppController (e2e)', () => {
 
       it('틀린 비밀번호를 입력하면 로그인 할 수 없다', async () => {
         const mistakeLoginUser = {
-          email:userParamsOne.email,
-          password:'mistakePassword'
-        }
+          email: userParamsOne.email,
+          password: 'mistakePassword',
+        };
         const result = await privateTest()
           .post('/api/user/login')
           .send(mistakeLoginUser);
@@ -224,16 +244,6 @@ describe('AppController (e2e)', () => {
       });
 
       //숫자 비밀번호도 통과
-    });
-
-    describe('auth', () => {
-      it('엑세스 토큰이 없으면 엑세스 토큰이 요구되는 기능에 접근하지 못한다', async () => {
-        const result = await privateTest().get('/api/bookmark');
-
-        expect(result.status).toBe(403);
-        expect(result.body.success).toBe(false);
-        expect(result.body.message).toBe("Forbidden resource");
-      });
     });
 
     describe('/ (get)', () => {
@@ -336,7 +346,7 @@ describe('AppController (e2e)', () => {
         const result = await privateTest()
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsOne);
-          
+
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
         expect(result.body.message).toBe('Bookmark is aleady exist');
@@ -344,29 +354,32 @@ describe('AppController (e2e)', () => {
 
       it('북마크 url이 없으면 생성 할 수 없다.', async () => {
         const noUrlBookmark = {
-          tagNames:bookmarkParamsOne.tagNames
-        }
+          tagNames: bookmarkParamsOne.tagNames,
+        };
         const result = await privateTest()
           .post('/api/bookmark', accessToken)
           .send(noUrlBookmark);
-          
+
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["url should not be empty", "url must be a string"]);
+        expect(result.body.message).toStrictEqual([
+          'url should not be empty',
+          'url must be a string',
+        ]);
       });
 
       it('북마크 url이 빈 문자열이면 생성 할 수 없다.', async () => {
         const emptyUrlBookmark = {
-          url:'',
-          tagNames:bookmarkParamsOne.tagNames
-        }
+          url: '',
+          tagNames: bookmarkParamsOne.tagNames,
+        };
         const result = await privateTest()
           .post('/api/bookmark', accessToken)
           .send(emptyUrlBookmark);
-          
+
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["url should not be empty"]);
+        expect(result.body.message).toStrictEqual(['url should not be empty']);
       });
     });
 
@@ -429,7 +442,10 @@ describe('AppController (e2e)', () => {
     describe('/:id (patch)', () => {
       it('정상적인 데이터를 전송하면 북마크를 변경한다.', async () => {
         const result = await privateTest()
-          .patch(`/api/bookmark/${bookmarkResponseDataOne.createdBookmark.id}`, accessToken)
+          .patch(
+            `/api/bookmark/${bookmarkResponseDataOne.createdBookmark.id}`,
+            accessToken,
+          )
           .send({ url: 'https://www.test-change.com' });
 
         expect(result.status).toBe(200);
@@ -438,7 +454,7 @@ describe('AppController (e2e)', () => {
       });
 
       it('잘못된 북마크 아이디를 전송하면 북마크를 수정할 수 없다.', async () => {
-        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const mistakeBookmarkId = 'mistakeBookmarkId';
         const result = await privateTest()
           .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
           .send({ url: 'https://www.test-change.com' });
@@ -449,10 +465,10 @@ describe('AppController (e2e)', () => {
       });
 
       it('변경할 북마크가 빈 문자열이면 북마크를 수정할 수 없다.', async () => {
-        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const mistakeBookmarkId = 'mistakeBookmarkId';
         const result = await privateTest()
           .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
-          .send({url:''});
+          .send({ url: '' });
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
@@ -460,39 +476,42 @@ describe('AppController (e2e)', () => {
       });
 
       it('변경할 북마크가 빈 객체면 북마크를 수정할 수 없다.', async () => {
-        const mistakeBookmarkId = 'mistakeBookmarkId'
+        const mistakeBookmarkId = 'mistakeBookmarkId';
         const result = await privateTest()
           .patch(`/api/bookmark/${mistakeBookmarkId}`, accessToken)
           .send({});
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["url should not be empty", "url must be a string"]);
+        expect(result.body.message).toStrictEqual([
+          'url should not be empty',
+          'url must be a string',
+        ]);
       });
     });
 
     describe('/sync (post)', () => {
-      //bookmarks
-      //tagNames
       const syncBookmarkData = {
-        //url:'https://test.com',
-        bookmarks:[{
-          url: 'https://test.com',
-          id:'1',
-        }],
-      }
-      /**
-       * bookmarks: {
-        url: string;
-        id: any;
-        tags: Tag[];
-    }[];
-    tagNames: unknown[];
-       * 
-       */
+        bookmarks: [
+          {
+            url: 'https://test.com',
+            id: '1',
+            tags: [
+              {
+                id: '1',
+                tag: 'mockOne',
+              },
+              {
+                id: '2',
+                tag: 'mockTwo',
+              },
+            ],
+          },
+        ],
+        tagNames: ['mockOne', 'mockTwo'],
+      };
+
       it('로컬에 저장된 북마크와 태그 데이터를 처리한다.', async () => {
-        console.log(syncBookmarkData);
-        
         const result = await privateTest()
           .post(`/api/bookmark/sync`, accessToken)
           .send(syncBookmarkData);
@@ -534,29 +553,32 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["tag should not be empty", "tag must be a string"]);
+        expect(result.body.message).toStrictEqual([
+          'tag should not be empty',
+          'tag must be a string',
+        ]);
       });
 
       it('태그가 빈 문자열이면 태그를 생성 할 수 없다.', async () => {
-        const emptyTag = {tag:''}
+        const emptyTag = { tag: '' };
         const result = await privateTest()
           .post('/api/tag', accessToken)
           .send(emptyTag);
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["tag should not be empty"]);
+        expect(result.body.message).toStrictEqual(['tag should not be empty']);
       });
 
       it('태그가 숫자면 태그를 생성 할 수 없다.', async () => {
-        const emptyTag = {tag:1}
+        const emptyTag = { tag: 1 };
         const result = await privateTest()
           .post('/api/tag', accessToken)
           .send(emptyTag);
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(["tag must be a string"]);
+        expect(result.body.message).toStrictEqual(['tag must be a string']);
       });
     });
 
