@@ -129,35 +129,15 @@ export class BookmarkController {
   ) {
     const syncBookmarkResponse = new SyncBookmarkResponseDto();
     try {
-      const tagNames = loginsyncBookmarkDto.tagNames;
-
-      const dbTags = tagNames
-        ? await this.tagUseCases.getTagsByNames(tagNames)
-        : [];
-
-      const setSyncBookmarkForm = (
-        userId: string,
-        bookmarks: Partial<Bookmark>[],
-        tags: Tag[],
-      ): Bookmark[] => {
-        const result = bookmarks.map((bookmark) => {
-          const localTags = bookmark.tags || [];
-          const changedTags = localTags.map((localtag) => {
-            const targetTag = tags.find((dbTag) => {
-              return dbTag.tag === localtag.tag;
-            });
-
-            return targetTag;
-          });
-
-          Reflect.deleteProperty(bookmark, 'id');
-          return { ...bookmark, tags: changedTags, userId: userId };
-        });
-        return result as any;
-      };
+      const tagNames = loginsyncBookmarkDto.tagNames || [];
       const bookmarks = loginsyncBookmarkDto.bookmarks || [];
-      const syncedBookmarks = setSyncBookmarkForm(userId, bookmarks, dbTags);
 
+      const dbTags = await this.tagUseCases.getTagsByNames(tagNames);
+      const syncedBookmarks = this.bookmarkUseCases.setSyncBookmarkForm(
+        userId,
+        bookmarks,
+        dbTags,
+      );
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
       syncBookmarkResponse.success = true;

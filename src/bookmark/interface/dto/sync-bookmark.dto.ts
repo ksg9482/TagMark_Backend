@@ -7,11 +7,6 @@ export class SyncBookmarkDto {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty({ description: '북마크 배열' })
-  // bookmarks: {
-  //   url?:string,
-  //   id?:string,
-  //   tags?:any
-  // }[]
   bookmarks: Partial<Bookmark>[];
 
   @IsArray()
