@@ -511,10 +511,31 @@ describe('AppController (e2e)', () => {
         tagNames: ['mockOne', 'mockTwo'],
       };
 
+      const noTagBookmark = {
+        bookmarks: [
+          {
+            url: 'https://test.com',
+            id: '1',
+            tags: [],
+          },
+        ],
+        tagNames: [],
+      };
+
       it('로컬에 저장된 북마크와 태그 데이터를 처리한다.', async () => {
         const result = await privateTest()
           .post(`/api/bookmark/sync`, accessToken)
           .send(syncBookmarkData);
+
+        expect(result.status).toBe(201);
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('synced');
+      });
+
+      it('북마크에 태그 내용이 없어도 싱크에는 영향을 주지 않는다.', async () => {
+        const result = await privateTest()
+          .post(`/api/bookmark/sync`, accessToken)
+          .send(noTagBookmark);
 
         expect(result.status).toBe(201);
         expect(result.body.success).toBe(true);

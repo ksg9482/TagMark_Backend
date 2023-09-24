@@ -12,16 +12,12 @@ import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { UtilsModule } from 'src/utils/utils.module';
 import { AuthModule } from 'src/auth/auth.module';
 
-const factories = [
-  BookmarkFactory,
-  //TagFactory,
-];
+const factories = [BookmarkFactory];
 
 const useCases = [BookmarkUseCases];
 
 const repositories = [
   { provide: 'BookmarkRepository', useClass: BookmarkRepository },
-  // { provide: 'TagRepository', useClass: TagRepository },
 ];
 
 @Module({

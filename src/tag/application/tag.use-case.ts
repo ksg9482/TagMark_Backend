@@ -31,6 +31,7 @@ export class TagUseCases {
     return createdTag;
   }
 
+  //태그이름에 맞는 태그를 가져오는데 생성과 검색을 하는 함수는 용도가 다른것 같다
   async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
     if (!Array.isArray(tagName)) {
       tagName = [tagName];

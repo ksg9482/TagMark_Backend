@@ -11,6 +11,7 @@ import {
 import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
+import { Tag } from 'src/tag/domain/tag';
 
 //DTO 의존성 해소용.
 type UserAllBookmarks = PageRequest;
@@ -202,7 +203,26 @@ export class BookmarkUseCases {
         });
       }
     }
-
     return bookmarkTagMap;
+  }
+  setSyncBookmarkForm(
+    userId: string,
+    bookmarks: Partial<Bookmark>[],
+    tags: Tag[],
+  ): Bookmark[] {
+    const result = bookmarks.map((bookmark) => {
+      const localTags = bookmark.tags || [];
+      const changedTags = localTags.map((localtag) => {
+        const targetTag = tags.find((dbTag) => {
+          return dbTag.tag === localtag.tag;
+        });
+
+        return targetTag;
+      });
+
+      Reflect.deleteProperty(bookmark, 'id');
+      return { ...bookmark, tags: changedTags, userId: userId };
+    });
+    return result as any;
   }
 }
