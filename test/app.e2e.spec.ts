@@ -522,11 +522,26 @@ describe('AppController (e2e)', () => {
         tagNames: [],
       };
 
+      const noBookmark = {
+        bookmarks: [],
+        tagNames: [],
+      };
+
       it('로컬에 저장된 북마크와 태그 데이터를 처리한다.', async () => {
         const result = await privateTest()
           .post(`/api/bookmark/sync`, accessToken)
           .send(syncBookmarkData);
 
+        expect(result.status).toBe(201);
+        expect(result.body.success).toBe(true);
+        expect(result.body.message).toBe('synced');
+      });
+
+      it('북마크가 없어도 싱크에는 영향을 주지 않는다.', async () => {
+        const result = await privateTest()
+          .post(`/api/bookmark/sync`, accessToken)
+          .send(noBookmark);
+          
         expect(result.status).toBe(201);
         expect(result.body.success).toBe(true);
         expect(result.body.message).toBe('synced');

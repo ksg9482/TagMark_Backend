@@ -162,15 +162,27 @@ export class BookmarkRepository implements IBookmarkRepository {
     return bookmarkCount[0];
   }
 
+  protected async findBookmarkByUrl(urls:string | string[]):Promise<any[]> {
+    if(Array.isArray(urls) && urls.length <= 0) {
+      return [];
+    };
+
+    if(!Array.isArray(urls)) {
+      urls = [urls];
+    };
+    
+    return await this.bookmarkRepository
+    .createQueryBuilder('bookmark')
+    .select('*')
+    .where(`url IN (:urls)`, { urls: urls })
+    .getRawMany();
+  }
+
   async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
     const urls = bookmarks.map((bookmark) => {
       return bookmark.url;
     });
-    const findBookmarkByUrls = await this.bookmarkRepository
-      .createQueryBuilder('bookmark')
-      .select('*')
-      .where(`url IN (:urls)`, { urls: urls })
-      .getRawMany();
+    const findBookmarkByUrls = await this.findBookmarkByUrl(urls);
 
     const noIdUrls = urls
       .filter((url) => {
@@ -191,13 +203,16 @@ export class BookmarkRepository implements IBookmarkRepository {
       .execute();
 
     const bookmarkIdAndTagIdArr = createdBookmarks.identifiers;
+
     const completedBookmarks = bookmarks.map((bookmark, i) => {
       const tags = bookmark.tags || [];
+
       const reconstitutedTag = tags.map((tag) => {
         const id = tag.id;
         const tagName = tag.tag;
         return this.tagFactory.reconstitute(id, tagName);
       });
+
       const bookmarks = this.bookmarkFactory.reconstitute(
         bookmarkIdAndTagIdArr[i].id,
         bookmark.url,

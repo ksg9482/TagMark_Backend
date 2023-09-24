@@ -81,7 +81,7 @@ export class BookmarkUseCases {
       bookmarks,
     );
     await this.saveBookmarkTag(bookmarkInsert);
-
+    console.log(bookmarkInsert)
     return bookmarkInsert;
   }
 
@@ -220,7 +220,6 @@ export class BookmarkUseCases {
         return targetTag;
       });
 
-      Reflect.deleteProperty(bookmark, 'id');
       return { ...bookmark, tags: changedTags, userId: userId };
     });
     return result as any;
