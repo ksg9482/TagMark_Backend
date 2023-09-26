@@ -81,7 +81,6 @@ export class BookmarkUseCases {
       bookmarks,
     );
     await this.saveBookmarkTag(bookmarkInsert);
-    console.log(bookmarkInsert)
     return bookmarkInsert;
   }
 

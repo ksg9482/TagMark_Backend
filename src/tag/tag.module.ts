@@ -12,7 +12,9 @@ const factories = [TagFactory];
 
 const useCases = [TagUseCases];
 
-const repositories = [{ provide: 'TagRepository', useClass: TagRepository }];
+const repositories = [
+  { provide: 'TagRepository', useClass: TagRepository }
+];
 
 @Module({
   imports: [TypeOrmModule.forFeature([TagEntity]), UtilsModule, AuthModule],

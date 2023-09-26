@@ -33,6 +33,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     const deleteBookmark = await this.bookmarkRepository.delete(id);
     return deleteBookmark;
   }
+
   createEntity(userId: string, url: string): BookmarkEntity {
     return this.bookmarkRepository.create({
       id: this.utilsService.getUuid(),
@@ -121,6 +122,22 @@ export class BookmarkRepository implements IBookmarkRepository {
     return this.bookmarkFactory.reconstitute(id, url, userId, tags);
   }
 
+  protected async findBookmarkByUrl(urls:string | string[]):Promise<any[]> {
+    if(Array.isArray(urls) && urls.length <= 0) {
+      return [];
+    };
+
+    if(!Array.isArray(urls)) {
+      urls = [urls];
+    };
+    
+    return await this.bookmarkRepository
+    .createQueryBuilder('bookmark')
+    .select('*')
+    .where(`url IN (:urls)`, { urls: urls })
+    .getRawMany();
+  }
+
   async getUserAllBookmarks(
     userId: string,
     page: any,
@@ -162,21 +179,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     return bookmarkCount[0];
   }
 
-  protected async findBookmarkByUrl(urls:string | string[]):Promise<any[]> {
-    if(Array.isArray(urls) && urls.length <= 0) {
-      return [];
-    };
-
-    if(!Array.isArray(urls)) {
-      urls = [urls];
-    };
-    
-    return await this.bookmarkRepository
-    .createQueryBuilder('bookmark')
-    .select('*')
-    .where(`url IN (:urls)`, { urls: urls })
-    .getRawMany();
-  }
+  
 
   async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
     const urls = bookmarks.map((bookmark) => {

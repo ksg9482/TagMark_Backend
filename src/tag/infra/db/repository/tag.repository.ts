@@ -77,7 +77,6 @@ export class TagRepository implements ITagRepository {
       .createQueryBuilder('tag')
       .where('tag.tag IN (:...tags)', { tags: tagNames })
       .getMany();
-      console.log(tagEntities)
 
     return tagEntities.map((entity) => {
       return this.tagFactory.reconstitute(entity.id, entity.tag);
