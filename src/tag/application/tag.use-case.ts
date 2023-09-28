@@ -24,10 +24,11 @@ export class TagUseCases {
   //그렇다면 여기서 엔티티를 만들어 넘겨줄게 아니라 엔티티 만들 재료를 넘겨줘야 한다.
   async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
     const tagCheck = await this.getTagsByNames(tag.tag);
-    if (tagCheck) {
+    if (tagCheck.length >= 0) {
       return tagCheck[0];
     }
-    const createdTag = this.tagRepository.save(tag);
+    //이거 포지션이 겹침. 확인 결과 이미 앞단에서 저장처리 되었기 때문에 save메서드까지 안옴
+    const createdTag = await this.tagRepository.save(tag);
     return createdTag;
   }
 
@@ -41,23 +42,21 @@ export class TagUseCases {
   }
 
   protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
-    const result: Tag[] = [];
     const findedTags = await this.tagRepository.findByTagNames(tagNames);
+
     const notExistTags = this.getNotExistTag(findedTags, tagNames);
-    if (notExistTags) {
-      const createTags = notExistTags.map((tag) => {
-        return this.tagFactory.create(this.utilsService.getUuid(), tag);
-      });
-      await this.tagRepository.insertBulk(createTags);
-      const resultTags = [...findedTags, ...createTags];
-      result.push(...resultTags);
-    }
-    return result;
+
+    const createTags = notExistTags.map((tag) => {
+      return this.tagFactory.create(this.utilsService.getUuid(), tag);
+    });
+    await this.tagRepository.insertBulk(createTags);
+    const resultTags = [...findedTags, ...createTags];
+
+    return resultTags;
   }
 
   async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
-
     return attach;
   }
 
