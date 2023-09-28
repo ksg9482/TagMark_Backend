@@ -100,7 +100,8 @@
     },
     "collectCoverageFrom": [
       "**/*.service.(t|j)s",
-      "**/*.controller.(t|j)s"
+      "**/*.controller.(t|j)s",
+      "**/*.use-case.(t|j)s"
     ],
     "coveragePathIgnorePatterns": [
       "node_modules",

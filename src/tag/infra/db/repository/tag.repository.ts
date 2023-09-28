@@ -70,8 +70,8 @@ export class TagRepository implements ITagRepository {
 
   //태그 이름은 인덱스로 만들 수 있겠다. 사실상 한 번 추가된 태그는 읽기가 더 많은 것이고, 추가, 삭제, 수정도 적을 것이다.
   async findByTagNames(tagNames: string[]): Promise<Tag[]> {
-    if(tagNames.length <= 0) {
-      return []
+    if (tagNames.length <= 0) {
+      return [];
     }
     const tagEntities = await this.tagRepository
       .createQueryBuilder('tag')
@@ -155,11 +155,7 @@ export class TagRepository implements ITagRepository {
     const tags: TagWithCount[] = await this.tagRepository
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
-      .leftJoin(
-        `bookmark_tag`,
-        `bookmark_tag`,
-        `bookmark_tag."tagId" = tag.id`,
-      )
+      .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
       .innerJoin(
         `bookmark`,
         `bookmark`,
