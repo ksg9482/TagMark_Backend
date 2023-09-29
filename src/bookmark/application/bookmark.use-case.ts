@@ -178,6 +178,7 @@ export class BookmarkUseCases {
   protected getBookmarkIdAndTagId(bookmarks: Bookmark[]) {
     const result = bookmarks.map((bookmark) => {
       const bookmarkTags = bookmark.tags;
+      // 이건 왜 그냥 넘기는거지??
       if (!Array.isArray(bookmarkTags)) return;
 
       const bookmarkId = bookmark.id;

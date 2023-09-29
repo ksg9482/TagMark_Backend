@@ -67,6 +67,10 @@ describe('tag-use-case', () => {
     it('be defined tagEntityRepository', () => {
       expect(tagEntityRepository).toBeDefined();
     });
+
+    it('be defined tagFactory', () => {
+      expect(tagFactory).toBeDefined();
+    });
   });
 
   describe('getAllTags', () => {
