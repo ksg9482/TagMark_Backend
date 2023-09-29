@@ -122,20 +122,20 @@ export class BookmarkRepository implements IBookmarkRepository {
     return this.bookmarkFactory.reconstitute(id, url, userId, tags);
   }
 
-  protected async findBookmarkByUrl(urls:string | string[]):Promise<any[]> {
-    if(Array.isArray(urls) && urls.length <= 0) {
+  protected async findBookmarkByUrl(urls: string | string[]): Promise<any[]> {
+    if (Array.isArray(urls) && urls.length <= 0) {
       return [];
-    };
+    }
 
-    if(!Array.isArray(urls)) {
+    if (!Array.isArray(urls)) {
       urls = [urls];
-    };
-    
+    }
+
     return await this.bookmarkRepository
-    .createQueryBuilder('bookmark')
-    .select('*')
-    .where(`url IN (:urls)`, { urls: urls })
-    .getRawMany();
+      .createQueryBuilder('bookmark')
+      .select('*')
+      .where(`url IN (:urls)`, { urls: urls })
+      .getRawMany();
   }
 
   async getUserAllBookmarks(
@@ -178,8 +178,6 @@ export class BookmarkRepository implements IBookmarkRepository {
 
     return bookmarkCount[0];
   }
-
-  
 
   async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
     const urls = bookmarks.map((bookmark) => {
