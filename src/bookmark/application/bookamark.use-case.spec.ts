@@ -147,15 +147,92 @@ describe('bookmark-use-case', () => {
     });
   });
 
+  describe('syncBookmark', () => {
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+
+    it('북마크 배열을 반환한다.', async () => {
+      bookmarkRepository.syncBookmark = jest
+        .fn()
+        .mockResolvedValue([mockBookmark]);
+      expect(await bookmarkService.syncBookmark([mockBookmark])).toStrictEqual([
+        mockBookmark,
+      ]);
+    });
+  });
+
   describe('deleteBookmark', () => {
-    it('', () => {
-      console.log();
+    const inputParam = {
+      userId: 'mockUserId',
+      bookmarkId: 'mockBookmarkId',
+    };
+
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+    it('검색된 북마크를 제거한다.', async () => {
+      bookmarkRepository.getUserBookmark = jest
+        .fn()
+        .mockResolvedValue(mockBookmark);
+      bookmarkRepository.delete = jest.fn().mockResolvedValue(mockBookmark.id);
+      expect(
+        await bookmarkService.deleteBookmark(
+          inputParam.userId,
+          inputParam.bookmarkId,
+        ),
+      ).toStrictEqual({ message: 'Deleted' });
     });
   });
 
   describe('editBookmarkUrl', () => {
-    it('', () => {
-      console.log();
+    const inputParam = {
+      userId: 'mockUserId',
+      bookmarkId: 'mockBookmarkId',
+      changeUrl: 'mockChangeUrl',
+    };
+
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+    it('검색된 북마크를 제거한다.', async () => {
+      bookmarkRepository.getUserBookmark = jest
+        .fn()
+        .mockResolvedValue(mockBookmark);
+
+      // 변경된 url을 인수로 받았는지 확인해야한다
+      bookmarkRepository.update = jest.fn().mockResolvedValue(mockBookmark.id);
+      expect(
+        await bookmarkService.editBookmarkUrl(
+          inputParam.userId,
+          inputParam.bookmarkId,
+          inputParam.changeUrl,
+        ),
+      ).toStrictEqual({ message: 'Updated' });
     });
   });
 
@@ -199,20 +276,144 @@ describe('bookmark-use-case', () => {
   });
 
   describe('getTagAllBookmarksAND', () => {
-    it('', () => {
-      console.log();
+    const inputParam = {
+      userId: 'mockUserId',
+      tags: ['mockTagOne'],
+      page: {
+        pageNo: 1,
+        pageSize: 20,
+        getLimit: () => {
+          return 20;
+        },
+        getOffset: () => {
+          return 0;
+        },
+      },
+    };
+
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+
+    const mockPagedBookmarks = {
+      pageSize: 1,
+      totalCount: 1,
+      totalPage: 1,
+      bookmarks: [mockBookmark],
+    };
+    it('페이지네이션 된 북마크를 반환한다.', async () => {
+      bookmarkRepository.findBookmarkTag_AND = jest
+        .fn()
+        .mockResolvedValue(mockPagedBookmarks);
+      expect(
+        await bookmarkService.getTagAllBookmarksAND(
+          inputParam.userId,
+          inputParam.tags,
+          inputParam.page,
+        ),
+      ).toStrictEqual(mockPagedBookmarks);
     });
   });
 
   describe('getTagAllBookmarksOR', () => {
-    it('', () => {
-      console.log();
+    const inputParam = {
+      userId: 'mockUserId',
+      tags: ['mockTagOne'],
+      page: {
+        pageNo: 1,
+        pageSize: 20,
+        getLimit: () => {
+          return 20;
+        },
+        getOffset: () => {
+          return 0;
+        },
+      },
+    };
+
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+
+    const mockPagedBookmarks = {
+      pageSize: 1,
+      totalCount: 1,
+      totalPage: 1,
+      bookmarks: [mockBookmark],
+    };
+    it('페이지네이션 된 북마크를 반환한다.', async () => {
+      bookmarkRepository.findBookmarkTag_OR = jest
+        .fn()
+        .mockResolvedValue(mockPagedBookmarks);
+      expect(
+        await bookmarkService.getTagAllBookmarksOR(
+          inputParam.userId,
+          inputParam.tags,
+          inputParam.page,
+        ),
+      ).toStrictEqual(mockPagedBookmarks);
     });
   });
 
   describe('getUserAllBookmarks', () => {
-    it('', () => {
-      console.log();
+    // userId: string, page: UserAllBookmarks
+    const inputParam = {
+      userId: 'mockUserId',
+      page: {
+        pageNo: 1,
+        pageSize: 20,
+        getLimit: () => {
+          return 20;
+        },
+        getOffset: () => {
+          return 0;
+        },
+      },
+    };
+    it('페이지네이션 된 북마크를 반환한다.', async () => {
+      const mockTag = {
+        id: 'mockIdOne',
+        tag: 'mockTagOne',
+      };
+
+      const mockBookmark = {
+        id: 'mockId',
+        url: 'mockUrl',
+        userId: 'mockUserId',
+        tags: [mockTag],
+      };
+
+      const mockPagedBookmarks = {
+        pageSize: 1,
+        totalCount: 1,
+        totalPage: 1,
+        bookmarks: [mockBookmark],
+      };
+      bookmarkRepository.getUserAllBookmarks = jest
+        .fn()
+        .mockResolvedValue(mockPagedBookmarks);
+      expect(
+        await bookmarkService.getUserAllBookmarks(
+          inputParam.userId,
+          inputParam.page,
+        ),
+      ).toStrictEqual(mockPagedBookmarks);
     });
   });
 
@@ -250,14 +451,42 @@ describe('bookmark-use-case', () => {
   });
 
   describe('saveBookmarkTag', () => {
-    it('', () => {
-      console.log();
+    const mockTag = {
+      id: 'mockIdOne',
+      tag: 'mockTagOne',
+    };
+
+    const mockBookmark = {
+      id: 'mockId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+
+    it('북마크와 태그를 인수로 제공하면 결과값을 반환한다.', async () => {
+      bookmarkRepository.attachbulk = jest
+        .fn()
+        .mockResolvedValue([
+          { bookmarkId: mockBookmark.id, tagId: mockTag.id },
+        ]);
+      expect(
+        await bookmarkService['saveBookmarkTag']([mockBookmark]),
+      ).toStrictEqual([{ bookmarkId: mockBookmark.id, tagId: mockTag.id }]);
     });
   });
 
   describe('getBookmarkIdAndTagId', () => {
-    it('', () => {
-      console.log();
+    const mockTag = { id: 'mockTagId', tag: 'mockTag' };
+    const mockBookmark = {
+      id: 'mockBookmarkId',
+      url: 'mockUrl',
+      userId: 'mockUserId',
+      tags: [mockTag],
+    };
+    it('북마크 아이디와 태그 아이디 배열을 요소로 가진 객체 배열을 반환한다.', async () => {
+      expect(
+        bookmarkService['getBookmarkIdAndTagId']([mockBookmark]),
+      ).toStrictEqual([{ bookmarkId: mockBookmark.id, tagIds: [mockTag.id] }]);
     });
   });
 
@@ -282,19 +511,106 @@ describe('bookmark-use-case', () => {
       expect(
         bookmarkService['getBookmarkTagMap'](getBookmarkTagMapParam),
       ).toStrictEqual(bookmarkTagArr);
-      console.log();
     });
   });
 
   describe('setSyncBookmarkForm', () => {
-    it('', () => {
-      console.log();
+    const tempTag = [
+      {
+        id: '',
+        tag: 'mockTagOne',
+      },
+      {
+        id: '',
+        tag: 'mockTagTwo',
+      },
+    ];
+    const mockTags = [
+      {
+        id: 'mockIdOne',
+        tag: 'mockTagOne',
+      },
+      {
+        id: 'mockIdTwo',
+        tag: 'mockTagTwo',
+      },
+    ];
+    const tempBookmarks = [
+      {
+        id: 'mockBookmarkId',
+        url: 'mockUrl',
+        userId: 'mockUserId',
+        tags: tempTag,
+      },
+    ];
+    const tempBookmarksEmptyTag = [
+      {
+        id: 'mockBookmarkId',
+        url: 'mockUrl',
+        userId: 'mockUserId',
+      },
+    ];
+    const mockBookmarks = [
+      {
+        id: 'mockBookmarkId',
+        url: 'mockUrl',
+        userId: 'mockUserId',
+        tags: mockTags,
+      },
+    ];
+    const setSyncBookmarkFormInput = {
+      userId: 'mockUserId',
+      bookmarks: tempBookmarks,
+      tags: [
+        {
+          id: 'mockIdOne',
+          tag: 'mockTagOne',
+        },
+        {
+          id: 'mockIdTwo',
+          tag: 'mockTagTwo',
+        },
+      ],
+    };
+    const inputWithEmptyBookmarkTag = {
+      userId: 'mockUserId',
+      bookmarks: tempBookmarksEmptyTag,
+      tags: [
+        {
+          id: 'mockIdOne',
+          tag: 'mockTagOne',
+        },
+        {
+          id: 'mockIdTwo',
+          tag: 'mockTagTwo',
+        },
+      ],
+    };
+    it('북마크에 담긴 임시 태그는 tags 파라미터에 담긴 데이터로 교체된다', () => {
+      expect(
+        bookmarkService.setSyncBookmarkForm(
+          setSyncBookmarkFormInput.userId,
+          setSyncBookmarkFormInput.bookmarks,
+          setSyncBookmarkFormInput.tags,
+        ),
+      ).toStrictEqual([...mockBookmarks]);
     });
-  });
 
-  describe('syncBookmark', () => {
-    it('', () => {
-      console.log();
+    it('북마크에 담긴 임시 태그가 없으면 빈배열이 반환된다', () => {
+      expect(
+        bookmarkService.setSyncBookmarkForm(
+          inputWithEmptyBookmarkTag.userId,
+          inputWithEmptyBookmarkTag.bookmarks,
+          inputWithEmptyBookmarkTag.tags,
+        ),
+      ).toStrictEqual([
+        {
+          id: 'mockBookmarkId',
+          url: 'mockUrl',
+          userId: 'mockUserId',
+          tags: [],
+        },
+      ]);
     });
   });
 });
