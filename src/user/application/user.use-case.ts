@@ -13,7 +13,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
 import { SecureService } from 'src/utils/secure.service';
 
-type deleteUserProperty = 'default' | 'password';
+type DeleteUserProperty = 'default' | 'password';
 @Injectable()
 export class UserUseCases {
   constructor(
@@ -176,7 +176,7 @@ export class UserUseCases {
     return user;
   }
 
-  deleteUserProperty(targetProperty: deleteUserProperty, user: User): User {
+  deleteUserProperty(targetProperty: DeleteUserProperty, user: User): User {
     const copyUser: User = this.utilService.deepCopy(user);
 
     if (targetProperty === 'default') {
