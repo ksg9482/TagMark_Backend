@@ -541,7 +541,7 @@ describe('AppController (e2e)', () => {
         const result = await privateTest()
           .post(`/api/bookmark/sync`, accessToken)
           .send(noBookmark);
-          
+
         expect(result.status).toBe(201);
         expect(result.body.success).toBe(true);
         expect(result.body.message).toBe('synced');

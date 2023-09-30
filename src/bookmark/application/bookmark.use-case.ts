@@ -167,7 +167,6 @@ export class BookmarkUseCases {
   protected async saveBookmarkTag(bookmarks: Bookmark[]) {
     const bookmarksAndTags: any = this.getBookmarkIdAndTagId(bookmarks);
     const bookmarksAndTagsMap = this.getBookmarkTagMap(bookmarksAndTags);
-
     const result = await this.bookmarkRepository.attachbulk(
       bookmarksAndTagsMap,
     );
@@ -179,7 +178,7 @@ export class BookmarkUseCases {
     const result = bookmarks.map((bookmark) => {
       const bookmarkTags = bookmark.tags;
       // 이건 왜 그냥 넘기는거지??
-      if (!Array.isArray(bookmarkTags)) return;
+      // if (!Array.isArray(bookmarkTags)) return;
 
       const bookmarkId = bookmark.id;
       //앞 단에 예외 및 빈 배열 처리를 해서 반환하는 게 낫다.
