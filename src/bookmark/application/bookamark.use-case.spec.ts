@@ -24,7 +24,7 @@ describe('bookmark-use-case', () => {
     update: jest.fn(),
     delete: jest.fn(),
   };
-  const MockbookmarkRepository = {
+  const MockBookmarkRepository = {
     ...MockGenericRepository,
     getUserBookmark: jest.fn(),
     getBookmarkByUrl: jest.fn(),
@@ -42,7 +42,7 @@ describe('bookmark-use-case', () => {
         BookmarkUseCases,
         {
           provide: 'BookmarkRepository',
-          useValue: MockbookmarkRepository,
+          useValue: MockBookmarkRepository,
         },
         BookmarkFactory,
         TagFactory,
@@ -76,7 +76,7 @@ describe('bookmark-use-case', () => {
       expect(bookmarkEntityRepository).toBeDefined();
     });
 
-    it('be defined tagFactory', () => {
+    it('be defined bookmarkFactory', () => {
       expect(bookmarkFactory).toBeDefined();
     });
   });

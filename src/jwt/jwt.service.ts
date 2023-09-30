@@ -12,7 +12,7 @@ type DeletePasswordUser = Omit<User, 'password'>;
 
 @Injectable()
 export class JwtService {
-  jwtAlgorithm:jwt.Algorithm;
+  jwtAlgorithm: jwt.Algorithm;
   constructor(
     @Inject('CONFIG_OPTIONS')
     private readonly options: JwtModuleOptions,
