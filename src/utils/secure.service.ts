@@ -30,31 +30,6 @@ export class SecureService {
       return decrypted.toString(CryptoJS.enc.Utf8);
     };
 
-    const setItem = (key: string, item: string) => {
-      localStorage.setItem(key, encrypt(item));
-    };
-
-    const getItem = (key: string) => {
-      const encrypted = localStorage.getItem(key);
-      if (!encrypted) {
-        return null;
-      } else {
-        return decrypt(encrypted);
-      }
-    };
-
-    const removeItem = (key: string) => {
-      localStorage.removeItem(key);
-    };
-
-    const local = () => {
-      return {
-        setItem,
-        getItem,
-        removeItem,
-      };
-    };
-
     const encryptWrapper = (data: any) => {
       return encrypt(data);
     };
@@ -79,7 +54,6 @@ export class SecureService {
     };
 
     return {
-      local,
       wrapper,
     };
   }
