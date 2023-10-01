@@ -35,10 +35,4 @@ export class AuthService {
       throw new UnauthorizedException();
     }
   }
-
-  // async getUserInfo(userId: string) {
-  //   const user = await this.userUseCases.me(userId);
-  //   Reflect.deleteProperty(user, 'password');
-  //   return user;
-  // }
 }
