@@ -15,14 +15,17 @@ export class UtilsService {
   }
 
   deepCopy(obj: any) {
-    if (obj instanceof Object) {
+    if (obj instanceof Array) {
+      const result: any = [];
+      const arr = obj.map((element) => this.deepCopy(element));
+      result.push(...arr);
+      return result;
+    } else if (obj instanceof Object) {
       const result = new obj.constructor();
       Object.keys(obj).forEach((k) => {
         result[k] = this.deepCopy(obj[k]);
       });
       return result;
-    } else if (obj instanceof Array) {
-      obj.map((element) => this.deepCopy(element));
     } else return obj;
   }
 }
