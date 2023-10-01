@@ -9,7 +9,7 @@ import { AuthorizationType } from './auth.interface';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly secureService: SecureService, // private userUseCases: UserUseCases,
+    private readonly secureService: SecureService,
   ) {}
   getToken(req: Request) {
     const secureWrap = this.secureService.secure().wrapper();
@@ -30,6 +30,7 @@ export class AuthService {
   accessTokenDecode(accessToken: string) {
     try {
       const decoded = this.jwtService.verify(accessToken);
+
       return decoded;
     } catch (error) {
       throw new UnauthorizedException();
