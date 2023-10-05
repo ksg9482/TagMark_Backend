@@ -38,14 +38,16 @@ export class JwtService {
     return token;
   }
 
-  verify(token: string): DeletePasswordUser {
-    const result = jwt.verify(token, this.options.privateKey, {
-      algorithms: [this.jwtAlgorithm],
-    }) as DeletePasswordUser;
-    if (!result) {
+  verify(token: string){//: DeletePasswordUser {
+    try {
+      const result = jwt.verify(token, this.options.privateKey, {
+        algorithms: [this.jwtAlgorithm],
+      }) as DeletePasswordUser;
+      return result;
+    } catch (error) {
       throw new HttpException('Token expire', HttpStatus.BAD_REQUEST);
     }
-    return result;
+    
   }
 
   refreshVerify(token: string): DeletePasswordUser {
