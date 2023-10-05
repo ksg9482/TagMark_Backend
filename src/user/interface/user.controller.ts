@@ -263,7 +263,6 @@ export class UserController {
     }
   }
 
-  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: '새로운 access token를 발급하는 API',
     description: 'refresh 토큰을 통해 새로운 access token을 생성한다.',
@@ -278,7 +277,7 @@ export class UserController {
   ): Promise<RefreshTokenResponseDto> {
     const refreshTokenResponse = new RefreshTokenResponseDto();
     const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
-
+    console.log(refreshToken)
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);
