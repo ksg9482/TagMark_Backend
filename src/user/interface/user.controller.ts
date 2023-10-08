@@ -277,7 +277,6 @@ export class UserController {
   ): Promise<RefreshTokenResponseDto> {
     const refreshTokenResponse = new RefreshTokenResponseDto();
     const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
-    console.log(refreshToken)
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);

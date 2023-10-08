@@ -9,7 +9,6 @@ import {
   Logger,
   LoggerService,
   Param,
-  ParseArrayPipe,
   Patch,
   Post,
   Query,
@@ -37,8 +36,6 @@ import {
   SyncBookmarkDto,
   SyncBookmarkResponseDto,
 } from 'src/bookmark/interface/dto';
-import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { Tag } from 'src/tag/domain/tag';
 import { BookmarkUseCases } from 'src/bookmark/application/bookmark.use-case';
 import { BookmarkFactory } from 'src/bookmark/domain/bookmark.factory';
 import { TagUseCases } from 'src/tag/application/tag.use-case';
