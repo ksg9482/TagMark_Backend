@@ -1,9 +1,8 @@
-import { HttpService, HttpModule } from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtService } from 'src/jwt/jwt.service';
-import { TagFactory } from 'src/tag/domain/tag.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
@@ -11,7 +10,6 @@ import { UserFactory } from '../domain/user.factory';
 import { UserEntity } from '../infra/db/entity/user.entity';
 import { UserRepository } from '../infra/db/repository/user.repository';
 import { UserUseCases } from './user.use-case';
-import Configuration from 'src/config/configuration';
 import { UserRole, UserType } from '../domain';
 
 describe('bookmark-use-case', () => {

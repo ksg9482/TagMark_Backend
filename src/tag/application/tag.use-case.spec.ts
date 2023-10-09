@@ -157,9 +157,6 @@ describe('tag-use-case', () => {
       },
     ];
 
-    /**
-     * tagRepository.create() 메서드가 map으로 작동해서 두번 돌아간다.
-     */
     it('태그 이름 배열을 인수로 제공했을 때 전부 저장되지 않은 경우 저장한 결과와 검색된 태그를 배열로 반환한다', async () => {
       tagRepository.findByTagNames = jest.fn().mockResolvedValue([]);
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');

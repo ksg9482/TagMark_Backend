@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
 import Configuration from 'src/config/configuration';
