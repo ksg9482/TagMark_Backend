@@ -1,6 +1,4 @@
 import { Test } from '@nestjs/testing';
-import { v4 as uuidV4 } from 'uuid';
-
 import { UtilsService } from './utils.service';
 
 describe('utilsService', () => {

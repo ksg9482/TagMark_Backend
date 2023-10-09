@@ -1,9 +1,7 @@
 import { Test } from '@nestjs/testing';
-import { JwtService } from 'src/jwt/jwt.service';
 import { UserRole, UserType } from 'src/user/domain';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { UtilsService } from './utils.service';
 import { SecureService } from './secure.service';
 

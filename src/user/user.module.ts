@@ -1,7 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
-
 import { AuthModule } from 'src/auth/auth.module';
 import { UserFactory } from './domain/user.factory';
 import { UserEntity } from './infra/db/entity/user.entity';
@@ -21,7 +20,7 @@ const repositories = [{ provide: 'UserRepository', useClass: UserRepository }];
     TypeOrmModule.forFeature([UserEntity]),
     UtilsModule,
     HttpModule,
-    AuthModule, //auth에서 쓰는게 아니라 auth를 user에서 쓴다 -> 소스원천 통일
+    AuthModule,
   ],
   controllers: [UserController],
   providers: [Logger, ...factories, ...useCases, ...repositories],
