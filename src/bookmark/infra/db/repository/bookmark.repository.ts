@@ -26,7 +26,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
-  ) {}
+  ) { }
   get: (id: string) => Promise<Bookmark | null>;
 
   async delete(id: string) {
@@ -245,9 +245,10 @@ export class BookmarkRepository implements IBookmarkRepository {
     tags: string[],
     page: any,
   ): Promise<Page<Bookmark>> {
-    //북마크 리파지토리로 바꾸면 성능 그대론가??
-    //태그내용이 다 안나오니까 서브쿼리 사용 -> 셀프조인으로 안되나??
-    const getMachedBookmarkId = this.tagRepository
+    /**
+     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
+     */
+    const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`DISTINCT bookmark."id"`, 'ids')
       .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
@@ -274,8 +275,8 @@ export class BookmarkRepository implements IBookmarkRepository {
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(
-        `bookmark."id" in (${getMachedBookmarkId.getQuery()})`,
-        getMachedBookmarkId.getParameters(),
+        `bookmark."id" in (${machedBookmarkIds.getQuery()})`,
+        machedBookmarkIds.getParameters(),
       )
       .groupBy(`bookmark.id`)
       .orderBy(`bookmark."createdAt"`, 'DESC')
@@ -292,7 +293,10 @@ export class BookmarkRepository implements IBookmarkRepository {
     tags: string[],
     page: any,
   ): Promise<Page<Bookmark>> {
-    const getMachedBookmarkId = this.tagRepository
+    /**
+     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
+     */
+    const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
       .leftJoin(`bookmark_tag`, `bookmark_tag`, `bookmark_tag."tagId" = tag.id`)
@@ -321,8 +325,8 @@ export class BookmarkRepository implements IBookmarkRepository {
       )
       .where(`bookmark."userId" = (:userId)`, { userId: userId })
       .andWhere(
-        `bookmark."id" in (${getMachedBookmarkId.getQuery()})`,
-        getMachedBookmarkId.getParameters(),
+        `bookmark."id" in (${machedBookmarkIds.getQuery()})`,
+        machedBookmarkIds.getParameters(),
       )
       .groupBy(`bookmark.id`)
       .orderBy(`bookmark."createdAt"`, 'DESC')
