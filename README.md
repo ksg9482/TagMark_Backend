@@ -27,6 +27,3 @@ TAG-MARK는 태그를 기반으로 북마크를 '구분'하는데 초점을 맞�
 * 서버 실행: npm run start
 * 서버 실행 - 개발용: npm run start:dev
 * e2e 테스트 실시: npm run test:e2e
-
-## 프로젝트 개발 상세
-[Tag-Mark 포트폴리오](https://pickle-penguin-962.notion.site/Tag-Mark-2022-11-2023-01-8d7bbdc20b184c0f91ab29c47b3f44d3)
