@@ -14,9 +14,6 @@ TAG-MARK는 태그를 기반으로 북마크를 '구분'하는데 초점을 맞�
 * Util: Winston, JWT
 * Test: Jest
 
-### API 명세
-[Swagger](https://server.tagmark.site/api-docs)
-
 ## TAG-MARK 개발환경
 * Ubuntu - 20.04
 * node - 16.13.0
