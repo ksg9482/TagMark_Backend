@@ -111,7 +111,6 @@ describe('JwtService', () => {
     it('accessToken을 검증하여 통과되지 않으면 HttpException을 반환한다.', () => {
       jest
         .spyOn(jwt, 'verify')
-        //.mockImplementation(() => false);
         .mockImplementation(() => null);
 
       Reflect.deleteProperty(mockUser, 'password');

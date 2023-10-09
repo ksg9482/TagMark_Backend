@@ -91,7 +91,6 @@ describe('tag-use-case', () => {
 
   describe('createTag', () => {
     const mockTagObj = {
-      // id: 'mockId',
       tag: 'MockTagName',
     };
     it('이미 등록된 태그가 있으면 등록된 태그를 반환한다', async () => {
@@ -99,7 +98,6 @@ describe('tag-use-case', () => {
       tagService['getTagsByNames'] = jest
         .fn()
         .mockResolvedValue([getTagsByNamesResolve]);
-      // tagRepository.save = jest.fn().mockResolvedValue(mockTagObj)
       expect(await tagService.createTag(mockTagObj)).toStrictEqual(
         getTagsByNamesResolve,
       );

@@ -175,7 +175,6 @@ describe('bookmark-use-case', () => {
         await userService.login(mockUser.email, mockUser.password),
       ).toStrictEqual({
         user: mockUser,
-        //토큰 키 이름이 서로 다르네? jwt 붙고 안붙고
         accessToken: mockAccessToken,
         refreshToken: mockRefreshToken,
       });

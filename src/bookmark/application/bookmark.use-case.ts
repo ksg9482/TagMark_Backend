@@ -87,7 +87,6 @@ export class BookmarkUseCases {
   async editBookmarkUrl(userId: string, bookmarkId: string, changeUrl: string) {
     const bookmark = await this.findBookmark(userId, bookmarkId);
     bookmark.url = changeUrl;
-    //bookmark.updateUrl(changeUrl);
     await this.bookmarkRepository.update(bookmarkId, bookmark);
     return { message: 'Updated' };
   }
@@ -110,11 +109,10 @@ export class BookmarkUseCases {
     return bookmark;
   }
 
-  //OR과 AND는 북마크와 태그가 함께 사용되니 별도의 클래스로 분리하는게 맞지 않을까?
   async getTagAllBookmarksOR(
     userId: string,
     tags: string[],
-    page: SearchTags, //이거 인터페이스에서 오면 의존성이 어긋나는데? 인터페이스가 바깥인데 바깥 참조함
+    page: SearchTags,
   ): Promise<Page<Bookmark>> {
     const limit = page.getLimit();
     const offset = page.getOffset();
@@ -153,17 +151,6 @@ export class BookmarkUseCases {
     return bookmark;
   }
 
-  //안티패턴 - 배열을 다룰때는 null이 아니라 빈배열을 주는 게 낫다.
-  // protected bookmarksNullCheck(bookmarks: Bookmark[]) {
-  //     const result = bookmarks.map((bookmark) => {
-  //         const bookmarkTags = bookmark.getTags()
-  //         if (Array.isArray(bookmarkTags) && !bookmarkTags[0]) bookmark.tags = [] as any;
-  //         return bookmark;
-  //     });
-
-  //     return result;
-  // };
-
   protected async saveBookmarkTag(bookmarks: Bookmark[]) {
     const bookmarksAndTags: any = this.getBookmarkIdAndTagId(bookmarks);
     const bookmarksAndTagsMap = this.getBookmarkTagMap(bookmarksAndTags);
@@ -177,11 +164,7 @@ export class BookmarkUseCases {
   protected getBookmarkIdAndTagId(bookmarks: Bookmark[]) {
     const result = bookmarks.map((bookmark) => {
       const bookmarkTags = bookmark.tags;
-      // 이건 왜 그냥 넘기는거지??
-      // if (!Array.isArray(bookmarkTags)) return;
-
       const bookmarkId = bookmark.id;
-      //앞 단에 예외 및 빈 배열 처리를 해서 반환하는 게 낫다.
       const tagIds = bookmarkTags.map((tag) => {
         return tag.id;
       });

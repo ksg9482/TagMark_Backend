@@ -87,7 +87,6 @@ describe('bookmark-use-case', () => {
       url: 'mockUrl',
     };
 
-    //tagNames
     const mockBookmark = {
       id: 'mockId',
       url: 'mockUrl',
@@ -224,7 +223,6 @@ describe('bookmark-use-case', () => {
         .fn()
         .mockResolvedValue(mockBookmark);
 
-      // 변경된 url을 인수로 받았는지 확인해야한다
       bookmarkRepository.update = jest.fn().mockResolvedValue(mockBookmark.id);
       expect(
         await bookmarkService.editBookmarkUrl(
@@ -372,7 +370,6 @@ describe('bookmark-use-case', () => {
   });
 
   describe('getUserAllBookmarks', () => {
-    // userId: string, page: UserAllBookmarks
     const inputParam = {
       userId: 'mockUserId',
       page: {

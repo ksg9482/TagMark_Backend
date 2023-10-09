@@ -4,7 +4,6 @@ import { IGenericRepository } from 'src/common/domain/repository/igeneric-reposi
 import { Tag } from 'src/tag/domain/tag';
 
 export interface IBookmarkRepository extends IGenericRepository<Bookmark> {
-  // save: (url: string, userId: string, tags: Tag[]) => Promise<Bookmark>;
   getUserBookmark: (
     userId: string,
     bookmarkId: string,

@@ -38,7 +38,7 @@ export class JwtService {
     return token;
   }
 
-  verify(token: string){//: DeletePasswordUser {
+  verify(token: string){
     try {
       const result = jwt.verify(token, this.options.privateKey, {
         algorithms: [this.jwtAlgorithm],

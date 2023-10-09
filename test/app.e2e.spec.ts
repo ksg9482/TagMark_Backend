@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { Repository, DataSource } from 'typeorm';
-// import { User } from 'src/frameworks/data-services/postgresql/model';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
@@ -177,7 +176,6 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        //배열로 왔움
         expect(result.body.message).toStrictEqual(['email must be an email']);
       });
 
@@ -192,7 +190,6 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        //배열로 왔움
         expect(result.body.message).toStrictEqual([
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
         ]);
@@ -209,7 +206,6 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        //배열로 왔움
         expect(result.body.message).toStrictEqual([
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
         ]);
@@ -242,8 +238,6 @@ describe('AppController (e2e)', () => {
         expect(result.body.success).toBe(false);
         expect(result.body.message).toBe('Invalid password.');
       });
-
-      //숫자 비밀번호도 통과
     });
 
     describe('/ (get)', () => {

@@ -163,7 +163,6 @@ export class UserController {
       const secureWrap = this.secureService.secure().wrapper();
       const { email, password } = loginDto;
 
-      //토큰은 tokens 객체로 묶어야 하나?
       const { user, accessToken, refreshToken } = await this.userUseCases.login(
         email,
         password,
