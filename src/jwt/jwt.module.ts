@@ -1,6 +1,4 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
-// import { UserUsecasesModule } from 'src/use-cases/user';
-import { UsersModule } from 'src/user/user.module';
 import { JwtModuleOptions } from './jwt.interfaces';
 import { JwtService } from './jwt.service';
 

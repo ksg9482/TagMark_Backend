@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsString } from 'class-validator';
-// import { Tag } from 'src/frameworks/data-services/postgresql/model';
+import { IsArray } from 'class-validator';
 import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { Tag } from 'src/tag/domain/tag';
 

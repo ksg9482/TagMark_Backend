@@ -13,7 +13,6 @@ import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
 import { UtilsService } from 'src/utils/utils.service';
 
-//북마크가 가져야 하는게 태그 엔티티인지 태그 도메인 객체인지 불명확. 이거 확실히 해야함
 @Injectable()
 export class BookmarkRepository implements IBookmarkRepository {
   constructor(
@@ -56,11 +55,6 @@ export class BookmarkRepository implements IBookmarkRepository {
 
   async update(id: string, item: Bookmark): Promise<any> {
     const bookmark = item;
-    // const tags = bookmark.getTags().map((tag) => {
-    //   return this.tagFactory.create(tagEntity.id, tagEntity.tag);
-    // });
-    // const bookmarkEntity = this.bookmarkRepository.create({id:bookmark.getId(),url:bookmark.getUrl(), userId:bookmark.getUserId(), tags:bookmark.getTags()})
-    //엔티티와 도메인 모양이 다르다. 어떻게 해야 할까?
     return await this.bookmarkRepository.update(id, { url: bookmark.url });
   }
 

@@ -27,7 +27,6 @@ const baseFormat = winston.format.combine(
 const prettyFormat = winston.format.combine(
   baseFormat,
   utilities.format.nestLike('Tag-Mark', {
-    //로그 출처인 appName('앱이름') 설정
     prettyPrint: true,
   }),
 );
@@ -37,7 +36,7 @@ const prettyFormat = winston.format.combine(
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console({
-          level: 'silly', //process.env.NODE_ENV === 'production' ? 'info' : 'silly',
+          level: 'silly',
           format: prettyFormat,
         }),
         new winstonDaily(dailyOptions('log')),

@@ -36,15 +36,12 @@ export class TagRepository implements ITagRepository {
   }
 
   async save(tag: Omit<Tag, 'id'>): Promise<Tag> {
-    //create는 entity 생성, save는 entity를 db에 저장으로 명시.
-    //create가 엔티티 생성인지, db에 생성인지 명확하지 않았음. create로 재활용
     const tagEntity = this.createEntity(tag.tag);
     await this.tagRepository.save(tagEntity);
     return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
   }
 
   async update(id: string, item: Tag): Promise<any> {
-    //불러와서 확인하고 프로세스 들어가는게 안전할듯.
     const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
@@ -68,7 +65,6 @@ export class TagRepository implements ITagRepository {
     });
   }
 
-  //태그 이름은 인덱스로 만들 수 있겠다. 사실상 한 번 추가된 태그는 읽기가 더 많은 것이고, 추가, 삭제, 수정도 적을 것이다.
   async findByTagNames(tagNames: string[]): Promise<Tag[]> {
     if (tagNames.length <= 0) {
       return [];

@@ -29,7 +29,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (error.status || error.statusCode) {
       statusCode = error.status || error.statusCode;
     }
-    //valid에서 에러 반환하면 statusCode로 반환함.
 
     response.status(statusCode || 500).json({
       success: false,

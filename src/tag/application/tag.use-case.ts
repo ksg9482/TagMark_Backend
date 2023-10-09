@@ -5,8 +5,6 @@ import { TagWithCount } from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 
-//dto 말고 서비스 레이어에서 이용하는 비즈니스 로직에 맞는 인수로 받아야 한다.
-//dto를 그대로 받으면 dto에 컨트롤러와 서비스가 의존하게 되어 연결이 강해진다.
 export class TagUseCases {
   constructor(
     @Inject('TagRepository')
@@ -20,19 +18,15 @@ export class TagUseCases {
     return tags;
   }
 
-  //결국 저장은 데이터 레이어로 넘어가서 엔티티에 맞춰야 한다.
-  //그렇다면 여기서 엔티티를 만들어 넘겨줄게 아니라 엔티티 만들 재료를 넘겨줘야 한다.
   async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
     const tagCheck = await this.getTagsByNames(tag.tag);
     if (tagCheck.length >= 0) {
       return tagCheck[0];
     }
-    //이거 포지션이 겹침. 확인 결과 이미 앞단에서 저장처리 되었기 때문에 save메서드까지 안옴
     const createdTag = await this.tagRepository.save(tag);
     return createdTag;
   }
 
-  //태그이름에 맞는 태그를 가져오는데 생성과 검색을 하는 함수는 용도가 다른것 같다
   async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
     if (!Array.isArray(tagName)) {
       tagName = [tagName];
@@ -81,12 +75,6 @@ export class TagUseCases {
 
   async getUserAllTags(userId: string): Promise<TagWithCount[]> {
     const tags = await this.tagRepository.getUserAllTags(userId);
-    // const countForm = tags.map((tag) => {
-    //   const id = tag.getId();
-    //   const tagName = tag.getTag();
-    //   const count = tag.getCount();
-    //   return { ...tag, count: Number(tag['count']) };
-    // });
     return tags;
   }
 

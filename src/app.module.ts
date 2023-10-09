@@ -4,7 +4,6 @@ import { UtilsModule } from './utils/utils.module';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from './validate/env.validation';
-// import { DataServicesModule } from './services/data-services/data-services.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
@@ -26,17 +25,14 @@ import { JwtMiddleware } from './middlewares/jwt.middleware';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost', // 'localhost',
+      host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USERNAME, // 'postgres',
-      password: process.env.DB_PASSWORD, // 'test',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME || 'tagmark',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
-      // logging: process.env.NODE_ENV !== 'production',
-      //synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
-      //migrations: [__dirname + '/**/migrations/*.js'],
-      //migrationsTableName: 'migrations',
+      logging: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,
     JwtModule.forRoot({
@@ -44,7 +40,6 @@ import { JwtMiddleware } from './middlewares/jwt.middleware';
       refreshPrivateKey: process.env.REFRESH_PRIVATE_KEY || 'refreshPrivateKey',
     }),
     UtilsModule,
-    // DataServicesModule,
     UsersModule,
     BookmarkModule,
     TagModule,

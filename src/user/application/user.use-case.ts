@@ -78,7 +78,7 @@ export class UserUseCases {
 
     return result;
   }
-  //changePassword changeNickname
+  
   async editUser(
     userId: string,
     editUserData: { password?: string; nickname?: string },

@@ -4,8 +4,6 @@ import { Tag } from './tag';
 
 @Injectable()
 export class TagFactory {
-  // constructor(private eventBus: EventBus) {}
-
   create(id: string, tag: string): Tag {
     const createdTag = new Tag(id, tag);
     return createdTag;

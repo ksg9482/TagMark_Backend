@@ -5,7 +5,7 @@ export class User {
   role: UserRole;
   type: UserType;
   constructor(
-    readonly id: string, //uuid
+    readonly id: string,
     readonly email: string,
     nickname: string,
     password: string,
