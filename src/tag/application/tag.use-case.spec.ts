@@ -10,7 +10,6 @@ describe('tag-use-case', () => {
   let tagService: TagUseCases;
   let tagRepository: TagRepository;
   let tagFactory: TagFactory;
-  let utilsService: UtilsService;
   let tagEntityRepository: Repository<TagEntity>;
 
   const MockGenericRepository = {
@@ -80,36 +79,36 @@ describe('tag-use-case', () => {
     });
 
     it('태그 배열을 반환한다.', async () => {
-      const mockTagObj = {
-        id: 'mockId',
-        tag: 'MockTagName',
+      const fakeTagObj = {
+        id: 'fakeId',
+        tag: 'fakeTagName',
       };
-      tagRepository.getAll = jest.fn().mockResolvedValue([mockTagObj]);
-      expect(await tagService.getAllTags()).toStrictEqual([mockTagObj]);
+      tagRepository.getAll = jest.fn().mockResolvedValue([fakeTagObj]);
+      expect(await tagService.getAllTags()).toStrictEqual([fakeTagObj]);
     });
   });
 
   describe('createTag', () => {
-    const mockTagObj = {
-      tag: 'MockTagName',
+    const fakeTagObj = {
+      tag: 'fakeTagName',
     };
     it('이미 등록된 태그가 있으면 등록된 태그를 반환한다', async () => {
-      const getTagsByNamesResolve = { ...mockTagObj, id: 'mockId' };
+      const getTagsByNamesResolve = { ...fakeTagObj, id: 'fakeId' };
       tagService['getTagsByNames'] = jest
         .fn()
         .mockResolvedValue([getTagsByNamesResolve]);
-      expect(await tagService.createTag(mockTagObj)).toStrictEqual(
+      expect(await tagService.createTag(fakeTagObj)).toStrictEqual(
         getTagsByNamesResolve,
       );
     });
 
     it('등록되어 있지 않은 태그는 태그를 등록하고 반환한다', async () => {
-      const getTagsByNamesResolve = { ...mockTagObj, id: 'mockId' };
+      const getTagsByNamesResolve = { ...fakeTagObj, id: 'fakeId' };
       tagService['getTagsByNames'] = jest
         .fn()
         .mockResolvedValue([getTagsByNamesResolve]);
       tagRepository.save = jest.fn().mockResolvedValue(getTagsByNamesResolve);
-      expect(await tagService.createTag(mockTagObj)).toStrictEqual(
+      expect(await tagService.createTag(fakeTagObj)).toStrictEqual(
         getTagsByNamesResolve,
       );
     });
@@ -117,43 +116,43 @@ describe('tag-use-case', () => {
 
   describe('getTagsByNames', () => {
     it('태그이름 문자열을 인수로 보내면 해당하는 태그를 반환한다.', async () => {
-      const mockTagObj = {
-        id: 'mockId',
-        tag: 'MockTagName',
+      const fakeTagObj = {
+        id: 'fakeId',
+        tag: 'fakeTagName',
       };
-      tagService['tagFindOrCreate'] = jest.fn().mockResolvedValue([mockTagObj]);
-      expect(await tagService.getTagsByNames(mockTagObj.tag)).toStrictEqual([
-        mockTagObj,
+      tagService['tagFindOrCreate'] = jest.fn().mockResolvedValue([fakeTagObj]);
+      expect(await tagService.getTagsByNames(fakeTagObj.tag)).toStrictEqual([
+        fakeTagObj,
       ]);
     });
 
     it('태그이름 배열을 인수로 보내면 해당하는 태그를 반환한다.', async () => {
-      const mockTagObjOne = {
-        id: 'mockIdOne',
-        tag: 'MockTagNameOne',
+      const fakeTagObjOne = {
+        id: 'fakeIdOne',
+        tag: 'fakeTagNameOne',
       };
-      const mockTagObjTwo = {
-        id: 'mockIdTwo',
-        tag: 'MockTagNameTwo',
+      const fakeTagObjTwo = {
+        id: 'fakeIdTwo',
+        tag: 'fakeTagNameTwo',
       };
       tagService['tagFindOrCreate'] = jest
         .fn()
-        .mockResolvedValue([mockTagObjOne, mockTagObjTwo]);
+        .mockResolvedValue([fakeTagObjOne, fakeTagObjTwo]);
       expect(
-        await tagService.getTagsByNames([mockTagObjOne.tag, mockTagObjTwo.tag]),
-      ).toStrictEqual([mockTagObjOne, mockTagObjTwo]);
+        await tagService.getTagsByNames([fakeTagObjOne.tag, fakeTagObjTwo.tag]),
+      ).toStrictEqual([fakeTagObjOne, fakeTagObjTwo]);
     });
   });
 
   describe('tagFindOrCreate', () => {
     const findByTagNamesResolve = [
       {
-        id: 'mockIdOne',
-        tag: 'mockTagOne',
+        id: 'fakeIdOne',
+        tag: 'fakeTagOne',
       },
       {
-        id: 'mockIdTwo',
-        tag: 'mockTagTwo',
+        id: 'fakeIdTwo',
+        tag: 'fakeTagTwo',
       },
     ];
 
@@ -207,15 +206,15 @@ describe('tag-use-case', () => {
 
   describe('attachTag', () => {
     const attachTagObj = {
-      bookmarkId: 'mockBookmarkId',
+      bookmarkId: 'fakeBookmarkId',
       tags: [
         {
-          id: 'mockIdOne',
-          tag: 'MockTagNameOne',
+          id: 'fakeIdOne',
+          tag: 'fakeTagNameOne',
         },
         {
-          id: 'mockIdTwo',
-          tag: 'MockTagNameTwo',
+          id: 'fakeIdTwo',
+          tag: 'fakeTagNameTwo',
         },
       ],
     };
@@ -241,8 +240,8 @@ describe('tag-use-case', () => {
 
   describe('detachTag', () => {
     const detachTagObj = {
-      bookmarkId: 'mockBookmarkId',
-      tagId: 'mockTagIdOne',
+      bookmarkId: 'fakeBookmarkId',
+      tagId: 'fakeTagIdOne',
     };
 
     it('북마크 아이디와 태그 아이디 문자열을 인수로 제공하면 Deleted 문자열을 반환한다.', async () => {
@@ -257,22 +256,22 @@ describe('tag-use-case', () => {
       expect(
         await tagService.detachTag(detachTagObj.bookmarkId, [
           detachTagObj.tagId,
-          'mockTagIdTwo',
+          'fakeTagIdTwo',
         ]),
       ).toBe('Deleted');
     });
   });
 
   describe('getTagsByIds', () => {
-    const mocktagIds = ['mockTagIdOne', 'mockTagIdTwo'];
+    const faketagIds = ['fakeTagIdOne', 'fakeTagIdTwo'];
     const getTagsByIdsResolve = [
       {
-        id: mocktagIds[0],
-        tag: 'mockTagOne',
+        id: faketagIds[0],
+        tag: 'fakeTagOne',
       },
       {
-        id: mocktagIds[1],
-        tag: 'mockTagTwo',
+        id: faketagIds[1],
+        tag: 'fakeTagTwo',
       },
     ];
     it('태그 아이디 문자열을 인수로 제공하면 해당하는 태그 배열을 반환한다.', async () => {
@@ -280,7 +279,7 @@ describe('tag-use-case', () => {
         .fn()
         .mockResolvedValue(getTagsByIdsResolve[0]);
 
-      expect(await tagService.getTagsByIds(mocktagIds[0])).toStrictEqual(
+      expect(await tagService.getTagsByIds(faketagIds[0])).toStrictEqual(
         getTagsByIdsResolve[0],
       );
     });
@@ -290,7 +289,7 @@ describe('tag-use-case', () => {
         .fn()
         .mockResolvedValue(getTagsByIdsResolve);
 
-      expect(await tagService.getTagsByIds(mocktagIds)).toStrictEqual(
+      expect(await tagService.getTagsByIds(faketagIds)).toStrictEqual(
         getTagsByIdsResolve,
       );
     });
@@ -298,16 +297,16 @@ describe('tag-use-case', () => {
 
   describe('getUserAllTags', () => {
     it('유저 아이디를 인수로 제공하면 작성한 모든 태그를 반환한다', async () => {
-      const mockUserId = 'mockUserId';
+      const fakeUserId = 'fakeUserId';
       const getUserAllTagsResolve = [
         {
-          id: 'mockIdOne',
-          tag: 'mockTagOne',
+          id: 'fakeIdOne',
+          tag: 'fakeTagOne',
           count: 1,
         },
         {
-          id: 'mockIdTwo',
-          tag: 'mockTagTwo',
+          id: 'fakeIdTwo',
+          tag: 'fakeTagTwo',
           count: 2,
         },
       ];
@@ -316,25 +315,25 @@ describe('tag-use-case', () => {
         .fn()
         .mockResolvedValue(getUserAllTagsResolve);
 
-      expect(await tagService.getUserAllTags(mockUserId)).toStrictEqual(
+      expect(await tagService.getUserAllTags(fakeUserId)).toStrictEqual(
         getUserAllTagsResolve,
       );
     });
   });
 
   describe('getNotExistTag', () => {
-    const mockInputTags = ['mockTagOne', 'mockTagTwo', 'mockTagThree'];
-    const mockExistTags = [
+    const fakeInputTags = ['fakeTagOne', 'fakeTagTwo', 'fakeTagThree'];
+    const fakeExistTags = [
       {
-        id: 'mockIdTwo',
-        tag: 'mockTagTwo',
+        id: 'fakeIdTwo',
+        tag: 'fakeTagTwo',
       },
     ];
-    const mockNotExistTag = ['mockTagOne', 'mockTagThree'];
+    const fakeNotExistTag = ['fakeTagOne', 'fakeTagThree'];
     it('inputTags중 existTags에 존재하지 않는 태그배열을 반환한다.', () => {
       expect(
-        tagService['getNotExistTag'](mockExistTags, mockInputTags),
-      ).toStrictEqual(mockNotExistTag);
+        tagService['getNotExistTag'](fakeExistTags, fakeInputTags),
+      ).toStrictEqual(fakeNotExistTag);
     });
   });
 });

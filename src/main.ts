@@ -16,7 +16,14 @@ async function bootstrap() {
     credentials: true,
   });
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      skipMissingProperties: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      stopAtFirstError: true,
+    }),
+  );
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   setupSwagger(app);
 

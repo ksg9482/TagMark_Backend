@@ -16,7 +16,7 @@ describe('utilsService', () => {
         {
           provide: 'CONFIG_OPTIONS',
           useValue: {
-            privateKey: 'mockPrivateKey',
+            privateKey: 'fakePrivateKey',
           },
         },
       ],
@@ -31,10 +31,11 @@ describe('utilsService', () => {
   });
 
   describe('getUuid', () => {
-    const mockUuid = '28ef9771-1560-4a0d-bfa7-8298e3fe616b';
-    const mockChangedUuid = '4a0d156028ef9771bfa78298e3fe616b';
+    const fakeUuid = '28ef9771-1560-4a0d-bfa7-8298e3fe616b'.split('-');
+    const fakeChangedUuid =
+      fakeUuid[2] + fakeUuid[1] + fakeUuid[0] + fakeUuid[3] + fakeUuid[4];
     it('uuid로 이루어진 문자열을 반환한다.', () => {
-      expect(utilsService.getUuid().length).toBe(mockChangedUuid.length);
+      expect(utilsService.getUuid().length).toBe(fakeChangedUuid.length);
     });
   });
 

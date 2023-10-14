@@ -1,14 +1,6 @@
-import { HttpService, HttpModule } from '@nestjs/axios';
-import {
-  HttpException,
-  HttpStatus,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AuthModule } from 'src/auth/auth.module';
 import { JwtService } from 'src/jwt/jwt.service';
-import { TagFactory } from 'src/tag/domain/tag.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthService } from './auth.service';
@@ -57,70 +49,70 @@ describe('AuthService', () => {
 
   describe('getToken', () => {
     it('request의 헤더에 authorization 필드가 없으면 에러를 반환한다.', () => {
-      const mockRequest: any = {
+      const fakeRequest: any = {
         headers: {},
       };
-      const mockSecureWrapper = {
+      const fakeSecureWrapper = {
         decryptWrapper: jest.fn().mockReturnValue(''),
       };
       secureService.secure().wrapper = jest
         .fn()
-        .mockReturnValue(mockSecureWrapper);
+        .mockReturnValue(fakeSecureWrapper);
       expect(() => {
-        authService.getToken(mockRequest);
+        authService.getToken(fakeRequest);
       }).toThrowError(new Error('No Access Token'));
     });
 
     it('authorization 필드가 Bearer형식이 아니면 에러를 반환한다.', () => {
-      const mockRequest: any = {
+      const fakeRequest: any = {
         headers: {
           authorization: 'notBearer authorization',
         },
       };
-      const mockSecureWrapper = {
+      const fakeSecureWrapper = {
         decryptWrapper: jest.fn().mockReturnValue(''),
       };
       secureService.secure().wrapper = jest
         .fn()
-        .mockReturnValue(mockSecureWrapper);
+        .mockReturnValue(fakeSecureWrapper);
       expect(() => {
-        authService.getToken(mockRequest);
+        authService.getToken(fakeRequest);
       }).toThrowError(new Error('No Access Token'));
     });
 
     it('authorization 필드가 Bearer형식이면 accessToken을 반환한다.', () => {
-      const mockRequest: any = {
+      const fakeRequest: any = {
         headers: {
-          authorization: 'Bearer mockAccessToken',
+          authorization: 'Bearer fakeAccessToken',
         },
       };
-      const mockSecureWrapper = {
-        decryptWrapper: jest.fn().mockReturnValue('mockAccessToken'),
+      const fakeSecureWrapper = {
+        decryptWrapper: jest.fn().mockReturnValue('fakeAccessToken'),
       };
       secureService.secure().wrapper = jest
         .fn()
-        .mockReturnValue(mockSecureWrapper);
-      expect(authService.getToken(mockRequest)).toBe('mockAccessToken');
+        .mockReturnValue(fakeSecureWrapper);
+      expect(authService.getToken(fakeRequest)).toBe('fakeAccessToken');
     });
   });
 
   describe('accessTokenDecode', () => {
-    const mockAccessToken = 'mockAccessToken';
+    const fakeAccessToken = 'fakeAccessToken';
     it('accessToken의 정합성 검사에 실패하면 UnauthorizedException을 반환한다.', () => {
       jwtService.verify = jest.fn().mockImplementation(() => {
         throw new Error();
       });
 
-      expect(() => authService.accessTokenDecode(mockAccessToken)).toThrowError(
+      expect(() => authService.accessTokenDecode(fakeAccessToken)).toThrowError(
         new UnauthorizedException(),
       );
     });
 
     it('accessToken을 반환한다.', () => {
-      jwtService.verify = jest.fn().mockReturnValue(mockAccessToken);
+      jwtService.verify = jest.fn().mockReturnValue(fakeAccessToken);
 
-      expect(authService.accessTokenDecode(mockAccessToken)).toBe(
-        mockAccessToken,
+      expect(authService.accessTokenDecode(fakeAccessToken)).toBe(
+        fakeAccessToken,
       );
     });
   });

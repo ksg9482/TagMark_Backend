@@ -30,9 +30,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode = error.status || error.statusCode;
     }
 
+    const getFirstErrorMessage = (message: string | string[]) => {
+      if (Array.isArray(message)) {
+        return message[0];
+      }
+      return message;
+    };
     response.status(statusCode || 500).json({
       success: false,
-      message: error.message || error,
+      message: error.message ? getFirstErrorMessage(error.message) : error,
     });
   }
 }

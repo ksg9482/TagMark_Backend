@@ -38,7 +38,7 @@ export class JwtService {
     return token;
   }
 
-  verify(token: string){
+  verify(token: string) {
     try {
       const result = jwt.verify(token, this.options.privateKey, {
         algorithms: [this.jwtAlgorithm],
@@ -47,7 +47,6 @@ export class JwtService {
     } catch (error) {
       throw new HttpException('Token expire', HttpStatus.BAD_REQUEST);
     }
-    
   }
 
   refreshVerify(token: string): DeletePasswordUser {
