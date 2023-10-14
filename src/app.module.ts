@@ -32,7 +32,7 @@ import { JwtMiddleware } from './middlewares/jwt.middleware';
       database: process.env.DB_NAME || 'tagmark',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV !== 'production',
+      // logging: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,
     JwtModule.forRoot({

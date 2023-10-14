@@ -18,7 +18,7 @@ describe('JwtService', () => {
         {
           provide: 'CONFIG_OPTIONS',
           useValue: {
-            privateKey: 'mockPrivateKey',
+            privateKey: 'fakePrivateKey',
           },
         },
       ],
@@ -33,100 +33,100 @@ describe('JwtService', () => {
   });
 
   describe('sign', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
-    const mockAccessToken = 'mockAccessToken';
+    const fakeAccessToken = 'fakeAccessToken';
     it('accessToken을 반환한다.', () => {
-      jest.spyOn(jwt, 'sign').mockImplementation(() => mockAccessToken);
-      expect(jwtService.sign(mockUser)).toStrictEqual(mockAccessToken);
+      jest.spyOn(jwt, 'sign').mockImplementation(() => fakeAccessToken);
+      expect(jwtService.sign(fakeUser)).toStrictEqual(fakeAccessToken);
     });
   });
 
   describe('refresh', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
-    const mockRefreshToken = 'mockRefreshToken';
+    const fakeRefreshToken = 'fakeRefreshToken';
     it('refreshToken을 반환한다.', () => {
-      jest.spyOn(jwt, 'sign').mockImplementation(() => mockRefreshToken);
-      expect(jwtService.refresh(mockUser)).toStrictEqual(mockRefreshToken);
+      jest.spyOn(jwt, 'sign').mockImplementation(() => fakeRefreshToken);
+      expect(jwtService.refresh(fakeUser)).toStrictEqual(fakeRefreshToken);
     });
   });
 
   describe('verify', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
-    const mockAccessToken = 'mockAccessToken';
+    const fakeAccessToken = 'fakeAccessToken';
 
     it('accessToken을 검증하여 통과되지 않으면 HttpException을 반환한다.', () => {
       jest
         .spyOn(jwt, 'verify')
         //.mockImplementation(() => false);
-        .mockImplementation(() => null);
+        .mockImplementation(() => {
+          throw new Error();
+        });
 
-      Reflect.deleteProperty(mockUser, 'password');
+      Reflect.deleteProperty(fakeUser, 'password');
 
-      expect(() => jwtService.verify(mockAccessToken)).toThrowError(
+      expect(() => jwtService.verify(fakeAccessToken)).toThrowError(
         new HttpException('Token expire', HttpStatus.BAD_REQUEST),
       );
     });
 
     it('accessToken을 검증하여 비밀번호가 제거된 유저객체를 반환한다.', () => {
-      jest.spyOn(jwt, 'verify').mockImplementation(() => mockUser);
+      jest.spyOn(jwt, 'verify').mockImplementation(() => fakeUser);
 
-      Reflect.deleteProperty(mockUser, 'password');
+      Reflect.deleteProperty(fakeUser, 'password');
 
-      expect(jwtService.verify(mockAccessToken)).toStrictEqual(mockUser);
+      expect(jwtService.verify(fakeAccessToken)).toStrictEqual(fakeUser);
     });
   });
 
   describe('refreshVerify', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
-    const mockRefreshToken = 'mockRefreshToken';
+    const fakeRefreshToken = 'fakeRefreshToken';
 
     it('accessToken을 검증하여 통과되지 않으면 HttpException을 반환한다.', () => {
-      jest
-        .spyOn(jwt, 'verify')
-        .mockImplementation(() => null);
+      jest.spyOn(jwt, 'verify').mockImplementation(() => null);
 
-      Reflect.deleteProperty(mockUser, 'password');
+      Reflect.deleteProperty(fakeUser, 'password');
 
-      expect(() => jwtService.refreshVerify(mockRefreshToken)).toThrowError(
+      expect(() => jwtService.refreshVerify(fakeRefreshToken)).toThrowError(
         new HttpException('Token expire', HttpStatus.BAD_REQUEST),
       );
     });
 
     it('accessToken을 검증하여 비밀번호가 제거된 유저객체를 반환한다.', () => {
-      jest.spyOn(jwt, 'verify').mockImplementation(() => mockUser);
+      jest.spyOn(jwt, 'verify').mockImplementation(() => fakeUser);
 
-      Reflect.deleteProperty(mockUser, 'password');
+      Reflect.deleteProperty(fakeUser, 'password');
 
-      expect(jwtService.refreshVerify(mockRefreshToken)).toStrictEqual(
-        mockUser,
+      expect(jwtService.refreshVerify(fakeRefreshToken)).toStrictEqual(
+        fakeUser,
       );
     });
   });

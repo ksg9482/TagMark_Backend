@@ -20,7 +20,7 @@ describe('secureService', () => {
         {
           provide: 'CONFIG_OPTIONS',
           useValue: {
-            privateKey: 'mockPrivateKey',
+            privateKey: 'fakePrivateKey',
           },
         },
       ],
@@ -35,25 +35,25 @@ describe('secureService', () => {
   });
 
   describe('checkPassword', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
     it('비밀번호 검사에 통과하면 true를 반환한다.', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => true);
       expect(
-        await secureService.checkPassword(mockUser.password, mockUser),
+        await secureService.checkPassword(fakeUser.password, fakeUser),
       ).toBeTruthy();
     });
 
     it('비밀번호 검사에 통과하지 못하면 false를 반환한다.', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => false);
       expect(
-        await secureService.checkPassword(mockUser.password, mockUser),
+        await secureService.checkPassword(fakeUser.password, fakeUser),
       ).toBeFalsy();
     });
 
@@ -62,29 +62,29 @@ describe('secureService', () => {
         throw new Error();
       });
       expect(
-        await secureService.checkPassword(mockUser.password, mockUser),
+        await secureService.checkPassword(fakeUser.password, fakeUser),
       ).toBeFalsy();
     });
   });
 
   describe('wrapper', () => {
-    const mockUser = {
-      id: 'mock',
-      email: 'mockEmail',
-      nickname: 'mockNickname',
-      password: 'mockpassword',
+    const fakeUser = {
+      id: 'fake',
+      email: 'fakeEmail',
+      nickname: 'fakeNickname',
+      password: 'fakepassword',
       role: UserRole.USER,
       type: UserType.BASIC,
     };
-    const mockData = 'mockMessage';
+    const fakeData = 'fakeMessage';
 
     it('secure().encryptWrapper() 함수는 인코딩된 데이터를 반환한다.', async () => {
       const encryptFn: any = {
-        toString: jest.fn().mockReturnValue('mockEncryptValue'),
+        toString: jest.fn().mockReturnValue('fakeEncryptValue'),
       };
       jest.spyOn(CryptoJS.AES, 'encrypt').mockImplementation(() => encryptFn);
-      expect(secureService.secure().wrapper().encryptWrapper(mockData)).toBe(
-        'mockEncryptValue',
+      expect(secureService.secure().wrapper().encryptWrapper(fakeData)).toBe(
+        'fakeEncryptValue',
       );
     });
 
@@ -93,18 +93,18 @@ describe('secureService', () => {
         toString: jest.fn().mockReturnValue(false),
       };
       jest.spyOn(CryptoJS.AES, 'decrypt').mockImplementation(() => decryptFn);
-      expect(secureService.secure().wrapper().decryptWrapper(mockData)).toBe(
-        mockData,
+      expect(secureService.secure().wrapper().decryptWrapper(fakeData)).toBe(
+        fakeData,
       );
     });
 
     it('secure().decryptWrapper() 함수는 인코딩된 데이터를 반환한다.', async () => {
       const decryptFn: any = {
-        toString: jest.fn().mockReturnValue('mockDecryptValue'),
+        toString: jest.fn().mockReturnValue('fakeDecryptValue'),
       };
       jest.spyOn(CryptoJS.AES, 'decrypt').mockImplementation(() => decryptFn);
-      expect(secureService.secure().wrapper().decryptWrapper(mockData)).toBe(
-        'mockDecryptValue',
+      expect(secureService.secure().wrapper().decryptWrapper(fakeData)).toBe(
+        'fakeDecryptValue',
       );
     });
   });

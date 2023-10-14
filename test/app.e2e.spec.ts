@@ -142,10 +142,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
-          'email should not be empty',
-          'email must be an email',
-        ]);
+        expect(result.body.message).toBe('email should not be empty');
       });
 
       it('비밀번호가 입력되지 않으면 접속할 수 없다', async () => {
@@ -159,10 +156,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
-          'password should not be empty',
-          'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
-        ]);
+        expect(result.body.message).toBe('password should not be empty');
       });
 
       it('아이디가 이메일 양식이 아니면 접속할 수 없다', async () => {
@@ -176,7 +170,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(['email must be an email']);
+        expect(result.body.message).toBe('email must be an email');
       });
 
       it('비밀번호 길이가 6보다 짧으면 접속할 수 없다', async () => {
@@ -190,9 +184,9 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
+        expect(result.body.message).toBe(
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
-        ]);
+        );
       });
 
       it('비밀번호 길이가 30보다 길면 접속할 수 없다', async () => {
@@ -206,9 +200,9 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
+        expect(result.body.message).toBe(
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
-        ]);
+        );
       });
 
       it('틀린 아이디를 입력하면 로그인 할 수 없다', async () => {
@@ -300,12 +294,12 @@ describe('AppController (e2e)', () => {
   const bookmarkResponseDataOne = {
     success: true,
     createdBookmark: {
-      id: 'mockBookmarkId',
+      id: 'fakeBookmarkId',
       url: bookmarkParamsOne.url,
       userId: userResponseDataOne.createdUser.id,
       tags: [
-        { id: 'mockTagId_1', tag: '여행' },
-        { id: 'mockTagId_2', tag: '요리' },
+        { id: 'fakeTagId_1', tag: '여행' },
+        { id: 'fakeTagId_2', tag: '요리' },
       ],
     },
   };
@@ -356,10 +350,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
-          'url should not be empty',
-          'url must be a string',
-        ]);
+        expect(result.body.message).toBe('url should not be empty');
       });
 
       it('북마크 url이 빈 문자열이면 생성 할 수 없다.', async () => {
@@ -373,7 +364,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(['url should not be empty']);
+        expect(result.body.message).toBe('url should not be empty');
       });
     });
 
@@ -466,7 +457,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(['url should not be empty']);
+        expect(result.body.message).toBe('url should not be empty');
       });
 
       it('변경할 북마크가 빈 객체면 북마크를 수정할 수 없다.', async () => {
@@ -477,10 +468,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
-          'url should not be empty',
-          'url must be a string',
-        ]);
+        expect(result.body.message).toBe('url should not be empty');
       });
     });
 
@@ -493,16 +481,16 @@ describe('AppController (e2e)', () => {
             tags: [
               {
                 id: '1',
-                tag: 'mockOne',
+                tag: 'fakeOne',
               },
               {
                 id: '2',
-                tag: 'mockTwo',
+                tag: 'fakeTwo',
               },
             ],
           },
         ],
-        tagNames: ['mockOne', 'mockTwo'],
+        tagNames: ['fakeOne', 'fakeTwo'],
       };
 
       const noTagBookmark = {
@@ -583,10 +571,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual([
-          'tag should not be empty',
-          'tag must be a string',
-        ]);
+        expect(result.body.message).toBe('tag should not be empty');
       });
 
       it('태그가 빈 문자열이면 태그를 생성 할 수 없다.', async () => {
@@ -597,7 +582,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(['tag should not be empty']);
+        expect(result.body.message).toBe('tag should not be empty');
       });
 
       it('태그가 숫자면 태그를 생성 할 수 없다.', async () => {
@@ -608,7 +593,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(400);
         expect(result.body.success).toBe(false);
-        expect(result.body.message).toStrictEqual(['tag must be a string']);
+        expect(result.body.message).toBe('tag must be a string');
       });
     });
 

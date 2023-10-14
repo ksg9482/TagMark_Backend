@@ -1,7 +1,6 @@
 import { Page } from 'src/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import { IGenericRepository } from 'src/common/domain/repository/igeneric-repository';
-import { Tag } from 'src/tag/domain/tag';
 
 export interface IBookmarkRepository extends IGenericRepository<Bookmark> {
   getUserBookmark: (
