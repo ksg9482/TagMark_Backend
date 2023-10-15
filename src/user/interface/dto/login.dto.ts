@@ -7,7 +7,6 @@ import {
   Matches,
 } from 'class-validator';
 import { User } from 'src/user/domain';
-import { ResponseUser } from 'src/user/infra/db/entity/user.entity';
 import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class LoginDto {
   @ApiProperty({ description: '이메일' })

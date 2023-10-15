@@ -7,7 +7,6 @@ import { BookmarkEntity } from 'src/bookmark/infra/db/entity/bookmark.entity';
 import { Bookmarks_TagsEntity } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
 import { BookmarkFactory } from 'src/bookmark/domain/bookmark.factory';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
@@ -25,7 +24,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     private bookmarkFactory: BookmarkFactory,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
-  ) { }
+  ) {}
   get: (id: string) => Promise<Bookmark | null>;
 
   async delete(id: string) {

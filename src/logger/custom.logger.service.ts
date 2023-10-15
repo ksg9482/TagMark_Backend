@@ -1,4 +1,4 @@
-import { Logger, LoggerService, LogLevel } from '@nestjs/common';
+import { Logger, LoggerService } from '@nestjs/common';
 
 export declare class WinstonLogger implements LoggerService {
   private readonly logger;
