@@ -1,11 +1,11 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { Repository, DataSource } from 'typeorm';
-import { UserEntity } from 'src/user/infra/db/entity/user.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { UserEntity } from 'src/user/infra/db/entity/user.entity';
+import * as request from 'supertest';
+import { DataSource, Repository } from 'typeorm';
+import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -64,8 +64,6 @@ describe('AppController (e2e)', () => {
   });
 
   const userParamsOne = { email: 'test1@test.com', password: '123456' };
-  const userParamsTwo = { email: 'test2@test.com', password: '123456' };
-  const userParamsThree = { email: 'test3@test.com', password: '123456' };
   const userResponseDataOne = {
     success: true,
     createdUser: {
@@ -311,10 +309,10 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsOne);
 
-        const createBookmarkTwo = await privateTest()
+        await privateTest()
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsTwo);
-        const createBookmarkThree = await privateTest()
+        await privateTest()
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsThree);
 
@@ -370,7 +368,6 @@ describe('AppController (e2e)', () => {
 
     describe('/ (get)', () => {
       it('정상적인 데이터를 전송하면 유저가 작성한 모든 북마크를 반환한다.', async () => {
-        const keys = ['id', 'url', 'tags'];
         const result = await privateTest().get('/api/bookmark', accessToken);
 
         const bookmarkArr = result.body.bookmarks;
@@ -633,7 +630,6 @@ describe('AppController (e2e)', () => {
 
   describe('삭제 테스트', () => {
     describe('bookmark/:id (delete)', () => {
-      const bookmarkId = bookmarkResponseDataOne.createdBookmark.id;
       it('정상적인 데이터를 전송하면 북마크를 제거한다.', async () => {
         const result = await privateTest().delete(
           `/api/bookmark/${bookmarkResponseDataOne.createdBookmark.id}`,

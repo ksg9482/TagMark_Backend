@@ -25,7 +25,10 @@ export class PageRequest {
 
   getLimit(): number {
     const minimumPageSize = 20;
-    if (this.pageSize === undefined || this.pageSize! < minimumPageSize) {
+    if (
+      this.pageSize === undefined ||
+      (this.pageSize && this.pageSize < minimumPageSize)
+    ) {
       this.pageSize = minimumPageSize;
     }
     return Number(this.pageSize);
