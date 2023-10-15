@@ -1,10 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { User } from 'src/user/domain/user';
 import { JwtModuleOptions } from './jwt.interfaces';

@@ -13,10 +13,8 @@ export class TagEntity {
   @ApiProperty({ description: '태그' })
   tag: string;
 
-  @OneToMany(
-    () => bookmark_tag,
-    (bookmark_tag) => bookmark_tag.bookmark,
-    { onDelete: 'CASCADE' },
-  )
+  @OneToMany(() => bookmark_tag, (bookmark_tag) => bookmark_tag.bookmark, {
+    onDelete: 'CASCADE',
+  })
   bookmarks?: Bookmark[];
 }

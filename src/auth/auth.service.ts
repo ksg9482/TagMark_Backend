@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UserUseCases } from 'src/user/application/user.use-case';
 import { SecureService } from 'src/utils/secure.service';
 import { AuthorizationType } from './auth.interface';
 

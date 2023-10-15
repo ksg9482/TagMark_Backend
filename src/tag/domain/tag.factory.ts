@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { EventBus } from '@nestjs/cqrs';
 import { Tag } from './tag';
 
 @Injectable()

@@ -1,19 +1,19 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { UtilsModule } from './utils/utils.module';
-import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
-import { validate } from './validate/env.validation';
-import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { APP_FILTER } from '@nestjs/core';
-import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
-import { UsersModule } from './user/user.module';
-import { BookmarkModule } from './bookmark/bookmark.module';
-import { TagModule } from './tag/tag.module';
-import Configuration from './config/configuration';
-import { WinstonDailyModule } from './logger/winston.logger';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
+import Configuration from './config/configuration';
+import { HttpExceptionFilter } from './exceptions/httpExceptionFilter';
+import { JwtModule } from './jwt/jwt.module';
+import { WinstonDailyModule } from './logger/winston.logger';
 import { JwtMiddleware } from './middlewares/jwt.middleware';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { TagModule } from './tag/tag.module';
+import { UsersModule } from './user/user.module';
+import { UtilsModule } from './utils/utils.module';
+import { validate } from './validate/env.validation';
 
 @Module({
   imports: [
