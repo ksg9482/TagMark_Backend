@@ -14,7 +14,8 @@ export class JwtMiddleware implements NestMiddleware {
     if ('authorization' in req.headers) {
       const accessToken = this.authServices.getToken(req);
       const baseUrlArr = req.baseUrl.split('/');
-      if (req.baseUrl.split('/')[baseUrlArr.length - 1] === 'refresh') {
+      const whiteList = ['google', 'refresh']
+      if(whiteList.includes(req.baseUrl.split('/')[baseUrlArr.length - 1])) {
         next();
         return;
       }
