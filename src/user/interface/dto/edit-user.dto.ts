@@ -10,18 +10,33 @@ import {
 import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 import { CreateUserDto } from './create-user.dto';
 export class EditUserDto extends PartialType(CreateUserDto) {
+  private _password?: string;
+  private _nickname?: string;
+
   @ApiProperty({ description: '변경하려는 비밀번호' })
   @IsString()
   @IsOptional()
   @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
-  password?: string;
+  get password() {
+    return this._password;
+  }
+
+  set password(value) {
+    this._password = value;
+  }
 
   @ApiProperty({ description: '변경하려는 닉네임' })
   @IsString()
   @IsOptional()
   @MinLength(1)
   @MaxLength(20)
-  nickname?: string;
+  get nickname() {
+    return this._nickname;
+  }
+
+  set nickname(value) {
+    this._nickname = value;
+  }
 }
 
 export class EditUserResponseDto extends BaseResponseDto {}

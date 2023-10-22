@@ -228,7 +228,7 @@ export class UserController {
   ): Promise<DeleteUserResponseDto> {
     const deleteUserResponse = new DeleteUserResponseDto();
     try {
-      const deleteUser = await this.userUseCases.deleteUser(userId);
+      await this.userUseCases.deleteUser(userId);
       res.clearCookie('refreshToken');
       res.clearCookie('accessToken');
       res.clearCookie('Authorization');
