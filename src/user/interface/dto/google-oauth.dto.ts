@@ -3,9 +3,17 @@ import { IsNotEmpty, IsObject, IsString } from 'class-validator';
 import { User } from 'src/user/domain';
 import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class GoogleOauthDto {
+  private _accessToken: string;
+
   @IsString()
   @IsNotEmpty()
-  accessToken: string;
+  get accessToken() {
+    return this._accessToken;
+  }
+
+  set accessToken(value) {
+    this._accessToken = value;
+  }
 }
 
 export class GoogleOauthResponseDto extends BaseResponseDto {

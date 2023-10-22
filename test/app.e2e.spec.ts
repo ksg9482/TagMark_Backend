@@ -268,7 +268,6 @@ describe('AppController (e2e)', () => {
           .get('/api/user/refresh', accessToken)
           .set('Cookie', [refreshToken]);
         const newAccessToken = result.body.accessToken;
-
         expect(result.status).toBe(200);
         expect(result.body.success).toBe(true);
         expect(typeof newAccessToken === 'string').toBeTruthy();
