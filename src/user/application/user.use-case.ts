@@ -40,7 +40,7 @@ export class UserUseCases {
     const defaultType = UserType.BASIC;
     const createdUser = await this.userRepository.save({
       email: email,
-      nickname: nickname || '',
+      nickname: nickname || '익명',
       password: password,
       role: defaultRole,
       type: defaultType,

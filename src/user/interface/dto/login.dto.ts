@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -9,16 +10,31 @@ import {
 import { User } from 'src/user/domain';
 import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class LoginDto {
+  private _email: string;
+  private _password: string;
+
   @ApiProperty({ description: '이메일' })
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  get email() {
+    return this._email;
+  }
+
+  set email(value) {
+    this._email = value;
+  }
 
   @ApiProperty({ description: '비밀번호' })
   @IsString()
   @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
   @IsNotEmpty()
-  password: string;
+  get password() {
+    return this._password;
+  }
+
+  set password(value) {
+    this._password = value;
+  }
 }
 
 export class LoginResponseDto extends BaseResponseDto {
