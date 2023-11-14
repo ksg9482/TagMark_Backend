@@ -29,6 +29,7 @@ export class UserUseCases {
     email: string,
     password: string,
     nickname?: string,
+    type?: UserType,
   ): Promise<User> {
     const user = await this.findByEmail(email);
 
@@ -43,7 +44,7 @@ export class UserUseCases {
       nickname: nickname || '익명',
       password: password,
       role: defaultRole,
-      type: defaultType,
+      type: type || defaultType,
     });
     const propertyDeletedUser = this.deleteUserProperty('default', createdUser);
 
@@ -124,6 +125,7 @@ export class UserUseCases {
         googleUser.email,
         googleUser.password,
         '',
+        UserType.GOOGLE,
       );
       user = createdUser;
     }
