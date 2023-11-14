@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { setNestApp } from 'src/main';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import * as request from 'supertest';
 import { DataSource, Repository } from 'typeorm';
@@ -60,6 +61,7 @@ describe('AppController (e2e)', () => {
     );
 
     await connectDB.initialize();
+    setNestApp(app);
     await app.init();
   });
 
@@ -268,6 +270,7 @@ describe('AppController (e2e)', () => {
           .get('/api/user/refresh', accessToken)
           .set('Cookie', [refreshToken]);
         const newAccessToken = result.body.accessToken;
+        console.log(result.body);
         expect(result.status).toBe(200);
         expect(result.body.success).toBe(true);
         expect(typeof newAccessToken === 'string').toBeTruthy();

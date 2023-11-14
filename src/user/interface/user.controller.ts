@@ -274,15 +274,14 @@ export class UserController {
   async refresh(
     @Headers('cookie') cookie: string,
   ): Promise<RefreshTokenResponseDto> {
-    const refreshTokenResponse = new RefreshTokenResponseDto();
     const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);
       const newAccessToken = await this.userUseCases.refresh(decrypted);
 
+      const refreshTokenResponse = new RefreshTokenResponseDto(newAccessToken);
       refreshTokenResponse.success = true;
-      refreshTokenResponse.accessToken = newAccessToken;
       return refreshTokenResponse;
     } catch (error) {
       this.logger.error(error);

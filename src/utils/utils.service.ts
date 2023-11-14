@@ -5,6 +5,7 @@ import { v4 as uuidV4 } from 'uuid';
 export class UtilsService {
   /**
    * uuid를 가공하여 인덱스화 기능을 상승시킨 id를 반환한다.
+   * 성능이슈 + 문자열이라 결국 인덱스 제대로 활용 못함. snowflake를 이용할까?
    */
   getUuid(): string {
     const tokens = uuidV4().split('-');

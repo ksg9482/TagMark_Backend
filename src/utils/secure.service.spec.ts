@@ -68,14 +68,6 @@ describe('secureService', () => {
   });
 
   describe('wrapper', () => {
-    const fakeUser = {
-      id: 'fake',
-      email: 'fakeEmail',
-      nickname: 'fakeNickname',
-      password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
     const fakeData = 'fakeMessage';
 
     it('secure().encryptWrapper() 함수는 인코딩된 데이터를 반환한다.', async () => {
