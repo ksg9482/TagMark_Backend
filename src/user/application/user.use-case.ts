@@ -7,11 +7,14 @@ import {
   Logger,
   LoggerService,
 } from '@nestjs/common';
-import { User, UserRole, UserType } from 'src/user/domain';
+import { User } from 'src/user/domain';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
 import { SecureService } from 'src/utils/secure.service';
+import { UserSaveDto } from '../domain/repository/dtos/userSave.dto';
+import { UserRole, UserRoleEnum } from '../domain/types/userRole';
+import { UserType, UserTypeEnum } from '../domain/types/userType';
 
 type DeleteUserProperty = 'default' | 'password';
 @Injectable()
@@ -30,25 +33,34 @@ export class UserUseCases {
     password: string,
     nickname?: string,
     type?: UserType,
-  ): Promise<User> {
+  ): Promise<Pick<User, 'id'>> {
     const user = await this.findByEmail(email);
-
     if (user) {
       this.logger.error('Email Already exists.');
       throw new HttpException('Email Already exists.', HttpStatus.BAD_REQUEST);
     }
-    const defaultRole = UserRole.USER;
-    const defaultType = UserType.BASIC;
-    const createdUser = await this.userRepository.save({
-      email: email,
-      nickname: nickname || '익명',
-      password: password,
-      role: defaultRole,
-      type: type || defaultType,
+    nickname = nickname || '';
+    const defaultUserRole = UserRoleEnum.USER;
+    const defaultUserType = UserTypeEnum.BASIC;
+    // const createdUser = await this.userRepository.save({
+    //   email: email,
+    //   nickname: nickname || '익명',
+    //   password: password,
+    //   role: defaultRole,
+    //   type: type || defaultType,
+    // });
+    const userSaveDto = UserSaveDto.of({
+      email,
+      password,
+      nickname,
+      role: defaultUserRole,
+      type: defaultUserType,
     });
+
+    const createdUser = await this.userRepository.save(userSaveDto);
     const propertyDeletedUser = this.deleteUserProperty('default', createdUser);
 
-    return propertyDeletedUser;
+    return { id: propertyDeletedUser.id };
   }
 
   async login(email: string, password: string) {
@@ -87,10 +99,10 @@ export class UserUseCases {
     const { nickname, password } = editUserData;
     const user = await this.findById(userId);
     if (nickname !== undefined) {
-      user.nickname = nickname;
+      user.updateNickName(nickname);
     }
     if (password !== undefined) {
-      user.password = password;
+      user.updatePassword(password);
     }
 
     const userUpadate = await this.userRepository.update(userId, user);
@@ -125,9 +137,16 @@ export class UserUseCases {
         googleUser.email,
         googleUser.password,
         '',
-        UserType.GOOGLE,
+        UserTypeEnum.GOOGLE,
       );
-      user = createdUser;
+      user = new User(
+        createdUser.id,
+        googleUser.email,
+        '',
+        googleUser.password,
+        UserRoleEnum.USER,
+        UserTypeEnum.GOOGLE,
+      );
     }
 
     const jwtAccessToken = this.jwtService.sign(user);
@@ -158,8 +177,8 @@ export class UserUseCases {
     const userForm = {
       email: userData.email,
       password: userData.id,
-      type: UserType.GOOGLE,
-      role: UserRole.USER,
+      type: UserTypeEnum.GOOGLE,
+      role: UserRoleEnum.USER,
     };
     return userForm;
   }

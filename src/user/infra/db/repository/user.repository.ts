@@ -5,8 +5,10 @@ import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
 import { User } from 'src/user/domain/user';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { UserFactory } from 'src/user/domain/user.factory';
-import { UserRole, UserType } from 'src/user/domain';
 import { UtilsService } from 'src/utils/utils.service';
+import { UserSaveDto } from 'src/user/domain/repository/dtos/userSave.dto';
+import { UserRole } from 'src/user/domain/types/userRole';
+import { UserType } from 'src/user/domain/types/userType';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -81,20 +83,21 @@ export class UserRepository implements IUserRepository {
       type,
     });
   }
-  async save(item: User): Promise<User> {
+  async save(item: UserSaveDto): Promise<Pick<User, 'id'>> {
     const { email, nickname, password, role, type } = item;
 
     const userEntity = this.createEntity(email, nickname, password, role, type);
 
     await this.userRepository.save(userEntity);
-    return this.userFactory.reconstitute(
-      userEntity.id,
-      userEntity.email,
-      userEntity.nickname,
-      userEntity.password,
-      userEntity.role,
-      userEntity.type,
-    );
+    // return this.userFactory.reconstitute(
+    //   userEntity.id,
+    //   userEntity.email,
+    //   userEntity.nickname,
+    //   userEntity.password,
+    //   userEntity.role,
+    //   userEntity.type,
+    // );
+    return { id: userEntity.id };
   }
 
   async update(id: string, item: User): Promise<any> {

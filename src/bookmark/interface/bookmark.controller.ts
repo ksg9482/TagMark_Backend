@@ -101,7 +101,7 @@ export class BookmarkController {
         await this.tagUseCases.attachTag(createdBookmark.id, tags);
         createdBookmark.tags = tags;
       }
-      createBookmarkResponse.success = true;
+      createBookmarkResponse.ok = true;
       createBookmarkResponse.createdBookmark = createdBookmark;
       return createBookmarkResponse;
     } catch (error) {
@@ -137,7 +137,7 @@ export class BookmarkController {
       );
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
-      syncBookmarkResponse.success = true;
+      syncBookmarkResponse.ok = true;
       syncBookmarkResponse.message = 'synced';
       syncBookmarkResponse.bookmarks = syncedBookmarks;
       return syncBookmarkResponse;
@@ -173,7 +173,7 @@ export class BookmarkController {
         page,
       );
 
-      getUserAllBookmarkResponse.success = true;
+      getUserAllBookmarkResponse.ok = true;
       getUserAllBookmarkResponse.totalCount = bookmarks.totalCount;
       getUserAllBookmarkResponse.totalPage = bookmarks.totalPage;
       getUserAllBookmarkResponse.bookmarks = bookmarks.bookmarks;
@@ -198,7 +198,7 @@ export class BookmarkController {
     try {
       const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
 
-      getUserAllBookmarkResponse.success = true;
+      getUserAllBookmarkResponse.ok = true;
       getUserAllBookmarkResponse.count = Number(count);
       return getUserAllBookmarkResponse;
     } catch (error) {
@@ -250,7 +250,7 @@ export class BookmarkController {
         await this.bookmarkUseCases.editBookmarkUrl(userId, bookmarkId, url);
       }
 
-      editBookmarkResponse.success = true;
+      editBookmarkResponse.ok = true;
       editBookmarkResponse.message = 'Updated';
       return editBookmarkResponse;
     } catch (error) {
@@ -293,7 +293,7 @@ export class BookmarkController {
         page,
       );
 
-      getSearchTagsResponseDto.success = true;
+      getSearchTagsResponseDto.ok = true;
       getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
       getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
       getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
@@ -338,7 +338,7 @@ export class BookmarkController {
         page,
       );
 
-      getSearchTagsResponseDto.success = true;
+      getSearchTagsResponseDto.ok = true;
       getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
       getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
       getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
@@ -367,7 +367,7 @@ export class BookmarkController {
     try {
       await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId);
 
-      deleteBookmarkResponse.success = true;
+      deleteBookmarkResponse.ok = true;
       deleteBookmarkResponse.message = 'Deleted';
       return deleteBookmarkResponse;
     } catch (error) {

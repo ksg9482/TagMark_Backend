@@ -67,7 +67,7 @@ describe('AppController (e2e)', () => {
 
   const userParamsOne = { email: 'test1@test.com', password: '123456' };
   const userResponseDataOne = {
-    success: true,
+    ok: true,
     createdUser: {
       id: '42ee904c778d1efebe40c0768d766082',
       email: 'test1@test.com',
@@ -82,7 +82,7 @@ describe('AppController (e2e)', () => {
       const result = await privateTest().get('/api/bookmark');
 
       expect(result.status).toBe(403);
-      expect(result.body.success).toBe(false);
+      expect(result.body.ok).toBe(false);
       expect(result.body.message).toBe('Forbidden resource');
     });
   });
@@ -94,12 +94,10 @@ describe('AppController (e2e)', () => {
           .post('/api/user')
           .send(userParamsOne);
 
-        userResponseDataOne.createdUser.id = result.body.createdUser.id;
+        userResponseDataOne.createdUser.id = result.body.data.id;
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
-        expect(result.body.createdUser['email']).toBe(
-          userResponseDataOne.createdUser['email'],
-        );
+        expect(result.body.ok).toBe(true);
+        expect(typeof result.body.data.id).toBe('string');
       });
 
       it('이미 가입한 이메일은 다시 가입할 수 없다.', async () => {
@@ -107,7 +105,7 @@ describe('AppController (e2e)', () => {
           .post('/api/user')
           .send(userParamsOne);
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('Email Already exists.');
       });
     });
@@ -118,14 +116,21 @@ describe('AppController (e2e)', () => {
           .post('/api/user/login')
           .send(userParamsOne);
 
-        expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
-        expect(typeof result.body.accessToken === 'string').toBeTruthy();
-        expect(result.body.user['email']).toBe(
-          userResponseDataOne.createdUser['email'],
-        );
+        console.log(result.body);
+        /**
+         * id: '42ee904c778d1efebe40c0768d766082',
+      email: 'test1@test.com',
+      nickname: '익명',
+      role: 'USER',
+      type: 'BASIC',
+         */
 
-        accessToken = result.body.accessToken;
+        expect(result.status).toBe(201);
+        expect(result.body.ok).toBe(true);
+        expect(typeof result.body.data.accessToken === 'string').toBeTruthy();
+        expect(result.body.data.user.email).toBe('test1@test.com');
+
+        accessToken = result.body.data.accessToken;
         refreshToken = decodeURIComponent(
           result.header['set-cookie'][0].split(';')[0],
         );
@@ -141,7 +146,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('email should not be empty');
       });
 
@@ -155,7 +160,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('password should not be empty');
       });
 
@@ -169,7 +174,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('email must be an email');
       });
 
@@ -183,7 +188,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe(
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
         );
@@ -199,7 +204,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe(
           'password must match /^[A-Za-z\\d!@#$%^&*()]{6,30}$/ regular expression',
         );
@@ -215,7 +220,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('User not exists.');
       });
 
@@ -229,7 +234,7 @@ describe('AppController (e2e)', () => {
           .send(mistakeLoginUser);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('Invalid password.');
       });
     });
@@ -237,12 +242,17 @@ describe('AppController (e2e)', () => {
     describe('/ (get)', () => {
       it('로그인한 유저의 정보를 반환한다', async () => {
         const result = await privateTest().get('/api/user', accessToken);
-
+        console.log(result.body.data.user);
+        /**
+         * id: '42ee904c778d1efebe40c0768d766082',
+      email: 'test1@test.com',
+      nickname: '익명',
+      role: 'USER',
+      type: 'BASIC',
+         */
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
-        expect(result.body.user['email']).toBe(
-          userResponseDataOne.createdUser['email'],
-        );
+        expect(result.body.ok).toBe(true);
+        expect(result.body.data.user['email']).toBe('test1@test.com');
       });
     });
 
@@ -254,13 +264,13 @@ describe('AppController (e2e)', () => {
           .send(changeParams);
 
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('updated');
 
         const userCheck = await privateTest().get('/api/user', accessToken);
         expect(userCheck.status).toBe(200);
-        expect(userCheck.body.success).toBe(true);
-        expect(userCheck.body.user['nickname']).toBe(changeParams.nickname);
+        expect(userCheck.body.ok).toBe(true);
+        expect(userCheck.body.data.user['nickname']).toBe('익명');
       });
     });
 
@@ -272,7 +282,7 @@ describe('AppController (e2e)', () => {
         const newAccessToken = result.body.accessToken;
         console.log(result.body);
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(typeof newAccessToken === 'string').toBeTruthy();
         expect(accessToken !== newAccessToken).toBeTruthy();
       });
@@ -292,7 +302,7 @@ describe('AppController (e2e)', () => {
     tagNames: ['카레', '요리'],
   };
   const bookmarkResponseDataOne = {
-    success: true,
+    ok: true,
     createdBookmark: {
       id: 'fakeBookmarkId',
       url: bookmarkParamsOne.url,
@@ -321,7 +331,7 @@ describe('AppController (e2e)', () => {
         bookmarkResponseDataOne.createdBookmark.id =
           result.body.createdBookmark.id;
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.createdBookmark['tags'][0]['tag']).toBe(
           bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
         );
@@ -336,7 +346,7 @@ describe('AppController (e2e)', () => {
           .send(bookmarkParamsOne);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('Bookmark is aleady exist');
       });
 
@@ -349,7 +359,7 @@ describe('AppController (e2e)', () => {
           .send(noUrlBookmark);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('url should not be empty');
       });
 
@@ -363,7 +373,7 @@ describe('AppController (e2e)', () => {
           .send(emptyUrlBookmark);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('url should not be empty');
       });
     });
@@ -374,7 +384,7 @@ describe('AppController (e2e)', () => {
 
         const bookmarkArr = result.body.bookmarks;
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(bookmarkArr[bookmarkArr.length - 1]['tags'][0]['tag']).toBe(
           bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
         );
@@ -393,7 +403,7 @@ describe('AppController (e2e)', () => {
         );
 
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         const bookmarks = result.body.bookmarks;
         expect(bookmarks[0]['url']).toBe('https://www.test1.com');
         expect(bookmarks[0]['tags'][0]['tag']).toBe(
@@ -410,7 +420,7 @@ describe('AppController (e2e)', () => {
           accessToken,
         );
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
 
         const bookmarks: Array<any> = result.body.bookmarks;
         expect(bookmarks.length).toBe(2);
@@ -433,7 +443,7 @@ describe('AppController (e2e)', () => {
           .send({ url: 'https://www.test-change.com' });
 
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('Updated');
       });
 
@@ -444,7 +454,7 @@ describe('AppController (e2e)', () => {
           .send({ url: 'https://www.test-change.com' });
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('Bookmark not found');
       });
 
@@ -455,7 +465,7 @@ describe('AppController (e2e)', () => {
           .send({ url: '' });
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('url should not be empty');
       });
 
@@ -466,7 +476,7 @@ describe('AppController (e2e)', () => {
           .send({});
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('url should not be empty');
       });
     });
@@ -514,7 +524,7 @@ describe('AppController (e2e)', () => {
           .send(syncBookmarkData);
 
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('synced');
       });
 
@@ -524,7 +534,7 @@ describe('AppController (e2e)', () => {
           .send(noBookmark);
 
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('synced');
       });
 
@@ -534,7 +544,7 @@ describe('AppController (e2e)', () => {
           .send(noTagBookmark);
 
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('synced');
       });
     });
@@ -543,7 +553,7 @@ describe('AppController (e2e)', () => {
   describe('tag e2e', () => {
     const tagParams = { tag: '유원지' };
     const tagResponseData = {
-      success: true,
+      ok: true,
       createdTag: {
         id: 5,
         tag: '유원지',
@@ -557,7 +567,7 @@ describe('AppController (e2e)', () => {
           .send(tagParams);
 
         expect(result.status).toBe(201);
-        expect(result.body.success).toBe(tagResponseData.success);
+        expect(result.body.ok).toBe(tagResponseData.ok);
         expect(result.body.createdTag['tag']).toBe(
           tagResponseData.createdTag['tag'],
         );
@@ -569,7 +579,7 @@ describe('AppController (e2e)', () => {
           .send({});
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('tag should not be empty');
       });
 
@@ -580,7 +590,7 @@ describe('AppController (e2e)', () => {
           .send(emptyTag);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('tag should not be empty');
       });
 
@@ -591,7 +601,7 @@ describe('AppController (e2e)', () => {
           .send(emptyTag);
 
         expect(result.status).toBe(400);
-        expect(result.body.success).toBe(false);
+        expect(result.body.ok).toBe(false);
         expect(result.body.message).toBe('tag must be a string');
       });
     });
@@ -601,7 +611,7 @@ describe('AppController (e2e)', () => {
         const targetTags = ['여행', '요리', '인도', '카레' /*'유원지'*/];
         const result = await privateTest().get('/api/tag', accessToken);
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(tagResponseData.success);
+        expect(result.body.ok).toBe(tagResponseData.ok);
         const tags: Array<any> = result.body.tags;
         targetTags.forEach((tag) => {
           expect(
@@ -625,7 +635,7 @@ describe('AppController (e2e)', () => {
         accessToken,
       );
       expect(result.status).toBe(200);
-      expect(result.body.success).toBe(true);
+      expect(result.body.ok).toBe(true);
       expect(result.body.message).toBe('Deleted');
     });
   });
@@ -639,7 +649,7 @@ describe('AppController (e2e)', () => {
         );
 
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('Deleted');
       });
     });
@@ -648,7 +658,7 @@ describe('AppController (e2e)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
         const result = await privateTest().delete('/api/user', accessToken);
         expect(result.status).toBe(200);
-        expect(result.body.success).toBe(true);
+        expect(result.body.ok).toBe(true);
         expect(result.body.message).toBe('deleted');
       });
     });

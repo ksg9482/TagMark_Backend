@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/user/domain/user';
-import { UserRole, UserType } from 'src/user/domain';
+import { UserRole } from './types/userRole';
+import { UserType } from './types/userType';
 
 @Injectable()
 export class UserFactory {

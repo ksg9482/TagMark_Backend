@@ -4,7 +4,7 @@ import { IsBoolean, IsOptional, IsString } from 'class-validator';
 export class BaseResponseDto {
   @ApiProperty({ description: '성공여부' })
   @IsBoolean()
-  success: boolean;
+  ok: boolean;
 
   @ApiProperty({ description: '에러 데이터' })
   @IsOptional()
