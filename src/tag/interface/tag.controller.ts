@@ -56,7 +56,7 @@ export class TagController {
     const { tag } = createTagDto;
     try {
       const createdTag = await this.tagUseCases.createTag({ tag: tag });
-      createTagResponse.success = true;
+      createTagResponse.ok = true;
       createTagResponse.createdTag = createdTag;
       return createTagResponse;
     } catch (error) {
@@ -79,7 +79,7 @@ export class TagController {
     try {
       const tags = await this.tagUseCases.getUserAllTags(userId);
 
-      getUserAllTagsResponse.success = true;
+      getUserAllTagsResponse.ok = true;
       getUserAllTagsResponse.tags = tags;
       return getUserAllTagsResponse;
     } catch (error) {
@@ -102,7 +102,7 @@ export class TagController {
     try {
       const tags = await this.tagUseCases.getUserAllTags(userId);
 
-      getUserAllTagsResponse.success = true;
+      getUserAllTagsResponse.ok = true;
       getUserAllTagsResponse.tags = tags;
       return getUserAllTagsResponse;
     } catch (error) {
@@ -137,7 +137,7 @@ export class TagController {
       });
       await this.tagUseCases.detachTag(bookmarkId, parseTagIds);
 
-      deleteTagResponse.success = true;
+      deleteTagResponse.ok = true;
       deleteTagResponse.message = 'Deleted';
       return deleteTagResponse;
     } catch (error) {

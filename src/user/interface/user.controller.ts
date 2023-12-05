@@ -44,6 +44,7 @@ import { UserFactory } from 'src/user/domain/user.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -72,16 +73,14 @@ export class UserController {
     type: UserProfileResponseDto,
   })
   @Get('/')
-  async findUserData(
-    @AuthUser() userId: string,
-  ): Promise<UserProfileResponseDto> {
+  async findUserData(@AuthUser() userId: string) {
     const userProfileResponse = new UserProfileResponseDto();
     try {
       const user = await this.userUseCases.me(userId);
-
-      userProfileResponse.success = true;
+      console.log(user);
+      userProfileResponse.ok = true;
       userProfileResponse.user = user;
-      return userProfileResponse;
+      return ResponseDto.OK_WITH({ user: user }); // userProfileResponse;
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -97,7 +96,7 @@ export class UserController {
   @Post('/')
   async createUser(
     @Body(new ValidationPipe()) userDto: CreateUserDto,
-  ): Promise<CreateUserResponseDto> {
+  ): Promise<ResponseDto<{ id: string }>> {
     const createUserResponse = new CreateUserResponseDto();
     try {
       const { email, password, nickname } = userDto;
@@ -107,9 +106,10 @@ export class UserController {
         nickname,
       );
 
-      createUserResponse.success = true;
-      createUserResponse.createdUser = createdUser;
-      return createUserResponse;
+      createUserResponse.ok = true;
+      // createUserResponse.createdUser = createdUser;
+      return ResponseDto.OK_WITH({ id: createdUser.id });
+      // return createUserResponse;
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -138,7 +138,7 @@ export class UserController {
         password,
       );
 
-      passwordValidResponse.success = true;
+      passwordValidResponse.ok = true;
       passwordValidResponse.valid = createdUser;
       return passwordValidResponse;
     } catch (error) {
@@ -157,7 +157,7 @@ export class UserController {
   async login(
     @Body(new ValidationPipe()) loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ) {
     const loginResponse = new LoginResponseDto();
     try {
       const secureWrap = this.secureService.secure().wrapper();
@@ -175,10 +175,14 @@ export class UserController {
       res.cookie('refreshToken', encrytedToken.refreshToken, cookieOption);
       res.cookie('accessToken', encrytedToken.accessToken, cookieOption);
 
-      loginResponse.success = true;
+      loginResponse.ok = true;
       loginResponse.user = user;
       loginResponse.accessToken = encrytedToken.accessToken;
-      return loginResponse;
+      // return loginResponse;
+      return ResponseDto.OK_WITH({
+        user: user,
+        accessToken: encrytedToken.accessToken,
+      });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -203,7 +207,7 @@ export class UserController {
     const editUserResponse = new EditUserResponseDto();
     try {
       await this.userUseCases.editUser(userId, editUserDto);
-      editUserResponse.success = true;
+      editUserResponse.ok = true;
       editUserResponse.message = 'updated';
       return editUserResponse;
     } catch (error) {
@@ -232,7 +236,7 @@ export class UserController {
       res.clearCookie('refreshToken');
       res.clearCookie('accessToken');
       res.clearCookie('Authorization');
-      deleteUserResponse.success = true;
+      deleteUserResponse.ok = true;
       deleteUserResponse.message = 'deleted';
       return deleteUserResponse;
     } catch (error) {
@@ -253,7 +257,7 @@ export class UserController {
       res.clearCookie('refreshToken');
       res.clearCookie('accessToken');
       res.clearCookie('Authorization');
-      logOutResponse.success = true;
+      logOutResponse.ok = true;
       logOutResponse.message = 'logout';
       return logOutResponse;
     } catch (error) {
@@ -281,7 +285,7 @@ export class UserController {
       const newAccessToken = await this.userUseCases.refresh(decrypted);
 
       const refreshTokenResponse = new RefreshTokenResponseDto(newAccessToken);
-      refreshTokenResponse.success = true;
+      refreshTokenResponse.ok = true;
       return refreshTokenResponse;
     } catch (error) {
       this.logger.error(error);
@@ -319,7 +323,7 @@ export class UserController {
       res.cookie('refreshToken', encrytedToken.refreshToken, cookieOption);
       res.cookie('accessToken', encrytedToken.accessToken, cookieOption);
 
-      googleOauthResponse.success = true;
+      googleOauthResponse.ok = true;
       googleOauthResponse.user = user;
       googleOauthResponse.accessToken = encrytedToken.accessToken;
       return googleOauthResponse;
