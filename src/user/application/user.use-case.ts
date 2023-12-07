@@ -58,9 +58,9 @@ export class UserUseCases {
     });
 
     const createdUser = await this.userRepository.save(userSaveDto);
-    const propertyDeletedUser = this.deleteUserProperty('default', createdUser);
+    // const propertyDeletedUser = this.deleteUserProperty('default', createdUser);
 
-    return { id: propertyDeletedUser.id };
+    return { id: createdUser.id };
   }
 
   async login(email: string, password: string) {

@@ -6,11 +6,13 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { SecureService } from 'src/utils/secure.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
+import { UserRoleEnum } from '../domain/types/userRole';
+import { UserTypeEnum } from '../domain/types/userType';
 import { UserFactory } from '../domain/user.factory';
 import { UserEntity } from '../infra/db/entity/user.entity';
 import { UserRepository } from '../infra/db/repository/user.repository';
 import { UserUseCases } from './user.use-case';
-import { UserRole, UserType } from '../domain';
+// import { UserRoleEnum, UserTypeEnum } from '../domain';
 
 describe('bookmark-use-case', () => {
   let userService: UserUseCases;
@@ -105,8 +107,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     it('이미 등록된 유저이면 HttpException을 반환한다.', async () => {
       userService.findByEmail = jest.fn().mockResolvedValue(fakeUser);
@@ -134,7 +136,14 @@ describe('bookmark-use-case', () => {
       Reflect.deleteProperty(fakeUser, 'role');
       expect(
         await userService.createUser(fakeUser.email, fakeUser.password),
-      ).toStrictEqual(fakeUser);
+      ).toStrictEqual({
+        id: 'fake',
+        email: 'fakeEmail',
+        nickname: 'fakeNickname',
+        password: 'fakepassword',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('login', () => {
@@ -143,8 +152,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     const fakeAccessToken = 'fakeAccessToken';
     const fakeRefreshToken = 'fakeRefreshToken';
@@ -171,9 +180,16 @@ describe('bookmark-use-case', () => {
       expect(
         await userService.login(fakeUser.email, fakeUser.password),
       ).toStrictEqual({
-        user: fakeUser,
-        accessToken: fakeAccessToken,
-        refreshToken: fakeRefreshToken,
+        user: {
+          id: 'fake',
+          email: 'fakeEmail',
+          nickname: 'fakeNickname',
+          password: 'fakepassword',
+          role: UserRoleEnum.USER,
+          type: UserTypeEnum.BASIC,
+        },
+        accessToken: 'fakeAccessToken',
+        refreshToken: 'fakeRefreshToken',
       });
     });
   });
@@ -183,20 +199,17 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
-    const passwordDeletedMockUser = {
-      id: 'fake',
-      email: 'fakeEmail',
-      nickname: 'fakeNickname',
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     it('password와 role이 프로퍼티가 제거된 유저 객체를 반환한다.', async () => {
       userService.findById = jest.fn().mockResolvedValue(fakeUser);
-      expect(await userService.me(fakeUser.id)).toStrictEqual(
-        passwordDeletedMockUser,
-      );
+      expect(await userService.me(fakeUser.id)).toStrictEqual({
+        id: 'fake',
+        email: 'fakeEmail',
+        nickname: 'fakeNickname',
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('passwordValid', () => {
@@ -205,8 +218,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     it('유저 아이디와 비밀번호를 인수로 제공하면 비밀번호의 정합여부를 반환한다.', async () => {
       userService.findById = jest.fn().mockResolvedValue(fakeUser);
@@ -222,8 +235,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
 
     it('변경할 password를 인수로 제공하면 password를 변경한다', async () => {
@@ -235,7 +248,14 @@ describe('bookmark-use-case', () => {
       userRepository.update = jest.fn().mockResolvedValue(passwordEditUser);
       expect(
         await userService.editUser(fakeUser.id, { password: 'editedPassword' }),
-      ).toStrictEqual(passwordEditUser);
+      ).toStrictEqual({
+        id: 'fake',
+        email: 'fakeEmail',
+        nickname: 'fakeNickname',
+        password: 'editedPassword',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
 
     it('변경할 nickname을 인수로 제공하면 nickname을 변경한다', async () => {
@@ -247,7 +267,14 @@ describe('bookmark-use-case', () => {
       userRepository.update = jest.fn().mockResolvedValue(nicknameEditUser);
       expect(
         await userService.editUser(fakeUser.id, { nickname: 'editedNickname' }),
-      ).toStrictEqual(nicknameEditUser);
+      ).toStrictEqual({
+        nickname: 'editedNickname',
+        id: 'fake',
+        email: 'fakeEmail',
+        password: 'fakepassword',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('deleteUser', () => {
@@ -256,15 +283,13 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     it('유저를 삭제한다.', async () => {
       userService.findById = jest.fn().mockResolvedValue(fakeUser);
       userRepository.delete = jest.fn().mockResolvedValue(fakeUser.id);
-      expect(await userService.deleteUser(fakeUser.id)).toStrictEqual(
-        fakeUser.id,
-      );
+      expect(await userService.deleteUser(fakeUser.id)).toStrictEqual('fake');
     });
   });
   describe('refresh', () => {
@@ -273,8 +298,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
     const fakeRefreshToken = 'fakeRefreshToken';
     const fakeNewAccessToken = 'fakeNewAccessToken';
@@ -288,7 +313,7 @@ describe('bookmark-use-case', () => {
       jwtService.sign = jest.fn().mockReturnValue(fakeNewAccessToken);
 
       expect(await userService.refresh(fakeRefreshToken)).toStrictEqual(
-        fakeNewAccessToken,
+        'fakeNewAccessToken',
       );
     });
   });
@@ -296,8 +321,8 @@ describe('bookmark-use-case', () => {
     const fakeUserForm = {
       email: 'fakeOauthEmail',
       password: 'fakeOauthId',
-      role: UserRole.USER,
-      type: UserType.GOOGLE,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.GOOGLE,
     };
     const fakeCreatedUser = {
       ...fakeUserForm,
@@ -331,9 +356,16 @@ describe('bookmark-use-case', () => {
 
       Reflect.deleteProperty(fakeFindUser, 'password');
       expect(await userService.googleOauth(fakeAccessToken)).toStrictEqual({
-        propertyDeletedUser: fakeFindUser,
-        jwtAccessToken: fakeAccessToken,
-        jwtRefreshToken: fakeRefreshToken,
+        propertyDeletedUser: {
+          id: 'findedUserId',
+          nickname: 'findedUserNickname',
+          email: 'fakeOauthEmail',
+          password: 'fakeOauthId',
+          role: UserRoleEnum.USER,
+          type: UserTypeEnum.GOOGLE,
+        },
+        jwtAccessToken: 'fakeAccessToken',
+        jwtRefreshToken: 'fakeRefreshToken',
       });
     });
 
@@ -352,9 +384,16 @@ describe('bookmark-use-case', () => {
 
       Reflect.deleteProperty(fakeCreatedUser, 'password');
       expect(await userService.googleOauth(fakeAccessToken)).toStrictEqual({
-        propertyDeletedUser: fakeCreatedUser,
-        jwtAccessToken: fakeAccessToken,
-        jwtRefreshToken: fakeRefreshToken,
+        propertyDeletedUser: {
+          id: 'findedUserId',
+          nickname: 'findedUserNickname',
+          email: 'fakeOauthEmail',
+          password: 'fakeOauthId',
+          role: UserRoleEnum.USER,
+          type: UserTypeEnum.GOOGLE,
+        },
+        jwtAccessToken: 'fakeAccessToken',
+        jwtRefreshToken: 'fakeRefreshToken',
       });
     });
   });
@@ -386,7 +425,10 @@ describe('bookmark-use-case', () => {
 
       expect(
         await userService['getGoogleUserData'](fakeAccessToken),
-      ).toStrictEqual(fakeGoogleOauthData);
+      ).toStrictEqual({
+        id: 'fakeGoogleOauthId',
+        email: 'fakeGoogleOauthEmail',
+      });
     });
   });
   describe('setGoogleUserForm', () => {
@@ -394,16 +436,14 @@ describe('bookmark-use-case', () => {
       id: 'fake',
       email: 'fakeEmail',
     };
-    const fakeUserForm = {
-      email: inputParam.email,
-      password: inputParam.id,
-      role: UserRole.USER,
-      type: UserType.GOOGLE,
-    };
+
     it('google 유저 정보를 인수로 받으면 이메일과 비밀번호를 가공한 유저정보를 반환한다.', () => {
-      expect(userService['setGoogleUserForm'](inputParam)).toStrictEqual(
-        fakeUserForm,
-      );
+      expect(userService['setGoogleUserForm'](inputParam)).toStrictEqual({
+        email: 'fakeEmail',
+        password: 'fake',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.GOOGLE,
+      });
     });
   });
   describe('findByEmail', () => {
@@ -423,12 +463,19 @@ describe('bookmark-use-case', () => {
         email: 'fakeEmail',
         nickname: 'fakeNickname',
         password: 'fakepassword',
-        role: UserRole.USER,
-        type: UserType.BASIC,
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
       };
       userRepository.findByEmail = jest.fn().mockResolvedValue(fakeUser);
 
-      expect(await userService.findByEmail(fakeEmail)).toStrictEqual(fakeUser);
+      expect(await userService.findByEmail(fakeEmail)).toStrictEqual({
+        id: 'fake',
+        email: 'fakeEmail',
+        nickname: 'fakeNickname',
+        password: 'fakepassword',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('findById', () => {
@@ -450,12 +497,19 @@ describe('bookmark-use-case', () => {
         email: 'fakeEmail',
         nickname: 'fakeNickname',
         password: 'fakepassword',
-        role: UserRole.USER,
-        type: UserType.BASIC,
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
       };
       userRepository.get = jest.fn().mockResolvedValue(fakeUser);
 
-      expect(await userService.findById(fakeUserId)).toStrictEqual(fakeUser);
+      expect(await userService.findById(fakeUserId)).toStrictEqual({
+        id: 'fake',
+        email: 'fakeEmail',
+        nickname: 'fakeNickname',
+        password: 'fakepassword',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('deleteUserProperty', () => {
@@ -464,33 +518,31 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
 
     it('targetProperty가 default인 경우 password와 role이 제거된 user 객체를 반환한다.', () => {
-      const defaultTypeUser = {
-        id: 'fake',
-        email: 'fakeEmail',
-        nickname: 'fakeNickname',
-        type: UserType.BASIC,
-      };
       expect(userService.deleteUserProperty('default', fakeUser)).toStrictEqual(
-        defaultTypeUser,
+        {
+          id: 'fake',
+          email: 'fakeEmail',
+          nickname: 'fakeNickname',
+          type: UserTypeEnum.BASIC,
+        },
       );
     });
 
     it('targetProperty가 password인 경우 password가 제거된 user 객체를 반환한다.', () => {
-      const passwordTypeUser = {
+      expect(
+        userService.deleteUserProperty('password', fakeUser),
+      ).toStrictEqual({
         id: 'fake',
         email: 'fakeEmail',
         nickname: 'fakeNickname',
-        role: UserRole.USER,
-        type: UserType.BASIC,
-      };
-      expect(
-        userService.deleteUserProperty('password', fakeUser),
-      ).toStrictEqual(passwordTypeUser);
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      });
     });
   });
   describe('checkPassword', () => {
@@ -499,8 +551,8 @@ describe('bookmark-use-case', () => {
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     };
 
     it('잘못된 비밀번호를 입력하면 HttpException을 반환한다.', async () => {
