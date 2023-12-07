@@ -20,6 +20,24 @@ export class UserFactory {
     return user;
   }
 
+  static createUser(user: {
+    id: string;
+    email: string;
+    nickname: string;
+    password: string;
+    role: UserRole;
+    type: UserType;
+  }) {
+    return new User(
+      user.id,
+      user.email,
+      user.nickname,
+      user.password,
+      user.role,
+      user.type,
+    );
+  }
+
   reconstitute(
     id: string,
     email: string,

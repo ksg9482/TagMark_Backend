@@ -1,7 +1,6 @@
-import { UserImpl } from './types/userImpl';
 import { UserRole } from './types/userRole';
 import { UserType } from './types/userType';
-export class User implements UserImpl {
+export class User {
   private readonly _id: string;
   private readonly _email: string;
   private _nickname: string;
@@ -44,6 +43,25 @@ export class User implements UserImpl {
     return this._type;
   }
 
+  //클래스 내부에서 static 메서드 팩토리로 할 것인가, 아니면 팩토리 클래스를 별로도 만들것인가. 뭐가 더 유연하고 견고할까?
+  static from(user: {
+    id: string;
+    email: string;
+    nickname: string;
+    password: string;
+    role: UserRole;
+    type: UserType;
+  }) {
+    const userInstance = new User(
+      user.id,
+      user.email,
+      user.nickname,
+      user.password,
+      user.role,
+      user.type,
+    );
+    return userInstance;
+  }
   updateNickName(nickname: string) {
     this._nickname = nickname;
   }
@@ -51,10 +69,4 @@ export class User implements UserImpl {
   updatePassword(password: string) {
     this._password = password;
   }
-}
-
-export interface ResponseUser {
-  id: string;
-  email: string;
-  nickname: string;
 }

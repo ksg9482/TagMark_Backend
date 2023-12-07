@@ -75,9 +75,3 @@ export class UserEntity {
     }
   }
 }
-
-export class ResponseUser extends OmitType(UserEntity, [
-  'password',
-  'role',
-  'type',
-] as const) {}

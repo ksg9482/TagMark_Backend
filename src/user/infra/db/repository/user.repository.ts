@@ -9,6 +9,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { UserSaveDto } from 'src/user/domain/repository/dtos/userSave.dto';
 import { UserRole } from 'src/user/domain/types/userRole';
 import { UserType } from 'src/user/domain/types/userType';
+import { SaveUserResponseDto } from '../dto/saveUserResp.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -83,7 +84,7 @@ export class UserRepository implements IUserRepository {
       type,
     });
   }
-  async save(item: UserSaveDto): Promise<Pick<User, 'id'>> {
+  async save(item: UserSaveDto) {
     const { email, nickname, password, role, type } = item;
 
     const userEntity = this.createEntity(email, nickname, password, role, type);
@@ -97,7 +98,8 @@ export class UserRepository implements IUserRepository {
     //   userEntity.role,
     //   userEntity.type,
     // );
-    return { id: userEntity.id };
+    const dto = SaveUserResponseDto.from(userEntity.id);
+    return dto;
   }
 
   async update(id: string, item: User): Promise<any> {
