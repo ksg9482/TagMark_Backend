@@ -9,7 +9,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { UserSaveDto } from 'src/user/domain/repository/dtos/userSave.dto';
 import { UserRole } from 'src/user/domain/types/userRole';
 import { UserType } from 'src/user/domain/types/userType';
-import { SaveUserResponseDto } from '../dto/saveUserResp.dto';
+import { SaveDto } from '../dto/save.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -90,16 +90,8 @@ export class UserRepository implements IUserRepository {
     const userEntity = this.createEntity(email, nickname, password, role, type);
 
     await this.userRepository.save(userEntity);
-    // return this.userFactory.reconstitute(
-    //   userEntity.id,
-    //   userEntity.email,
-    //   userEntity.nickname,
-    //   userEntity.password,
-    //   userEntity.role,
-    //   userEntity.type,
-    // );
-    const dto = SaveUserResponseDto.from(userEntity.id);
-    return dto;
+
+    return SaveDto.from(userEntity);
   }
 
   async update(id: string, item: User): Promise<any> {

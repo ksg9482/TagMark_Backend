@@ -1,9 +1,12 @@
 import { Test } from '@nestjs/testing';
-import { UserRole, UserType } from 'src/user/domain';
+// import { UserRole, UserType } from 'src/user/domain';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
 import { UtilsService } from './utils.service';
 import { SecureService } from './secure.service';
+import { UserRoleEnum } from 'src/user/domain/types/userRole';
+import { UserTypeEnum } from 'src/user/domain/types/userType';
+import { User } from 'src/user/domain';
 
 describe('secureService', () => {
   let secureService: SecureService;
@@ -35,14 +38,14 @@ describe('secureService', () => {
   });
 
   describe('checkPassword', () => {
-    const fakeUser = {
+    const fakeUser = User.from({
       id: 'fake',
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
+    })
     it('비밀번호 검사에 통과하면 true를 반환한다.', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => true);
       expect(

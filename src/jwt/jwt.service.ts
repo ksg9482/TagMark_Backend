@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { User } from 'src/user/domain/user';
 import { JwtModuleOptions } from './jwt.interfaces';
+import { UserRole } from 'src/user/domain/types/userRole';
+import { UserType } from 'src/user/domain/types/userType';
 type DeletePasswordUser = Omit<User, 'password'>;
 
 @Injectable()
@@ -14,7 +16,13 @@ export class JwtService {
     this.jwtAlgorithm = 'HS256';
   }
 
-  sign(userData: User): string {
+  sign(userData: {
+    id: string;
+    email: string;
+    nickname: string;
+    // role: UserRole;
+    type: UserType;
+  }): string {
     const accessTokenExpireTime = '15m';
     const token = jwt.sign({ ...userData }, this.options.privateKey, {
       expiresIn: accessTokenExpireTime,
@@ -23,7 +31,13 @@ export class JwtService {
     return token;
   }
 
-  refresh(userData: User): string {
+  refresh(userData: {
+    id: string;
+    email: string;
+    nickname: string;
+    // role: UserRole;
+    type: UserType;
+  }): string {
     const refreshTokenExpireTime = '7d';
     const token = jwt.sign({ ...userData }, this.options.refreshPrivateKey, {
       expiresIn: refreshTokenExpireTime,
