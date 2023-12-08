@@ -39,22 +39,13 @@ export class UserUseCases {
       this.logger.error('Email Already exists.');
       throw new HttpException('Email Already exists.', HttpStatus.BAD_REQUEST);
     }
-    nickname = nickname || '';
-    const defaultUserRole = UserRoleEnum.USER;
-    const defaultUserType = UserTypeEnum.BASIC;
-    // const createdUser = await this.userRepository.save({
-    //   email: email,
-    //   nickname: nickname || '익명',
-    //   password: password,
-    //   role: defaultRole,
-    //   type: type || defaultType,
-    // });
+
     const userSaveDto = UserSaveDto.of({
       email,
       password,
-      nickname,
-      role: defaultUserRole,
-      type: defaultUserType,
+      nickname: nickname || '',
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
     });
 
     const createdUser = await this.userRepository.save(userSaveDto);
@@ -68,21 +59,33 @@ export class UserUseCases {
     if (!user) {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
-
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      type: user.type,
+    };
     await this.checkPassword(password, user);
-    const propertyDeletedUser = this.deleteUserProperty('password', user);
+    // const propertyDeletedUser = this.deleteUserProperty('password', user);
 
-    const accessToken = this.jwtService.sign(propertyDeletedUser);
-    const refreshToken = this.jwtService.refresh(propertyDeletedUser);
+    const accessToken = this.jwtService.sign(userWithoutPassword);
+    const refreshToken = this.jwtService.refresh(userWithoutPassword);
 
-    return { user, accessToken, refreshToken };
+    // return { user, accessToken, refreshToken };
+    return { accessToken, refreshToken };
   }
 
-  async me(userId: string): Promise<User> {
+  async me(userId: string) {
     const user = await this.findById(userId);
-    const propertyDeletedUser = this.deleteUserProperty('default', user);
-
-    return propertyDeletedUser;
+    const instance = User.from(user);
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      type: user.type,
+    };
+    // const propertyDeletedUser = this.deleteUserProperty('default', user);
+    return userWithoutPassword;
   }
 
   async passwordValid(userId: string, password: string): Promise<boolean> {
@@ -95,7 +98,7 @@ export class UserUseCases {
   async editUser(
     userId: string,
     editUserData: { password?: string; nickname?: string },
-  ): Promise<any> {
+  ): Promise<Pick<User, 'id'>> {
     const { nickname, password } = editUserData;
     const user = await this.findById(userId);
     if (nickname !== undefined) {
@@ -105,9 +108,9 @@ export class UserUseCases {
       user.updatePassword(password);
     }
 
-    const userUpadate = await this.userRepository.update(userId, user);
+    await this.userRepository.update(user.id, user);
 
-    return userUpadate;
+    return { id: user.id };
   }
 
   async deleteUser(userId: string): Promise<any> {
@@ -122,23 +125,31 @@ export class UserUseCases {
     const verifyRefreshToken: any = this.jwtService.refreshVerify(refreshToken);
 
     const user = await this.findById(verifyRefreshToken['id']);
-    const propertyDeletedUser = this.deleteUserProperty('password', user);
-    const newAccessToken = this.jwtService.sign(propertyDeletedUser);
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      type: user.type,
+    };
+    // const propertyDeletedUser = this.deleteUserProperty('password', user);
+    const newAccessToken = this.jwtService.sign(userWithoutPassword);
 
     return newAccessToken;
   }
 
   async googleOauth(accessToken: string) {
     const googleUserInfo = await this.getGoogleUserData(accessToken);
-    const googleUser = this.setGoogleUserForm(googleUserInfo.data);
-    let user = await this.findByEmail(googleUser.email);
+    let user = await this.findByEmail(googleUserInfo.email);
     if (!user) {
+      const googleUser = this.setGoogleUserForm(googleUserInfo.data);
+
       const createdUser = await this.createUser(
         googleUser.email,
         googleUser.password,
         '',
         UserTypeEnum.GOOGLE,
       );
+
       user = new User(
         createdUser.id,
         googleUser.email,
@@ -151,9 +162,22 @@ export class UserUseCases {
 
     const jwtAccessToken = this.jwtService.sign(user);
     const jwtRefreshToken = this.jwtService.refresh(user);
-    const propertyDeletedUser = this.deleteUserProperty('password', user);
+    // const propertyDeletedUser = this.deleteUserProperty('password', user);
 
-    return { propertyDeletedUser, jwtAccessToken, jwtRefreshToken };
+    // return {
+    //   user:{
+    //     id: user.id,
+    //     email: user.email,
+    //     nickname: user.nickname,
+    //     type: user.type,
+    //   },
+    //   accessToken:jwtAccessToken,
+    //   refreshToken:jwtRefreshToken
+    // };
+    return {
+      accessToken: jwtAccessToken,
+      refreshToken: jwtRefreshToken,
+    };
   }
 
   protected async getGoogleUserData(accessToken: string): Promise<any> {
@@ -197,22 +221,22 @@ export class UserUseCases {
     return user;
   }
 
-  deleteUserProperty(targetProperty: DeleteUserProperty, user: User): User {
-    const copyUser: User = this.utilService.deepCopy(user);
+  // deleteUserProperty(targetProperty: DeleteUserProperty, user: User): User {
+  //   const copyUser: User = this.utilService.deepCopy(user);
 
-    if (targetProperty === 'default') {
-      Reflect.deleteProperty(copyUser, 'password');
-      Reflect.deleteProperty(copyUser, 'role');
-      Reflect.deleteProperty(copyUser, 'createdAt');
-      Reflect.deleteProperty(copyUser, 'updatedAt');
-    }
+  //   if (targetProperty === 'default') {
+  //     Reflect.deleteProperty(copyUser, 'password');
+  //     Reflect.deleteProperty(copyUser, 'role');
+  //     Reflect.deleteProperty(copyUser, 'createdAt');
+  //     Reflect.deleteProperty(copyUser, 'updatedAt');
+  //   }
 
-    if (targetProperty === 'password') {
-      Reflect.deleteProperty(copyUser, 'password');
-    }
+  //   if (targetProperty === 'password') {
+  //     Reflect.deleteProperty(copyUser, 'password');
+  //   }
 
-    return copyUser;
-  }
+  //   return copyUser;
+  // }
 
   async checkPassword(password: string, user: User): Promise<boolean> {
     const result = await this.secureService.checkPassword(password, user);

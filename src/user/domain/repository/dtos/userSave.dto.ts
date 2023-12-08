@@ -1,7 +1,7 @@
 import { UserRole } from '../../types/userRole';
 import { UserType } from '../../types/userType';
 
-export interface UserSaveData {
+interface UserSaveData {
   email: string;
   nickname: string;
   password: string;
