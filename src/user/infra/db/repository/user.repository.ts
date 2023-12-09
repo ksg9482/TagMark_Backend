@@ -86,11 +86,8 @@ export class UserRepository implements IUserRepository {
   }
   async save(item: UserSaveDto) {
     const { email, nickname, password, role, type } = item;
-
     const userEntity = this.createEntity(email, nickname, password, role, type);
-
     await this.userRepository.save(userEntity);
-
     return SaveDto.from(userEntity);
   }
 

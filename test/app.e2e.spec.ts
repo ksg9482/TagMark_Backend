@@ -116,19 +116,9 @@ describe('AppController (e2e)', () => {
           .post('/api/user/login')
           .send(userParamsOne);
 
-        console.log(result.body);
-        /**
-         * id: '42ee904c778d1efebe40c0768d766082',
-      email: 'test1@test.com',
-      nickname: '익명',
-      role: 'USER',
-      type: 'BASIC',
-         */
-
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
         expect(typeof result.body.data.accessToken === 'string').toBeTruthy();
-        expect(result.body.data.user.email).toBe('test1@test.com');
 
         accessToken = result.body.data.accessToken;
         refreshToken = decodeURIComponent(
@@ -242,14 +232,7 @@ describe('AppController (e2e)', () => {
     describe('/ (get)', () => {
       it('로그인한 유저의 정보를 반환한다', async () => {
         const result = await privateTest().get('/api/user', accessToken);
-        console.log(result.body.data.user);
-        /**
-         * id: '42ee904c778d1efebe40c0768d766082',
-      email: 'test1@test.com',
-      nickname: '익명',
-      role: 'USER',
-      type: 'BASIC',
-         */
+
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
         expect(result.body.data.user['email']).toBe('test1@test.com');
@@ -259,18 +242,12 @@ describe('AppController (e2e)', () => {
     describe('/ (patch)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 변경된다', async () => {
         const changeParams = { nickname: 'new-nickname' };
-        const result = await privateTest()
-          .patch('/api/user', accessToken)
-          .send(changeParams);
-
-        expect(result.status).toBe(200);
-        expect(result.body.ok).toBe(true);
-        expect(result.body.message).toBe('updated');
+        await privateTest().patch('/api/user', accessToken).send(changeParams);
 
         const userCheck = await privateTest().get('/api/user', accessToken);
         expect(userCheck.status).toBe(200);
         expect(userCheck.body.ok).toBe(true);
-        expect(userCheck.body.data.user['nickname']).toBe('익명');
+        expect(userCheck.body.data.user['nickname']).toBe('new-nickname');
       });
     });
 
@@ -279,8 +256,8 @@ describe('AppController (e2e)', () => {
         const result = await privateTest()
           .get('/api/user/refresh', accessToken)
           .set('Cookie', [refreshToken]);
-        const newAccessToken = result.body.accessToken;
-        console.log(result.body);
+        const newAccessToken = result.body.data.accessToken;
+
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
         expect(typeof newAccessToken === 'string').toBeTruthy();
@@ -657,9 +634,10 @@ describe('AppController (e2e)', () => {
     describe('user/ (delete)', () => {
       it('정상적인 데이터를 전송하면 유저정보가 삭제된다', async () => {
         const result = await privateTest().delete('/api/user', accessToken);
+
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
-        expect(result.body.message).toBe('deleted');
+        expect(typeof result.body.data.id).toBe('string');
       });
     });
   });

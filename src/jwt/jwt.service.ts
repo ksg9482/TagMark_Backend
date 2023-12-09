@@ -16,33 +16,32 @@ export class JwtService {
     this.jwtAlgorithm = 'HS256';
   }
 
-  sign(userData: {
-    id: string;
-    email: string;
-    nickname: string;
-    // role: UserRole;
-    type: UserType;
-  }): string {
+  sign(user: User): string {
     const accessTokenExpireTime = '15m';
-    const token = jwt.sign({ ...userData }, this.options.privateKey, {
-      expiresIn: accessTokenExpireTime,
-      algorithm: this.jwtAlgorithm,
-    });
+    const { id, email, nickname, type } = user;
+    const token = jwt.sign(
+      { id, email, nickname, type },
+      this.options.privateKey,
+      {
+        expiresIn: accessTokenExpireTime,
+        algorithm: this.jwtAlgorithm,
+      },
+    );
     return token;
   }
 
-  refresh(userData: {
-    id: string;
-    email: string;
-    nickname: string;
-    // role: UserRole;
-    type: UserType;
-  }): string {
+  refresh(user: User): string {
     const refreshTokenExpireTime = '7d';
-    const token = jwt.sign({ ...userData }, this.options.refreshPrivateKey, {
-      expiresIn: refreshTokenExpireTime,
-      algorithm: this.jwtAlgorithm,
-    });
+    const { id, email, nickname, type } = user;
+
+    const token = jwt.sign(
+      { id, email, nickname, type },
+      this.options.refreshPrivateKey,
+      {
+        expiresIn: refreshTokenExpireTime,
+        algorithm: this.jwtAlgorithm,
+      },
+    );
     return token;
   }
 
