@@ -45,7 +45,7 @@ describe('secureService', () => {
       password: 'fakepassword',
       role: UserRoleEnum.USER,
       type: UserTypeEnum.BASIC,
-    })
+    });
     it('비밀번호 검사에 통과하면 true를 반환한다.', async () => {
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => true);
       expect(

@@ -69,4 +69,14 @@ export class User {
   updatePassword(password: string) {
     this._password = password;
   }
+
+  getWithOutPassword() {
+    return {
+      id: this._id,
+      email: this._email,
+      nickname: this._nickname,
+      role: this._role,
+      type: this._type,
+    };
+  }
 }
