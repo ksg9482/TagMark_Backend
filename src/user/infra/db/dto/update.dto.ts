@@ -1,6 +1,6 @@
 import { UserEntity } from '../entity/user.entity';
 
-export class SaveDto {
+export class UpdateDto {
   private _id: string;
 
   private constructor(entity: UserEntity) {
@@ -12,7 +12,7 @@ export class SaveDto {
   }
 
   static from(entity: UserEntity) {
-    const dto = new SaveDto(entity);
+    const dto = new UpdateDto(entity);
     return dto;
   }
 }
