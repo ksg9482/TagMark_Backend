@@ -10,6 +10,8 @@ import { UserSaveDto } from 'src/user/domain/repository/dtos/userSave.dto';
 import { UserRole } from 'src/user/domain/types/userRole';
 import { UserType } from 'src/user/domain/types/userType';
 import { SaveDto } from '../dto/save.dto';
+import { UpdateDto } from '../dto/update.dto';
+import { DeleteDto } from '../dto/delete.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -91,26 +93,10 @@ export class UserRepository implements IUserRepository {
     return SaveDto.from(userEntity);
   }
 
-  async update(id: string, item: User): Promise<any> {
+  async update(id: string, item: Partial<User>): Promise<any> {
     const userentity = this.userRepository.create(item);
-    return await this.userRepository.update(id, userentity);
-  }
-
-  async getAll(): Promise<User[]> {
-    const userEntities = await this.userRepository.find();
-    if (userEntities.length <= 0) {
-      return [];
-    }
-    return userEntities.map((entity) => {
-      return this.userFactory.reconstitute(
-        entity.id,
-        entity.email,
-        entity.nickname,
-        entity.password,
-        entity.role,
-        entity.type,
-      );
-    });
+    await this.userRepository.update(id, userentity);
+    return UpdateDto.from(userentity);
   }
 
   async get(inputId: string): Promise<User | null> {
@@ -132,7 +118,8 @@ export class UserRepository implements IUserRepository {
   }
 
   async delete(id: string): Promise<any> {
-    const userEntity = await this.userRepository.delete(id);
-    return userEntity;
+    const userentity = this.userRepository.create({ id: id });
+    await this.userRepository.delete(userentity.id);
+    return DeleteDto.from(userentity);
   }
 }
