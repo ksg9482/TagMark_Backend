@@ -25,10 +25,18 @@ export class UserRepository implements IUserRepository {
   async findByEmail(inputEmail: string): Promise<User | null> {
     const userEntity = await this.userRepository
       .createQueryBuilder('user')
-      .select(`*`)
+      .select('id')
+      .addSelect('email')
+      .addSelect('password')
+      .addSelect('nickname')
+      .addSelect('role')
+      .addSelect('type')
+      .addSelect('"createdAt"')
+      .addSelect('"updatedAt"')
       .where('("user"."email" = :email)', { email: inputEmail })
       .limit(1)
       .getRawOne();
+    console.log(userEntity);
 
     if (!userEntity) {
       return null;
@@ -50,7 +58,14 @@ export class UserRepository implements IUserRepository {
   ): Promise<User | null> {
     const userEntity = await this.userRepository
       .createQueryBuilder('user')
-      .select(`*`)
+      .select('id')
+      .addSelect('email')
+      .addSelect('password')
+      .addSelect('nickname')
+      .addSelect('role')
+      .addSelect('type')
+      .addSelect('"createdAt"')
+      .addSelect('"updatedAt"')
       .where('("user"."email" = :email)', { email: inputEmail })
       .andWhere('("user"."password" = :password)', { password: inputPassword })
       .limit(1)
@@ -95,7 +110,13 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, item: Partial<User>): Promise<any> {
     const userentity = this.userRepository.create(item);
-    await this.userRepository.update(id, userentity);
+
+    await this.userRepository.manager.transaction(
+      'SERIALIZABLE',
+      async (transactionalEntityManager) => {
+        await transactionalEntityManager.update(UserEntity, id, userentity);
+      },
+    );
     return UpdateDto.from(userentity);
   }
 

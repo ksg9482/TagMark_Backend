@@ -69,7 +69,6 @@ export class UserUseCases {
 
   async me(userId: string) {
     const user = await this.findById(userId);
-
     return user;
   }
 
