@@ -10,10 +10,10 @@ interface UserSaveData {
 }
 export class UserSaveDto {
   private readonly _email: string;
-  private _nickname: string;
-  private _password: string;
-  private _role: UserRole;
-  private _type: UserType;
+  private readonly _nickname: string;
+  private readonly _password: string;
+  private readonly _role: UserRole;
+  private readonly _type: UserType;
 
   private constructor(userSaveDto: UserSaveData) {
     this._email = userSaveDto.email;
