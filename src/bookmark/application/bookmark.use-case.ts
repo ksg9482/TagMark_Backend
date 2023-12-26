@@ -12,6 +12,7 @@ import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.re
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
+import { Tags } from 'src/tag/domain/tags';
 
 //DTO 의존성 해소용.
 type UserAllBookmarks = PageRequest;
@@ -46,10 +47,12 @@ export class BookmarkUseCases {
       return tag;
     });
 
+    const tagsInstance = new Tags(tags);
+    BookmarkSaveDto;
     const createdBookmark = await this.bookmarkRepository.save({
       url: url,
       userId: userId,
-      tags: tags,
+      // tags: tagsInstance,
     });
 
     return createdBookmark;
@@ -86,7 +89,8 @@ export class BookmarkUseCases {
 
   async editBookmarkUrl(userId: string, bookmarkId: string, changeUrl: string) {
     const bookmark = await this.findBookmark(userId, bookmarkId);
-    bookmark.url = changeUrl;
+    bookmark.updateUrl(changeUrl);
+    // bookmark.url = changeUrl;
     await this.bookmarkRepository.update(bookmarkId, bookmark);
     return { message: 'Updated' };
   }

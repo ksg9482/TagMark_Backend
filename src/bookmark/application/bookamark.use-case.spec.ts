@@ -1,9 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthModule } from 'src/auth/auth.module';
+import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
+import { Tags } from 'src/tag/domain/tags';
 import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
+import { Bookmark } from '../domain/bookmark';
 import { BookmarkFactory } from '../domain/bookmark.factory';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
 import { BookmarkRepository } from '../infra/db/repository/bookmark.repository';
@@ -472,17 +475,24 @@ describe('bookmark-use-case', () => {
   });
 
   describe('getBookmarkIdAndTagId', () => {
-    const fakeTag = { id: 'mockTagId', tag: 'fakeTag' };
-    const fakeBookmark = {
-      id: 'fakeBookmarkId',
-      url: 'fakeUrl',
-      userId: 'fakeUserId',
-      tags: [fakeTag],
-    };
+    const fakeTags = { id: 'mockTagId', tag: 'fakeTag' };
+    // const fakeBookmark = {
+    //   id: 'fakeBookmarkId',
+    //   url: 'fakeUrl',
+    //   userId: 'fakeUserId',
+    //   tags: [fakeTag],
+    // };
+    const fakeTagsInstance = new Tags([new Tag(fakeTags.id, fakeTags.tag)]);
+    const fakeBookmark = Bookmark.from(
+      'fakeBookmarkId',
+      'fakeUserId',
+      'fakeUrl',
+      fakeTagsInstance,
+    );
     it('북마크 아이디와 태그 아이디 배열을 요소로 가진 객체 배열을 반환한다.', async () => {
       expect(
         bookmarkService['getBookmarkIdAndTagId']([fakeBookmark]),
-      ).toStrictEqual([{ bookmarkId: fakeBookmark.id, tagIds: [fakeTag.id] }]);
+      ).toStrictEqual([{ bookmarkId: fakeBookmark.id, tagIds: [fakeTags.id] }]);
     });
   });
 

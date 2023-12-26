@@ -1,8 +1,36 @@
 import { Page } from 'src/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import { IGenericRepository } from 'src/common/domain/repository/igeneric-repository';
+interface BookmarkSaveData {
+  userId: string;
+  url: string;
+}
+export class BookmarkSaveDto {
+  private readonly _userId: string;
+  private readonly _url: string;
 
-export interface IBookmarkRepository extends IGenericRepository<Bookmark> {
+  private constructor(bookmarkSaveDto: BookmarkSaveData) {
+    this._userId = bookmarkSaveDto.userId;
+    this._url = bookmarkSaveDto.url;
+  }
+
+  get userId() {
+    return this._userId;
+  }
+  get url() {
+    return this._url;
+  }
+
+  static of(bookmarkSaveDto: BookmarkSaveData) {
+    return new BookmarkSaveDto(bookmarkSaveDto);
+  }
+}
+export interface IBookmarkRepository {
+  getAll: () => Promise<Bookmark[]>;
+  get: (id: string) => Promise<Bookmark | null>;
+  save: (item: BookmarkSaveDto) => Promise<any>;
+  update: (id: string, item: Partial<Bookmark>) => Promise<any>;
+  delete: (id: string) => Promise<any>;
   getUserBookmark: (
     userId: string,
     bookmarkId: string,
