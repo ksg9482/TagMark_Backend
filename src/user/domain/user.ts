@@ -1,12 +1,12 @@
 import { UserRole } from './types/userRole';
 import { UserType } from './types/userType';
 export class User {
-  private readonly _id: string;
-  private readonly _email: string;
-  private _nickname: string;
-  private _password: string;
-  private _role: UserRole; //이거도 클래스화 enum으로 충분? role은 없애자
-  private _type: UserType;
+  readonly #id: string;
+  readonly #email: string;
+  #nickname: string;
+  #password: string;
+  #role: UserRole; //이거도 클래스화 enum으로 충분? role은 없애자
+  #type: UserType;
 
   constructor(
     id: string,
@@ -16,31 +16,32 @@ export class User {
     role: UserRole,
     type: UserType,
   ) {
-    this._id = id;
-    this._email = email;
-    this._nickname = nickname;
-    this._password = password;
-    this._role = role;
-    this._type = type;
+    this.#nickname = nickname;
+    this.#id = id;
+    this.#email = email;
+    // this.nickname = nickname;
+    this.#password = password;
+    this.#role = role;
+    this.#type = type;
   }
 
   get id() {
-    return this._id;
+    return this.#id;
   }
   get email() {
-    return this._email;
+    return this.#email;
   }
   get nickname() {
-    return this._nickname;
+    return this.#nickname;
   }
   get password() {
-    return this._password;
+    return this.#password;
   }
   get role() {
-    return this._role;
+    return this.#role;
   }
   get type() {
-    return this._type;
+    return this.#type;
   }
 
   //클래스 내부에서 static 메서드 팩토리로 할 것인가, 아니면 팩토리 클래스를 별로도 만들것인가. 뭐가 더 유연하고 견고할까?
@@ -52,7 +53,7 @@ export class User {
     role: UserRole;
     type: UserType;
   }) {
-    const userInstance = new User(
+    return new User(
       user.id,
       user.email,
       user.nickname,
@@ -60,23 +61,22 @@ export class User {
       user.role,
       user.type,
     );
-    return userInstance;
   }
   updateNickName(nickname: string) {
-    this._nickname = nickname;
+    this.#nickname = nickname;
   }
 
   updatePassword(password: string) {
-    this._password = password;
+    this.#password = password;
   }
 
   getWithOutPassword() {
     return {
-      id: this._id,
-      email: this._email,
-      nickname: this._nickname,
-      role: this._role,
-      type: this._type,
+      id: this.#id,
+      email: this.#email,
+      nickname: this.#nickname,
+      role: this.#role,
+      type: this.#type,
     };
   }
 }

@@ -1,6 +1,10 @@
 export class Tag {
-  tag: string;
+  #tag: string;
+
   constructor(readonly id: string, tag: string) {
-    this.tag = tag;
+    this.#tag = tag;
+  }
+  get tag() {
+    return this.#tag;
   }
 }
