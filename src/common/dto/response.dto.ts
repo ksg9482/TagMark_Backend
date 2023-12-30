@@ -1,22 +1,22 @@
 import { Exclude, Expose } from 'class-transformer';
 
 export class ResponseDto<T> {
-  @Exclude() private _ok: boolean;
-  @Exclude() private _data?: T;
+  #ok: boolean;
+  #data?: T;
 
   private constructor(ok: boolean, data?: T) {
-    this._ok = ok;
-    this._data = data;
+    this.#ok = ok;
+    this.#data = data;
   }
 
   @Expose()
   get ok() {
-    return this._ok;
+    return this.#ok;
   }
 
   @Expose()
   get data() {
-    return this._data;
+    return this.#data;
   }
 
   static OK() {

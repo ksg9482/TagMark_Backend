@@ -298,6 +298,13 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsOne);
 
+        console.log(
+          '--------------------------------------------------------------',
+        );
+        console.log(result.body.data);
+        console.log(
+          '--------------------------------------------------------------',
+        );
         await privateTest()
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsTwo);
@@ -305,16 +312,12 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsThree);
 
-        bookmarkResponseDataOne.createdBookmark.id =
-          result.body.createdBookmark.id;
+        bookmarkResponseDataOne.createdBookmark.id = result.body.data.id;
+
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
-        expect(result.body.createdBookmark['tags'][0]['tag']).toBe(
-          bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
-        );
-        expect(result.body.createdBookmark['url']).toBe(
-          bookmarkResponseDataOne.createdBookmark['url'],
-        );
+        expect(result.body.data.tags[0].tag).toBe('여행');
+        expect(result.body.data.url).toBe('https://www.test1.com');
       });
 
       it('중복된 url을 가진 북마크는 새로 생성 할 수 없다.', async () => {
@@ -543,11 +546,10 @@ describe('AppController (e2e)', () => {
           .post('/api/tag', accessToken)
           .send(tagParams);
 
+        console.log(result.body);
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(tagResponseData.ok);
-        expect(result.body.createdTag['tag']).toBe(
-          tagResponseData.createdTag['tag'],
-        );
+        expect(result.body.data.tag).toBe('유원지');
       });
 
       it('태그 객체가 없으면 태그를 생성 할 수 없다.', async () => {
