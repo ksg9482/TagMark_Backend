@@ -7,6 +7,7 @@ import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
+import { Tags } from 'src/tag/domain/tags';
 
 @Injectable()
 export class TagRepository implements ITagRepository {
@@ -90,10 +91,11 @@ export class TagRepository implements ITagRepository {
     });
   }
 
-  async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
+  async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
     const arr: any[] = [];
-    for (let i = 0; i < tags.length; i++) {
-      const tag = tags[i];
+    //for of로. for 돌때마다 select보내는거 개선
+    for (let i = 0; i < tags.tags.length; i++) {
+      const tag = tags.tags[i];
       const check = await this.tagRepository
         .createQueryBuilder()
         .select('*')

@@ -4,6 +4,7 @@ import { Tag } from 'src/tag/domain/tag';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
+import { Tags } from '../domain/tags';
 
 export class TagUseCases {
   constructor(
@@ -49,7 +50,7 @@ export class TagUseCases {
     return resultTags;
   }
 
-  async attachTag(bookmarkId: string, tags: Tag[]): Promise<any[]> {
+  async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
     return attach;
   }
