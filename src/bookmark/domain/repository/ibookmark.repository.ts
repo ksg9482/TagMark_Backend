@@ -6,23 +6,19 @@ interface BookmarkSaveData {
   url: string;
 }
 export class BookmarkSaveDto {
-  private readonly _userId: string;
-  private readonly _url: string;
+  readonly #userId: string;
+  readonly #url: string;
 
-  private constructor(bookmarkSaveDto: BookmarkSaveData) {
-    this._userId = bookmarkSaveDto.userId;
-    this._url = bookmarkSaveDto.url;
+  constructor(bookmarkSaveDto: BookmarkSaveData) {
+    this.#userId = bookmarkSaveDto.userId;
+    this.#url = bookmarkSaveDto.url;
   }
 
   get userId() {
-    return this._userId;
+    return this.#userId;
   }
   get url() {
-    return this._url;
-  }
-
-  static of(bookmarkSaveDto: BookmarkSaveData) {
-    return new BookmarkSaveDto(bookmarkSaveDto);
+    return this.#url;
   }
 }
 export interface IBookmarkRepository {

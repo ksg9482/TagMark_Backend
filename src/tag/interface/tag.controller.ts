@@ -31,6 +31,7 @@ import {
 } from 'src/tag/interface/dto';
 import { TagUseCases } from 'src/tag/application/tag.use-case';
 import { AuthGuard } from 'src/auth.guard';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 @UseGuards(AuthGuard)
 @ApiTags('Tag')
@@ -52,13 +53,11 @@ export class TagController {
   @ApiBody({ type: CreateTagDto })
   @Post('/')
   async createTag(@Body(new ValidationPipe()) createTagDto: CreateTagDto) {
-    const createTagResponse = new CreateTagResponseDto();
     const { tag } = createTagDto;
     try {
       const createdTag = await this.tagUseCases.createTag({ tag: tag });
-      createTagResponse.ok = true;
-      createTagResponse.createdTag = createdTag;
-      return createTagResponse;
+
+      return ResponseDto.OK_WITH(new CreateTagResponseDto(createdTag));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

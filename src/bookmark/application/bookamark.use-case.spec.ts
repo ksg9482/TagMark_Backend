@@ -149,25 +149,25 @@ describe('bookmark-use-case', () => {
   });
 
   describe('syncBookmark', () => {
-    const fakeTag = {
-      id: 'fakeIdOne',
-      tag: 'fakeTagOne',
-    };
-
-    const fakeBookmark = {
-      id: 'fakeId',
-      url: 'fakeUrl',
-      userId: 'fakeUserId',
-      tags: [fakeTag],
-    };
-
+    const fakeTag = new Tag('fakeIdOne', 'fakeTagOne');
+    const fakeTags = new Tags([fakeTag]);
+    const fakeBookmark = new Bookmark(
+      'fakeId',
+      'fakeUserId',
+      'fakeUrl',
+      fakeTags,
+    );
     it('북마크 배열을 반환한다.', async () => {
       bookmarkRepository.syncBookmark = jest
         .fn()
         .mockResolvedValue([fakeBookmark]);
-      expect(await bookmarkService.syncBookmark([fakeBookmark])).toStrictEqual([
-        fakeBookmark,
-      ]);
+
+      const result = await bookmarkService.syncBookmark([fakeBookmark]);
+      expect(result[0].id).toBe('fakeId');
+      expect(result[0].userId).toBe('fakeUserId');
+      expect(result[0].url).toBe('fakeUrl');
+      expect(result[0].tags[0].id).toBe('fakeIdOne');
+      expect(result[0].tags[0].tag).toBe('fakeTagOne');
     });
   });
 
@@ -209,17 +209,15 @@ describe('bookmark-use-case', () => {
       changeUrl: 'fakeChangeUrl',
     };
 
-    const fakeTag = {
-      id: 'fakeIdOne',
-      tag: 'fakeTagOne',
-    };
+    const fakeTag = new Tag('fakeIdOne', 'fakeTagOne');
+    const fakeTags = new Tags([fakeTag]);
+    const fakeBookmark = Bookmark.from(
+      'fakeId',
+      'fakeUserId',
+      'fakeUrl',
+      fakeTags,
+    );
 
-    const fakeBookmark = {
-      id: 'fakeId',
-      url: 'fakeUrl',
-      userId: 'fakeUserId',
-      tags: [fakeTag],
-    };
     it('검색된 북마크를 제거한다.', async () => {
       bookmarkRepository.getUserBookmark = jest
         .fn()
@@ -450,18 +448,14 @@ describe('bookmark-use-case', () => {
   });
 
   describe('saveBookmarkTag', () => {
-    const fakeTag = {
-      id: 'fakeIdOne',
-      tag: 'fakeTagOne',
-    };
-
-    const fakeBookmark = {
-      id: 'fakeId',
-      url: 'fakeUrl',
-      userId: 'fakeUserId',
-      tags: [fakeTag],
-    };
-
+    const fakeTag = new Tag('fakeIdOne', 'fakeTagOne');
+    const fakeTags = new Tags([fakeTag]);
+    const fakeBookmark = new Bookmark(
+      'fakeId',
+      'fakeUserId',
+      'fakeUrl',
+      fakeTags,
+    );
     it('북마크와 태그를 인수로 제공하면 결과값을 반환한다.', async () => {
       bookmarkRepository.attachbulk = jest
         .fn()
@@ -476,23 +470,21 @@ describe('bookmark-use-case', () => {
 
   describe('getBookmarkIdAndTagId', () => {
     const fakeTags = { id: 'mockTagId', tag: 'fakeTag' };
-    // const fakeBookmark = {
-    //   id: 'fakeBookmarkId',
-    //   url: 'fakeUrl',
-    //   userId: 'fakeUserId',
-    //   tags: [fakeTag],
-    // };
     const fakeTagsInstance = new Tags([new Tag(fakeTags.id, fakeTags.tag)]);
+
     const fakeBookmark = Bookmark.from(
       'fakeBookmarkId',
       'fakeUserId',
       'fakeUrl',
       fakeTagsInstance,
     );
+
     it('북마크 아이디와 태그 아이디 배열을 요소로 가진 객체 배열을 반환한다.', async () => {
-      expect(
-        bookmarkService['getBookmarkIdAndTagId']([fakeBookmark]),
-      ).toStrictEqual([{ bookmarkId: fakeBookmark.id, tagIds: [fakeTags.id] }]);
+      const result = bookmarkService['getBookmarkIdAndTagId']([fakeBookmark]);
+
+      expect(result).toStrictEqual([
+        { bookmarkId: fakeBookmark.id, tagIds: [fakeTags.id] },
+      ]);
     });
   });
 
@@ -521,102 +513,77 @@ describe('bookmark-use-case', () => {
   });
 
   describe('setSyncBookmarkForm', () => {
-    const tempTag = [
-      {
-        id: '',
-        tag: 'fakeTagOne',
-      },
-      {
-        id: '',
-        tag: 'fakeTagTwo',
-      },
-    ];
-    const fakeTags = [
-      {
-        id: 'fakeIdOne',
-        tag: 'fakeTagOne',
-      },
-      {
-        id: 'fakeIdTwo',
-        tag: 'fakeTagTwo',
-      },
-    ];
+    const tempTag = new Tags([
+      new Tag('', 'fakeTagOne'),
+      new Tag('', 'fakeTagTwo'),
+    ]);
     const tempBookmarks = [
-      {
-        id: 'fakeBookmarkId',
-        url: 'fakeUrl',
-        userId: 'fakeUserId',
-        tags: tempTag,
-      },
+      Bookmark.from('fakeBookmarkId', 'fakeUserId', 'fakeUrl', tempTag),
     ];
+
     const tempBookmarksEmptyTag = [
-      {
-        id: 'fakeBookmarkId',
-        url: 'fakeUrl',
-        userId: 'fakeUserId',
-      },
+      Bookmark.from('fakeBookmarkId', 'fakeUserId', 'fakeUrl'),
     ];
+
+    const fakeTagOne = new Tag('fakeIdOne', 'fakeTagOne');
+    const fakeTagTwo = new Tag('fakeIdTwo', 'fakeTagTwo');
+    const fakeTags = new Tags([fakeTagOne, fakeTagTwo]);
     const fakeBookmarks = [
-      {
-        id: 'fakeBookmarkId',
-        url: 'fakeUrl',
-        userId: 'fakeUserId',
-        tags: fakeTags,
-      },
+      new Bookmark('fakeBookmarkId', 'fakeUserId', 'fakeUrl', fakeTags),
     ];
+
     const setSyncBookmarkFormInput = {
       userId: 'fakeUserId',
       bookmarks: tempBookmarks,
-      tags: [
-        {
-          id: 'fakeIdOne',
-          tag: 'fakeTagOne',
-        },
-        {
-          id: 'fakeIdTwo',
-          tag: 'fakeTagTwo',
-        },
-      ],
+      tags: new Tags([
+        new Tag('fakeIdOne', 'fakeTagOne'),
+        new Tag('fakeIdTwo', 'fakeTagTwo'),
+      ]),
     };
     const inputWithEmptyBookmarkTag = {
       userId: 'fakeUserId',
       bookmarks: tempBookmarksEmptyTag,
-      tags: [
-        {
-          id: 'fakeIdOne',
-          tag: 'fakeTagOne',
-        },
-        {
-          id: 'fakeIdTwo',
-          tag: 'fakeTagTwo',
-        },
-      ],
+      tags: new Tags([]),
     };
+
     it('북마크에 담긴 임시 태그는 tags 파라미터에 담긴 데이터로 교체된다', () => {
-      expect(
-        bookmarkService.setSyncBookmarkForm(
-          setSyncBookmarkFormInput.userId,
-          setSyncBookmarkFormInput.bookmarks,
-          setSyncBookmarkFormInput.tags,
-        ),
-      ).toStrictEqual([...fakeBookmarks]);
+      const result = bookmarkService.setSyncBookmarkForm(
+        setSyncBookmarkFormInput.userId,
+        setSyncBookmarkFormInput.bookmarks,
+        setSyncBookmarkFormInput.tags,
+      );
+
+      /**
+       * const fakeBookmarks = [
+      new Bookmark('fakeBookmarkId', 'fakeUserId', 'fakeUrl', fakeTags),
+    ];
+       */
+      const fakeTagOne = new Tag('fakeIdOne', 'fakeTagOne');
+      const fakeTagTwo = new Tag('fakeIdTwo', 'fakeTagTwo');
+      const fakeTags = new Tags([fakeTagOne, fakeTagTwo]);
+      expect(result[0].id).toBe('fakeBookmarkId');
+      expect(result[0].userId).toBe('fakeUserId');
+      expect(result[0].url).toBe('fakeUrl');
+      expect(result[0].tags[0].id).toBe('fakeIdOne');
+      expect(result[0].tags[0].tag).toBe('fakeTagOne');
+      expect(result[0].tags[1].id).toBe('fakeIdTwo');
+      expect(result[0].tags[1].tag).toBe('fakeTagTwo');
     });
 
     it('북마크에 담긴 임시 태그가 없으면 빈배열이 반환된다', () => {
-      expect(
-        bookmarkService.setSyncBookmarkForm(
-          inputWithEmptyBookmarkTag.userId,
-          inputWithEmptyBookmarkTag.bookmarks,
-          inputWithEmptyBookmarkTag.tags,
-        ),
-      ).toStrictEqual([
-        {
-          id: 'fakeBookmarkId',
-          url: 'fakeUrl',
-          userId: 'fakeUserId',
-          tags: [],
-        },
-      ]);
+      const result = bookmarkService.setSyncBookmarkForm(
+        inputWithEmptyBookmarkTag.userId,
+        inputWithEmptyBookmarkTag.bookmarks,
+        inputWithEmptyBookmarkTag.tags,
+      );
+
+      const fakeTagOne = new Tag('fakeIdOne', 'fakeTagOne');
+      const fakeTagTwo = new Tag('fakeIdTwo', 'fakeTagTwo');
+      const fakeTags = new Tags([fakeTagOne, fakeTagTwo]);
+      expect(result[0].id).toBe('fakeBookmarkId');
+      expect(result[0].userId).toBe('fakeUserId');
+      expect(result[0].url).toBe('fakeUrl');
+      expect(result[0].tags).toStrictEqual([]);
     });
   });
 });

@@ -10,17 +10,16 @@ export class GoogleOauthDto {
 }
 
 export class GoogleOauthResponseDto {
-  @Exclude()
-  private readonly _accessToken: string;
+  readonly #accessToken: string;
 
   constructor(accessToken: string) {
-    this._accessToken = accessToken;
+    this.#accessToken = accessToken;
   }
 
   @Expose()
   @IsString()
   @ApiProperty({ description: 'JWT 액세스 토큰' })
   get accessToken() {
-    return this._accessToken;
+    return this.#accessToken;
   }
 }

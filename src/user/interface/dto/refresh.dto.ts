@@ -5,16 +5,15 @@ import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class RefreshTokenDto {}
 
 export class RefreshTokenResponseDto {
-  @Exclude()
-  private readonly _accessToken: string;
+  readonly #accessToken: string;
   constructor(accessToken: string) {
-    this._accessToken = accessToken;
+    this.#accessToken = accessToken;
   }
 
   @ApiProperty({ description: '새로운 JWT 액세스 토큰' })
   @IsString()
   @Expose()
   get accessToken() {
-    return this._accessToken;
+    return this.#accessToken;
   }
 }

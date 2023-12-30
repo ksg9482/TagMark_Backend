@@ -8,7 +8,10 @@ import {
   BookmarkAndTag,
   BookmarkTagMap,
 } from 'src/bookmark/domain/bookmark.interface';
-import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
+import {
+  BookmarkSaveDto,
+  IBookmarkRepository,
+} from 'src/bookmark/domain/repository/ibookmark.repository';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
@@ -47,13 +50,12 @@ export class BookmarkUseCases {
       return tag;
     });
 
-    const tagsInstance = new Tags(tags);
-    BookmarkSaveDto;
-    const createdBookmark = await this.bookmarkRepository.save({
-      url: url,
-      userId: userId,
-      // tags: tagsInstance,
-    });
+    const createdBookmark = await this.bookmarkRepository.save(
+      new BookmarkSaveDto({
+        userId: userId,
+        url: url,
+      }),
+    );
 
     return createdBookmark;
   }
@@ -76,10 +78,6 @@ export class BookmarkUseCases {
   }
 
   async syncBookmark(bookmarks: Bookmark[]) {
-    bookmarks.map((bookmark) => {
-      bookmark.id;
-      return bookmark.id;
-    });
     const bookmarkInsert = await this.bookmarkRepository.syncBookmark(
       bookmarks,
     );
@@ -172,7 +170,6 @@ export class BookmarkUseCases {
       const tagIds = bookmarkTags.map((tag) => {
         return tag.id;
       });
-
       return { bookmarkId, tagIds };
     });
     return result;
@@ -193,21 +190,34 @@ export class BookmarkUseCases {
   }
   setSyncBookmarkForm(
     userId: string,
-    bookmarks: Partial<Bookmark>[],
-    tags: Tag[],
+    bookmarks: Bookmark[],
+    tags: Tags,
   ): Bookmark[] {
     const result = bookmarks.map((bookmark) => {
-      const localTags = bookmark.tags || [];
+      const localTags = bookmark.tags;
+
       const changedTags = localTags.map((localtag) => {
-        const targetTag = tags.find((dbTag) => {
+        const targetTag = tags.tags.find((dbTag) => {
           return dbTag.tag === localtag.tag;
         });
 
         return targetTag;
       });
 
-      return { ...bookmark, tags: changedTags, userId: userId };
+      const filtered = changedTags.filter((tag): tag is Tag => {
+        if (tag !== undefined) {
+          return true;
+        }
+        return false;
+      });
+
+      return Bookmark.from(
+        bookmark.id,
+        userId,
+        bookmark.url,
+        new Tags(filtered),
+      );
     });
-    return result as any;
+    return result;
   }
 }

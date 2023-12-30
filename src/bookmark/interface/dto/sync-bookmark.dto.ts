@@ -7,7 +7,7 @@ export class SyncBookmarkDto {
   @IsArray()
   @IsNotEmpty()
   @ApiProperty({ description: '북마크 배열' })
-  bookmarks: Partial<Bookmark>[];
+  bookmarks: Bookmark[];
 
   @IsArray()
   @IsOptional()

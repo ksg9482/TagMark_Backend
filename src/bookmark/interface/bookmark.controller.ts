@@ -46,6 +46,8 @@ import {
 } from 'src/bookmark/interface/dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { AuthGuard } from 'src/auth.guard';
+import { Tags } from 'src/tag/domain/tags';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 @UseGuards(AuthGuard)
 @ApiTags('Bookmark')
@@ -74,7 +76,6 @@ export class BookmarkController {
     @AuthUser() userId: string,
     @Body(new ValidationPipe()) createBookmarkDto: CreateBookmarkDto,
   ) {
-    const createBookmarkResponse = new CreateBookmarkResponseDto();
     try {
       const { url, tagNames } = createBookmarkDto;
       const tags = tagNames || [];
@@ -82,11 +83,12 @@ export class BookmarkController {
       const createTags = tags.map((tag) => {
         return this.tagFactory.create(uuid, tag);
       });
+      const tagsInstance = new Tags(createTags);
       const bookmark = this.bookmarkFactory.create(
         uuid,
         url,
         userId,
-        createTags,
+        tagsInstance,
       );
 
       const createdBookmark = await this.bookmarkUseCases.createBookmark(
@@ -98,12 +100,14 @@ export class BookmarkController {
         const tags = await this.tagUseCases.getTagsByNames(
           createBookmarkDto.tagNames,
         );
-        await this.tagUseCases.attachTag(createdBookmark.id, tags);
-        createdBookmark.tags = tags;
+        const tagsInstance = new Tags(tags);
+        await this.tagUseCases.attachTag(createdBookmark.id, tagsInstance);
+        createdBookmark.updateTags(tagsInstance);
       }
-      createBookmarkResponse.ok = true;
-      createBookmarkResponse.createdBookmark = createdBookmark;
-      return createBookmarkResponse;
+
+      return ResponseDto.OK_WITH(
+        new CreateBookmarkResponseDto(createdBookmark),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -133,7 +137,7 @@ export class BookmarkController {
       const syncedBookmarks = this.bookmarkUseCases.setSyncBookmarkForm(
         userId,
         bookmarks,
-        dbTags,
+        new Tags(dbTags),
       );
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
@@ -243,7 +247,7 @@ export class BookmarkController {
 
       if (addTag) {
         const tags = await this.tagUseCases.getTagsByNames(addTag);
-        await this.tagUseCases.attachTag(bookmarkId, tags);
+        await this.tagUseCases.attachTag(bookmarkId, new Tags(tags));
       }
 
       if (url) {

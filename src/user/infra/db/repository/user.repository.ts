@@ -36,7 +36,6 @@ export class UserRepository implements IUserRepository {
       .where('("user"."email" = :email)', { email: inputEmail })
       .limit(1)
       .getRawOne();
-    console.log(userEntity);
 
     if (!userEntity) {
       return null;

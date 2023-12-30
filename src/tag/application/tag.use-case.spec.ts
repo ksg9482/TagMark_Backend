@@ -1,7 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
+import { Tag } from '../domain/tag';
 import { TagFactory } from '../domain/tag.factory';
+import { Tags } from '../domain/tags';
 import { TagEntity } from '../infra/db/entity/tag.entity';
 import { TagRepository } from '../infra/db/repository/tag.repository';
 import { TagUseCases } from './tag.use-case';
@@ -231,10 +233,20 @@ describe('tag-use-case', () => {
           tagId: attachTagObj.tags[1].id,
         },
       ];
+
+      const fakeTags = new Tags([
+        new Tag('fakeIdOne', 'fakeTagNameOne'),
+        new Tag('fakeIdTwo', 'fakeTagNameTwo'),
+      ]);
       tagRepository.attachTag = jest.fn().mockResolvedValue(attachTagResolve);
-      expect(
-        await tagService.attachTag(attachTagObj.bookmarkId, attachTagObj.tags),
-      ).toStrictEqual(attachTagResolve);
+      const result = await tagService.attachTag(
+        attachTagObj.bookmarkId,
+        fakeTags,
+      );
+      expect(result).toStrictEqual([
+        { id: 'one', bookmarkId: 'fakeBookmarkId', tagId: 'fakeIdOne' },
+        { id: 'two', bookmarkId: 'fakeBookmarkId', tagId: 'fakeIdTwo' },
+      ]);
     });
   });
 
@@ -323,12 +335,8 @@ describe('tag-use-case', () => {
 
   describe('getNotExistTag', () => {
     const fakeInputTags = ['fakeTagOne', 'fakeTagTwo', 'fakeTagThree'];
-    const fakeExistTags = [
-      {
-        id: 'fakeIdTwo',
-        tag: 'fakeTagTwo',
-      },
-    ];
+    const fakeExistTags = [new Tag('fakeIdTwo', 'fakeTagTwo')];
+
     const fakeNotExistTag = ['fakeTagOne', 'fakeTagThree'];
     it('inputTags중 existTags에 존재하지 않는 태그배열을 반환한다.', () => {
       expect(

@@ -13,46 +13,42 @@ export class UserProfileDto {
 }
 
 export class UserProfileResponseDto {
-  @Exclude()
-  private readonly _id: string;
+  readonly #id: string;
 
-  @Exclude()
-  private readonly _email: string;
+  readonly #email: string;
 
-  @Exclude()
-  private readonly _nickname: string;
+  readonly #nickname: string;
 
-  @Exclude()
-  private readonly _type: UserType;
+  readonly #type: UserType;
 
   constructor(user: User) {
-    this._id = user.id;
-    this._email = user.email;
-    this._nickname = user.nickname;
-    this._type = user.type;
+    this.#id = user.id;
+    this.#email = user.email;
+    this.#nickname = user.nickname;
+    this.#type = user.type;
   }
 
   @Expose()
   @ApiProperty({ description: '생성된 유저 아이디' })
   get id() {
-    return this._id;
+    return this.#id;
   }
 
   @Expose()
   @ApiProperty({ description: '생성된 유저 아이디' })
   get email() {
-    return this._email;
+    return this.#email;
   }
 
   @Expose()
   @ApiProperty({ description: '생성된 유저 아이디' })
   get nickname() {
-    return this._nickname;
+    return this.#nickname;
   }
 
   @Expose()
   @ApiProperty({ description: '생성된 유저 아이디' })
   get type() {
-    return this._type;
+    return this.#type;
   }
 }
