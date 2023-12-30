@@ -10,15 +10,15 @@ export class PasswordValidDto {
 }
 
 export class PasswordValidResponseDto {
-  private readonly _valid: boolean;
+  readonly #valid: boolean;
 
   constructor(valid: boolean) {
-    this._valid = valid;
+    this.#valid = valid;
   }
 
   @ApiProperty({ description: '비밀번호 정합여부' })
   @IsBoolean()
   get valid() {
-    return this._valid;
+    return this.#valid;
   }
 }

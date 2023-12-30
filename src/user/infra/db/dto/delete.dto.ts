@@ -1,14 +1,14 @@
 import { UserEntity } from '../entity/user.entity';
 
 export class DeleteDto {
-  private _id: string;
+  #id: string;
 
   private constructor(entity: UserEntity) {
-    this._id = entity.id;
+    this.#id = entity.id;
   }
 
   get id() {
-    return this._id;
+    return this.#id;
   }
 
   static from(entity: UserEntity) {

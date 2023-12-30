@@ -1,39 +1,39 @@
 import { UserEntity } from '../entity/user.entity';
 
 export class GetDto {
-  private _id: string;
-  private _email: string;
-  private _nickname: string;
-  private _password: string;
-  private _role: string;
-  private _type: string;
+  #id: string;
+  #email: string;
+  #nickname: string;
+  #password: string;
+  #role: string;
+  #type: string;
 
   private constructor(entity: UserEntity) {
-    this._id = entity.id;
-    this._email = entity.email;
-    this._nickname = entity.nickname;
-    this._password = entity.password;
-    this._role = entity.role;
-    this._type = entity.type;
+    this.#id = entity.id;
+    this.#email = entity.email;
+    this.#nickname = entity.nickname;
+    this.#password = entity.password;
+    this.#role = entity.role;
+    this.#type = entity.type;
   }
 
   get id() {
-    return this._id;
+    return this.#id;
   }
   get email() {
-    return this._email;
+    return this.#email;
   }
   get nickname() {
-    return this._nickname;
+    return this.#nickname;
   }
   get password() {
-    return this._password;
+    return this.#password;
   }
   get role() {
-    return this._role;
+    return this.#role;
   }
   get type() {
-    return this._type;
+    return this.#type;
   }
 
   static from(entity: UserEntity) {

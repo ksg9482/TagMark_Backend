@@ -4,16 +4,15 @@ import { User } from 'src/user/domain';
 export class LogoutDto {}
 
 export class LogoutResponseDto {
-  @Exclude()
-  private _id: string;
+  #id: string;
 
   constructor(user: Pick<User, 'id'>) {
-    this._id = user.id;
+    this.#id = user.id;
   }
 
   @Expose()
   @ApiProperty({ description: '생성된 유저 아이디' })
   get id() {
-    return this._id;
+    return this.#id;
   }
 }

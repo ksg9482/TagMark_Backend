@@ -9,34 +9,34 @@ interface UserSaveData {
   type: UserType;
 }
 export class UserSaveDto {
-  private readonly _email: string;
-  private readonly _nickname: string;
-  private readonly _password: string;
-  private readonly _role: UserRole;
-  private readonly _type: UserType;
+  readonly #email: string;
+  readonly #nickname: string;
+  readonly #password: string;
+  readonly #role: UserRole;
+  readonly #type: UserType;
 
   private constructor(userSaveDto: UserSaveData) {
-    this._email = userSaveDto.email;
-    this._nickname = userSaveDto.nickname;
-    this._password = userSaveDto.password;
-    this._role = userSaveDto.role;
-    this._type = userSaveDto.type;
+    this.#email = userSaveDto.email;
+    this.#nickname = userSaveDto.nickname;
+    this.#password = userSaveDto.password;
+    this.#role = userSaveDto.role;
+    this.#type = userSaveDto.type;
   }
 
   get email() {
-    return this._email;
+    return this.#email;
   }
   get nickname() {
-    return this._nickname;
+    return this.#nickname;
   }
   get password() {
-    return this._password;
+    return this.#password;
   }
   get role() {
-    return this._role;
+    return this.#role;
   }
   get type() {
-    return this._type;
+    return this.#type;
   }
 
   //class를 바로 받지 않는 이유. 클래스와 동일한 구조를 가진 인터페이스를 사용하는 방법 외에,
