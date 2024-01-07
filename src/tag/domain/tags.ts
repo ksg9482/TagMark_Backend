@@ -12,4 +12,6 @@ export class Tags {
   get tags() {
     return this.#tags;
   }
+
+  //태그 비교도 여기
 }
