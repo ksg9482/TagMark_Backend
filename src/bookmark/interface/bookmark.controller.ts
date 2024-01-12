@@ -128,11 +128,9 @@ export class BookmarkController {
     @AuthUser() userId: string,
     @Body(new ValidationPipe()) loginsyncBookmarkDto: SyncBookmarkDto,
   ) {
-    const syncBookmarkResponse = new SyncBookmarkResponseDto();
     try {
       const tagNames = loginsyncBookmarkDto.tagNames || [];
       const bookmarks = loginsyncBookmarkDto.bookmarks || [];
-
       const dbTags = await this.tagUseCases.getTagsByNames(tagNames);
       const syncedBookmarks = this.bookmarkUseCases.setSyncBookmarkForm(
         userId,
@@ -141,10 +139,10 @@ export class BookmarkController {
       );
       await this.bookmarkUseCases.syncBookmark(syncedBookmarks);
 
-      syncBookmarkResponse.ok = true;
-      syncBookmarkResponse.message = 'synced';
-      syncBookmarkResponse.bookmarks = syncedBookmarks;
-      return syncBookmarkResponse;
+      const message = 'synced';
+      return ResponseDto.OK_WITH(
+        new SyncBookmarkResponseDto(message, syncedBookmarks),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,18 +168,19 @@ export class BookmarkController {
     @Query(new ValidationPipe({ transform: true }))
     page: GetUserAllBookmarksDto,
   ) {
-    const getUserAllBookmarkResponse = new GetUserAllBookmarksResponseDto();
     try {
-      const bookmarks: any = await this.bookmarkUseCases.getUserAllBookmarks(
+      const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(
         userId,
         page,
       );
 
-      getUserAllBookmarkResponse.ok = true;
-      getUserAllBookmarkResponse.totalCount = bookmarks.totalCount;
-      getUserAllBookmarkResponse.totalPage = bookmarks.totalPage;
-      getUserAllBookmarkResponse.bookmarks = bookmarks.bookmarks;
-      return getUserAllBookmarkResponse;
+      return ResponseDto.OK_WITH(
+        new GetUserAllBookmarksResponseDto(
+          bookmarks.totalPage,
+          bookmarks.totalCount,
+          bookmarks.bookmarks,
+        ),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -198,13 +197,12 @@ export class BookmarkController {
   })
   @Get('/count')
   async getUserBookmarkCount(@AuthUser() userId: string) {
-    const getUserAllBookmarkResponse = new GetUserBookmarkCountResponseDto();
     try {
       const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
 
-      getUserAllBookmarkResponse.ok = true;
-      getUserAllBookmarkResponse.count = Number(count);
-      return getUserAllBookmarkResponse;
+      return ResponseDto.OK_WITH(
+        new GetUserBookmarkCountResponseDto(Number(count)),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -231,7 +229,6 @@ export class BookmarkController {
       const errorMessage = 'Bookmark URL should not be empty';
       return new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
     }
-    const editBookmarkResponse = new EditBookmarkResponseDto();
     try {
       const url = editBookmarkDto.url;
       const deleteTag =
@@ -254,9 +251,8 @@ export class BookmarkController {
         await this.bookmarkUseCases.editBookmarkUrl(userId, bookmarkId, url);
       }
 
-      editBookmarkResponse.ok = true;
-      editBookmarkResponse.message = 'Updated';
-      return editBookmarkResponse;
+      const message = 'Updated';
+      return ResponseDto.OK_WITH(new EditBookmarkResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -287,7 +283,6 @@ export class BookmarkController {
     @Query('tags') tags: string,
     @Query(new ValidationPipe({ transform: true })) page: GetSearchTagsDto,
   ) {
-    const getSearchTagsResponseDto = new GetSearchTagsResponseDto();
     try {
       const tagArr = tags.split(',');
 
@@ -297,11 +292,13 @@ export class BookmarkController {
         page,
       );
 
-      getSearchTagsResponseDto.ok = true;
-      getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
-      getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
-      getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
-      return getSearchTagsResponseDto;
+      return ResponseDto.OK_WITH(
+        new GetSearchTagsResponseDto(
+          bookmarks.totalPage,
+          bookmarks.totalCount,
+          bookmarks.bookmarks,
+        ),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -332,7 +329,6 @@ export class BookmarkController {
     @Query('tags') tags: string,
     @Query(new ValidationPipe({ transform: true })) page: GetSearchTagsDto,
   ) {
-    const getSearchTagsResponseDto = new GetSearchTagsResponseDto();
     try {
       const tagArr = tags.split(',');
 
@@ -342,11 +338,13 @@ export class BookmarkController {
         page,
       );
 
-      getSearchTagsResponseDto.ok = true;
-      getSearchTagsResponseDto.totalCount = bookmarks.totalCount;
-      getSearchTagsResponseDto.totalPage = bookmarks.totalPage;
-      getSearchTagsResponseDto.bookmarks = bookmarks.bookmarks;
-      return getSearchTagsResponseDto;
+      return ResponseDto.OK_WITH(
+        new GetSearchTagsResponseDto(
+          bookmarks.totalPage,
+          bookmarks.totalCount,
+          bookmarks.bookmarks,
+        ),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -367,13 +365,11 @@ export class BookmarkController {
     @AuthUser() userId: string,
     @Param('id') bookmarkId: string,
   ) {
-    const deleteBookmarkResponse = new DeleteBookmarkResponseDto();
     try {
       await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId);
 
-      deleteBookmarkResponse.ok = true;
-      deleteBookmarkResponse.message = 'Deleted';
-      return deleteBookmarkResponse;
+      const message = 'Deleted';
+      return ResponseDto.OK_WITH(new DeleteBookmarkResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

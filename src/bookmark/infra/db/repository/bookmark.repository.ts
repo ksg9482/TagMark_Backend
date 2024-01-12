@@ -1,6 +1,9 @@
 import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
-import { Page } from 'src/bookmark/application/bookmark.pagination';
+import {
+  BookmarkPage,
+  Page,
+} from 'src/bookmark/application/bookmark.pagination';
 import {
   BookmarkSaveDto,
   IBookmarkRepository,
@@ -135,10 +138,7 @@ export class BookmarkRepository implements IBookmarkRepository {
       .getRawMany();
   }
 
-  async getUserAllBookmarks(
-    userId: string,
-    page: any,
-  ): Promise<Page<Bookmark>> {
+  async getUserAllBookmarks(userId: string, page: any) {
     const tagProperty = () => {
       const id = `'id', "tag"."id"`;
       const tag = `'tag', "tag"."tag"`;
@@ -163,7 +163,13 @@ export class BookmarkRepository implements IBookmarkRepository {
       .offset(page.skip)
       .getRawMany();
 
-    return new Page<Bookmark>(Number(count), page.take, bookmarks);
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tags = new Tags(bookmark.tags);
+      return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
+    });
+    return new BookmarkPage(Number(count), page.take, bookmarksInstance);
+
+    //return new Page<Bookmark>(Number(count), page.take, bookmarksInstance);
   }
 
   async getcount(userId: string): Promise<any> {
@@ -237,11 +243,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     return attachBookmark;
   }
 
-  async findBookmarkTag_OR(
-    userId: string,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
+  async findBookmarkTag_OR(userId: string, tags: string[], page: any) {
     /**
      * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
      */
@@ -283,13 +285,14 @@ export class BookmarkRepository implements IBookmarkRepository {
 
     const count = bookmarks.length;
 
-    return new Page<Bookmark>(count, page.take, bookmarks);
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tags = new Tags(bookmark.tags);
+      return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
+    });
+    return new BookmarkPage(Number(count), page.take, bookmarksInstance);
+    //return new Page<Bookmark>(count, page.take, bookmarksInstance);
   }
-  async findBookmarkTag_AND(
-    userId: string,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
+  async findBookmarkTag_AND(userId: string, tags: string[], page: any) {
     /**
      * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
      */
@@ -332,6 +335,11 @@ export class BookmarkRepository implements IBookmarkRepository {
       .getRawMany();
 
     const count = bookmarks.length;
-    return new Page<Bookmark>(count, page.take, bookmarks);
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tags = new Tags(bookmark.tags);
+      return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
+    });
+    return new BookmarkPage(Number(count), page.take, bookmarksInstance);
+    //return new Page<Bookmark>(count, page.take, bookmarksInstance);
   }
 }

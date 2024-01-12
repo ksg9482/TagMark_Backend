@@ -64,11 +64,13 @@ export class BookmarkUseCases {
     const limit = page.getLimit();
     const offset = page.getOffset();
 
-    const bookmarks: Page<Bookmark> =
-      await this.bookmarkRepository.getUserAllBookmarks(userId, {
+    const bookmarks = await this.bookmarkRepository.getUserAllBookmarks(
+      userId,
+      {
         take: limit,
         skip: offset,
-      });
+      },
+    );
     return bookmarks;
   }
 
@@ -133,7 +135,7 @@ export class BookmarkUseCases {
     userId: string,
     tags: string[],
     page: SearchTags,
-  ): Promise<Page<Bookmark>> {
+  ) {
     const limit = page.getLimit();
     const offset = page.getOffset();
     const bookmarks = await this.bookmarkRepository.findBookmarkTag_AND(
@@ -195,7 +197,6 @@ export class BookmarkUseCases {
   ): Bookmark[] {
     const result = bookmarks.map((bookmark) => {
       const localTags = bookmark.tags;
-
       const changedTags = localTags.map((localtag) => {
         const targetTag = tags.tags.find((dbTag) => {
           return dbTag.tag === localtag.tag;
