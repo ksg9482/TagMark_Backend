@@ -1,6 +1,5 @@
+import { Expose } from 'class-transformer';
 import { Tag } from './tag';
-
-type ITags = Tag[] | []; //Tag[]라는 타입이 올 수 있고, 빈배열 타입이 올수 있다. 타입 별칭이 맞다고 판단.
 
 export class Tags {
   #tags: Tag[] = [];
@@ -9,6 +8,7 @@ export class Tags {
     this.#tags = tags;
   }
 
+  @Expose()
   get tags() {
     return this.#tags;
   }

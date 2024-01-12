@@ -1,14 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { Tags } from 'src/tag/domain/tags';
 
 export class CreateBookmarkDto {
@@ -38,25 +31,25 @@ export class CreateBookmarkResponseDto {
     this.#tags = new Tags(bookmark.tags);
   }
 
-  @ApiProperty({ description: '생성된' })
+  @ApiProperty({ description: '생성된 북마크 id' })
   @Expose()
   get id() {
     return this.#id;
   }
 
-  @ApiProperty({ description: '생성된' })
+  @ApiProperty({ description: '생성된 북마크 유저 id' })
   @Expose()
   get userId() {
     return this.#userId;
   }
 
-  @ApiProperty({ description: '생성된' })
+  @ApiProperty({ description: '생성된 북마크 url' })
   @Expose()
   get url() {
     return this.#url;
   }
 
-  @ApiProperty({ description: '생성된' })
+  @ApiProperty({ description: '생성된 북마크 태그 리스트' })
   @Expose()
   get tags() {
     return this.#tags.tags.map((tag) => {
