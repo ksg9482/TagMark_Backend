@@ -14,4 +14,9 @@ export class Tags {
   }
 
   //태그 비교도 여기
+  findTag(tagName: string) {
+    return this.#tags.find((tag) => {
+      return tag.tag === tagName;
+    });
+  }
 }

@@ -16,6 +16,7 @@ import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
+import { Bookmarks } from '../domain/bookmarks';
 
 //DTO 의존성 해소용.
 type UserAllBookmarks = PageRequest;
@@ -79,11 +80,11 @@ export class BookmarkUseCases {
     return count;
   }
 
-  async syncBookmark(bookmarks: Bookmark[]) {
+  async syncBookmark(bookmarks: Bookmarks) {
     const bookmarkInsert = await this.bookmarkRepository.syncBookmark(
-      bookmarks,
+      bookmarks.bookmarks,
     );
-    await this.saveBookmarkTag(bookmarkInsert);
+    await this.saveBookmarkTag(new Bookmarks(bookmarkInsert));
     return bookmarkInsert;
   }
 
@@ -155,7 +156,7 @@ export class BookmarkUseCases {
     return bookmark;
   }
 
-  protected async saveBookmarkTag(bookmarks: Bookmark[]) {
+  protected async saveBookmarkTag(bookmarks: Bookmarks) {
     const bookmarksAndTags: any = this.getBookmarkIdAndTagId(bookmarks);
     const bookmarksAndTagsMap = this.getBookmarkTagMap(bookmarksAndTags);
     const result = await this.bookmarkRepository.attachbulk(
@@ -165,8 +166,8 @@ export class BookmarkUseCases {
     return result;
   }
 
-  protected getBookmarkIdAndTagId(bookmarks: Bookmark[]) {
-    const result = bookmarks.map((bookmark) => {
+  protected getBookmarkIdAndTagId(bookmarks: Bookmarks) {
+    const result = bookmarks.bookmarks.map((bookmark) => {
       const bookmarkTags = bookmark.tags;
       const bookmarkId = bookmark.id;
       const tagIds = bookmarkTags.map((tag) => {

@@ -8,6 +8,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
 import { Bookmark } from '../domain/bookmark';
 import { BookmarkFactory } from '../domain/bookmark.factory';
+import { Bookmarks } from '../domain/bookmarks';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
 import { BookmarkRepository } from '../infra/db/repository/bookmark.repository';
 import { BookmarkUseCases } from './bookmark.use-case';
@@ -162,7 +163,9 @@ describe('bookmark-use-case', () => {
         .fn()
         .mockResolvedValue([fakeBookmark]);
 
-      const result = await bookmarkService.syncBookmark([fakeBookmark]);
+      const result = await bookmarkService.syncBookmark(
+        new Bookmarks([fakeBookmark]),
+      );
       expect(result[0].id).toBe('fakeId');
       expect(result[0].userId).toBe('fakeUserId');
       expect(result[0].url).toBe('fakeUrl');
@@ -463,7 +466,7 @@ describe('bookmark-use-case', () => {
           { bookmarkId: fakeBookmark.id, tagId: fakeTag.id },
         ]);
       expect(
-        await bookmarkService['saveBookmarkTag']([fakeBookmark]),
+        await bookmarkService['saveBookmarkTag'](new Bookmarks([fakeBookmark])),
       ).toStrictEqual([{ bookmarkId: fakeBookmark.id, tagId: fakeTag.id }]);
     });
   });
@@ -480,7 +483,9 @@ describe('bookmark-use-case', () => {
     );
 
     it('북마크 아이디와 태그 아이디 배열을 요소로 가진 객체 배열을 반환한다.', async () => {
-      const result = bookmarkService['getBookmarkIdAndTagId']([fakeBookmark]);
+      const result = bookmarkService['getBookmarkIdAndTagId'](
+        new Bookmarks([fakeBookmark]),
+      );
 
       expect(result).toStrictEqual([
         { bookmarkId: fakeBookmark.id, tagIds: [fakeTags.id] },
