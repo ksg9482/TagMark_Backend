@@ -1,5 +1,4 @@
 import { Expose } from 'class-transformer';
-import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
 
 export class Bookmark {

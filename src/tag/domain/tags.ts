@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { Tag } from './tag';
 
 export class Tags {
-  #tags: Tag[] = [];
+  #tags: Tag[];
 
   constructor(tags: Tag[]) {
     this.#tags = tags;
@@ -10,6 +10,8 @@ export class Tags {
 
   @Expose()
   get tags() {
+    console.log('Tags 호출');
+    console.log(this.#tags);
     return this.#tags;
   }
 
