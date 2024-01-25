@@ -17,6 +17,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
 import { Bookmarks } from '../domain/bookmarks';
+import { TagUseCases } from 'src/tag/application/tag.use-case';
 
 //DTO 의존성 해소용.
 type UserAllBookmarks = PageRequest;
@@ -26,6 +27,7 @@ export class BookmarkUseCases {
   constructor(
     @Inject('BookmarkRepository')
     private bookmarkRepository: IBookmarkRepository,
+    private tagUseCases: TagUseCases,
     private utilsService: UtilsService,
   ) {}
 
@@ -34,22 +36,14 @@ export class BookmarkUseCases {
     url: string,
     tagNames?: string[],
   ): Promise<Bookmark> {
-    const bookmark = await this.bookmarkCheck(url);
+    const findBookmark = await this.bookmarkRepository.getBookmarkByUrl(url);
 
-    if (bookmark !== null) {
+    if (findBookmark !== null) {
       throw new HttpException(
         'Bookmark is aleady exist',
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    if (tagNames === undefined) {
-      tagNames = [];
-    }
-    const tags = tagNames.map((tagName) => {
-      const tag = new TagFactory().create(this.utilsService.getUuid(), tagName);
-      return tag;
-    });
 
     const createdBookmark = await this.bookmarkRepository.save(
       new BookmarkSaveDto({
@@ -57,6 +51,11 @@ export class BookmarkUseCases {
         url: url,
       }),
     );
+
+    if (tagNames !== undefined) {
+      const tags = await this.tagUseCases.getTagsByNames(tagNames);
+      await this.tagUseCases.attachTag(createdBookmark.id, tags);
+    }
 
     return createdBookmark;
   }

@@ -21,14 +21,15 @@ export class TagUseCases {
 
   async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
     const tagCheck = await this.getTagsByNames(tag.tag);
-    if (tagCheck.length >= 0) {
-      return tagCheck[0];
+    console.log(tagCheck.tags);
+    if (tagCheck.tags.length >= 0) {
+      return tagCheck.tags[0];
     }
     const createdTag = await this.tagRepository.save(tag);
     return createdTag;
   }
 
-  async getTagsByNames(tagName: string | string[]): Promise<Tag[]> {
+  async getTagsByNames(tagName: string | string[]): Promise<Tags> {
     if (!Array.isArray(tagName)) {
       tagName = [tagName];
     }
@@ -36,7 +37,7 @@ export class TagUseCases {
     return tags;
   }
 
-  protected async tagFindOrCreate(tagNames: string[]): Promise<Tag[]> {
+  protected async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
     const findedTags = await this.tagRepository.findByTagNames(tagNames);
 
     const notExistTags = this.getNotExistTag(findedTags, tagNames);
@@ -47,7 +48,7 @@ export class TagUseCases {
     await this.tagRepository.insertBulk(createTags);
     const resultTags = [...findedTags, ...createTags];
 
-    return resultTags;
+    return new Tags(resultTags);
   }
 
   async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {

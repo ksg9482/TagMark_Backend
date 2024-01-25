@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthModule } from 'src/auth/auth.module';
+import { TagUseCases } from 'src/tag/application/tag.use-case';
 import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { Tags } from 'src/tag/domain/tags';
@@ -18,6 +19,7 @@ describe('bookmark-use-case', () => {
   let bookmarkRepository: BookmarkRepository;
   let bookmarkFactory: BookmarkFactory;
   let tagFactory: TagFactory;
+  let tagService: TagUseCases;
   let bookmarkEntityRepository: Repository<BookmarkEntity>;
 
   const MockGenericRepository = {
@@ -39,6 +41,17 @@ describe('bookmark-use-case', () => {
     attachbulk: jest.fn(),
   };
 
+  const MockTagRepository = {
+    ...MockGenericRepository,
+    attachTag: jest.fn(),
+    find: jest.fn(),
+    findByTagNames: jest.fn(),
+    getUserAllTags: jest.fn(),
+    detachTag: jest.fn(),
+    getTagsByIds: jest.fn(),
+    insertBulk: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
@@ -47,7 +60,12 @@ describe('bookmark-use-case', () => {
           provide: 'BookmarkRepository',
           useValue: MockBookmarkRepository,
         },
+        {
+          provide: 'TagRepository',
+          useValue: MockTagRepository,
+        },
         BookmarkFactory,
+        TagUseCases,
         TagFactory,
         UtilsService,
         AuthModule,
@@ -60,6 +78,7 @@ describe('bookmark-use-case', () => {
       ],
     }).compile();
     bookmarkService = module.get(BookmarkUseCases);
+    tagService = module.get(TagUseCases);
     bookmarkRepository = module.get('BookmarkRepository');
     bookmarkEntityRepository = module.get('BookmarkEntityRepository');
     bookmarkFactory = module.get(BookmarkFactory);
@@ -116,7 +135,8 @@ describe('bookmark-use-case', () => {
     });
 
     it('인수로 tagnames가 제공되지 않았을 경우 tag가 빈 배열인 bookmark를 반환한다', async () => {
-      bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
+      // bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
+      bookmarkRepository.getBookmarkByUrl = jest.fn().mockResolvedValue(null);
       tagFactory.create = jest.fn().mockReturnValue(fakeTag);
       bookmarkRepository.save = jest.fn().mockResolvedValue(fakeBookmark);
 
@@ -131,14 +151,16 @@ describe('bookmark-use-case', () => {
     it('인수로 tagnames가 제공되었을 경우 tag가 있는 bookmark를 반환한다', async () => {
       const fakeBookmarkWithTag = {
         ...fakeBookmark,
-        tags: fakeTag,
+        tags: new Tags([new Tag(fakeTag.id, fakeTag.tag)]),
       };
-      bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
+      // bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
+      bookmarkRepository.getBookmarkByUrl = jest.fn().mockResolvedValue(null);
       tagFactory.create = jest.fn().mockReturnValue(fakeTag);
       bookmarkRepository.save = jest
         .fn()
         .mockResolvedValue(fakeBookmarkWithTag);
-
+      tagService.getTagsByNames = jest.fn().mockResolvedValue(fakeTag);
+      tagService.attachTag = jest.fn().mockResolvedValue([{ id: 1 }]);
       expect(
         await bookmarkService.createBookmark(
           fakeCreateBookmarkObj.userId,
