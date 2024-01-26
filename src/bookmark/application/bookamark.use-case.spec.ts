@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthModule } from 'src/auth/auth.module';
-import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { TagUseCases, TagUseCasesImpl } from 'src/tag/application/tag.use-case';
 import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { Tags } from 'src/tag/domain/tags';
@@ -65,7 +65,10 @@ describe('bookmark-use-case', () => {
           useValue: MockTagRepository,
         },
         BookmarkFactory,
-        TagUseCases,
+        {
+          provide: TagUseCases,
+          useClass: TagUseCasesImpl,
+        },
         TagFactory,
         UtilsService,
         AuthModule,
@@ -135,17 +138,17 @@ describe('bookmark-use-case', () => {
     });
 
     it('인수로 tagnames가 제공되지 않았을 경우 tag가 빈 배열인 bookmark를 반환한다', async () => {
-      // bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
       bookmarkRepository.getBookmarkByUrl = jest.fn().mockResolvedValue(null);
       tagFactory.create = jest.fn().mockReturnValue(fakeTag);
       bookmarkRepository.save = jest.fn().mockResolvedValue(fakeBookmark);
 
-      expect(
-        await bookmarkService.createBookmark(
-          fakeCreateBookmarkObj.userId,
-          fakeCreateBookmarkObj.url,
-        ),
-      ).toStrictEqual(fakeBookmark);
+      const result = await bookmarkService.createBookmark(
+        fakeCreateBookmarkObj.userId,
+        fakeCreateBookmarkObj.url,
+      );
+      expect(result).toStrictEqual(
+        new Bookmark('fakeId', 'fakeUrl', 'fakeUserId', new Tags([])),
+      );
     });
 
     it('인수로 tagnames가 제공되었을 경우 tag가 있는 bookmark를 반환한다', async () => {
@@ -153,21 +156,29 @@ describe('bookmark-use-case', () => {
         ...fakeBookmark,
         tags: new Tags([new Tag(fakeTag.id, fakeTag.tag)]),
       };
-      // bookmarkService['bookmarkCheck'] = jest.fn().mockResolvedValue(null);
       bookmarkRepository.getBookmarkByUrl = jest.fn().mockResolvedValue(null);
-      tagFactory.create = jest.fn().mockReturnValue(fakeTag);
       bookmarkRepository.save = jest
         .fn()
         .mockResolvedValue(fakeBookmarkWithTag);
-      tagService.getTagsByNames = jest.fn().mockResolvedValue(fakeTag);
+      tagService.getTagsByNames = jest
+        .fn()
+        .mockResolvedValue(new Tags([new Tag(fakeTag.id, fakeTag.tag)]));
       tagService.attachTag = jest.fn().mockResolvedValue([{ id: 1 }]);
-      expect(
-        await bookmarkService.createBookmark(
-          fakeCreateBookmarkObj.userId,
-          fakeCreateBookmarkObj.url,
-          [fakeTag.tag],
+
+      const result = await bookmarkService.createBookmark(
+        fakeCreateBookmarkObj.userId,
+        fakeCreateBookmarkObj.url,
+        [fakeTag.tag],
+      );
+
+      expect(result).toStrictEqual(
+        new Bookmark(
+          'fakeId',
+          'fakeUrl',
+          'fakeUserId',
+          new Tags([new Tag(fakeTag.id, fakeTag.tag)]),
         ),
-      ).toStrictEqual(fakeBookmarkWithTag);
+      );
     });
   });
 

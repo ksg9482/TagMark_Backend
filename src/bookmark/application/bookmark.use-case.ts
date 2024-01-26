@@ -52,12 +52,20 @@ export class BookmarkUseCases {
       }),
     );
 
+    const bookmark = new Bookmark(
+      createdBookmark.id,
+      createdBookmark.userId,
+      createdBookmark.url,
+      new Tags([]),
+    );
     if (tagNames !== undefined) {
       const tags = await this.tagUseCases.getTagsByNames(tagNames);
+      bookmark.updateTags(tags);
+
       await this.tagUseCases.attachTag(createdBookmark.id, tags);
     }
 
-    return createdBookmark;
+    return bookmark;
   }
 
   async getUserAllBookmarks(userId: string, page: UserAllBookmarks) {

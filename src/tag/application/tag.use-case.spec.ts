@@ -6,7 +6,7 @@ import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
 import { TagEntity } from '../infra/db/entity/tag.entity';
 import { TagRepository } from '../infra/db/repository/tag.repository';
-import { TagUseCases } from './tag.use-case';
+import { TagUseCases, TagUseCasesImpl } from './tag.use-case';
 
 describe('tag-use-case', () => {
   let tagService: TagUseCases;
@@ -35,7 +35,7 @@ describe('tag-use-case', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        TagUseCases,
+        { provide: TagUseCases, useClass: TagUseCasesImpl },
         {
           provide: 'TagRepository',
           useValue: MockTagRepository,
@@ -132,7 +132,7 @@ describe('tag-use-case', () => {
         tag: 'fakeTagName',
       };
 
-      tagService['tagFindOrCreate'] = jest
+      tagService.tagFindOrCreate = jest
         .fn()
         .mockResolvedValue(new Tags([new Tag(fakeTagObj.id, fakeTagObj.tag)]));
 
@@ -150,7 +150,7 @@ describe('tag-use-case', () => {
         id: 'fakeIdTwo',
         tag: 'fakeTagNameTwo',
       };
-      tagService['tagFindOrCreate'] = jest
+      tagService.tagFindOrCreate = jest
         .fn()
         .mockResolvedValue([fakeTagObjOne, fakeTagObjTwo]);
       expect(
@@ -175,7 +175,7 @@ describe('tag-use-case', () => {
       tagRepository.findByTagNames = jest.fn().mockResolvedValue([]);
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
 
-      const result = await tagService['tagFindOrCreate']([
+      const result = await tagService.tagFindOrCreate([
         findByTagNamesResolve[0].tag,
         findByTagNamesResolve[1].tag,
       ]);
@@ -195,7 +195,7 @@ describe('tag-use-case', () => {
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
       tagFactory.create = jest.fn().mockReturnValue(findByTagNamesResolve[1]);
 
-      const result = await tagService['tagFindOrCreate']([
+      const result = await tagService.tagFindOrCreate([
         findByTagNamesResolve[0].tag,
         findByTagNamesResolve[1].tag,
       ]);
@@ -211,7 +211,7 @@ describe('tag-use-case', () => {
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
       tagFactory.create = jest.fn().mockReturnValue(findByTagNamesResolve);
 
-      const result = await tagService['tagFindOrCreate']([
+      const result = await tagService.tagFindOrCreate([
         findByTagNamesResolve[0].tag,
         findByTagNamesResolve[1].tag,
       ]);
@@ -354,7 +354,7 @@ describe('tag-use-case', () => {
     const fakeNotExistTag = ['fakeTagOne', 'fakeTagThree'];
     it('inputTags중 existTags에 존재하지 않는 태그배열을 반환한다.', () => {
       expect(
-        tagService['getNotExistTag'](fakeExistTags, fakeInputTags),
+        tagService.getNotExistTag(fakeExistTags, fakeInputTags),
       ).toStrictEqual(fakeNotExistTag);
     });
   });

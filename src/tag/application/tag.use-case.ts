@@ -6,7 +6,29 @@ import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
 
-export class TagUseCases {
+// export interface TagUseCases {
+//   getAllTags(): Promise<Tag[]>;
+//   createTag(tag: Omit<Tag, 'id'>): Promise<Tag>;
+//   getTagsByNames(tagName: string | string[]): Promise<Tags>;
+//   attachTag(bookmarkId: string, tags: Tags): Promise<any[]>;
+//   detachTag(bookmarkId: string, tagId: string | string[]): Promise<string>;
+//   getTagsByIds(tagId: string | string[]): Promise<Tag[]>;
+//   getUserAllTags(userId: string): Promise<TagWithCount[]>;
+// }
+
+export abstract class TagUseCases {
+  getAllTags: () => Promise<Tag[]>;
+  createTag: (tag: Omit<Tag, 'id'>) => Promise<Tag>;
+  getTagsByNames: (tagName: string | string[]) => Promise<Tags>;
+  attachTag: (bookmarkId: string, tags: Tags) => Promise<any[]>;
+  detachTag: (bookmarkId: string, tagId: string | string[]) => Promise<string>;
+  getTagsByIds: (tagId: string | string[]) => Promise<Tag[]>;
+  getUserAllTags: (userId: string) => Promise<TagWithCount[]>;
+  tagFindOrCreate: (tagNames: string[]) => Promise<Tags>;
+  getNotExistTag: (existTags: Tag[], inputTags: string[]) => string[];
+}
+
+export class TagUseCasesImpl implements TagUseCases {
   constructor(
     @Inject('TagRepository')
     private tagRepository: ITagRepository,
@@ -37,7 +59,7 @@ export class TagUseCases {
     return tags;
   }
 
-  protected async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
+  async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
     const findedTags = await this.tagRepository.findByTagNames(tagNames);
 
     const notExistTags = this.getNotExistTag(findedTags, tagNames);
@@ -80,7 +102,8 @@ export class TagUseCases {
     return tags;
   }
 
-  protected getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
+  //이거 tags 메서드로 넘기자
+  getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
     const tagArr = existTags.map((tag) => {
       return tag.tag;
     });
