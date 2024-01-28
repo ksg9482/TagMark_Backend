@@ -15,10 +15,22 @@ export class Tags {
     return this.#tags;
   }
 
-  //태그 비교도 여기
   findTag(tagName: string) {
     return this.#tags.find((tag) => {
       return tag.tag === tagName;
     });
+  }
+
+  findNotExistTagNames(tagNames: string[]): string[] {
+    const tagMap = new Map<String, Tag>();
+    this.#tags.forEach((tag) => {
+      tagMap.set(tag.tag, tag);
+    });
+
+    const notExistTagNames = tagNames.filter((tagName) => {
+      return tagMap.get(tagName) === undefined;
+    });
+
+    return notExistTagNames;
   }
 }

@@ -6,16 +6,6 @@ import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
 
-// export interface TagUseCases {
-//   getAllTags(): Promise<Tag[]>;
-//   createTag(tag: Omit<Tag, 'id'>): Promise<Tag>;
-//   getTagsByNames(tagName: string | string[]): Promise<Tags>;
-//   attachTag(bookmarkId: string, tags: Tags): Promise<any[]>;
-//   detachTag(bookmarkId: string, tagId: string | string[]): Promise<string>;
-//   getTagsByIds(tagId: string | string[]): Promise<Tag[]>;
-//   getUserAllTags(userId: string): Promise<TagWithCount[]>;
-// }
-
 export abstract class TagUseCases {
   getAllTags: () => Promise<Tag[]>;
   createTag: (tag: Omit<Tag, 'id'>) => Promise<Tag>;
@@ -25,7 +15,6 @@ export abstract class TagUseCases {
   getTagsByIds: (tagId: string | string[]) => Promise<Tag[]>;
   getUserAllTags: (userId: string) => Promise<TagWithCount[]>;
   tagFindOrCreate: (tagNames: string[]) => Promise<Tags>;
-  getNotExistTag: (existTags: Tag[], inputTags: string[]) => string[];
 }
 
 export class TagUseCasesImpl implements TagUseCases {
@@ -43,7 +32,7 @@ export class TagUseCasesImpl implements TagUseCases {
 
   async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
     const tagCheck = await this.getTagsByNames(tag.tag);
-    console.log(tagCheck.tags);
+
     if (tagCheck.tags.length >= 0) {
       return tagCheck.tags[0];
     }
@@ -61,9 +50,10 @@ export class TagUseCasesImpl implements TagUseCases {
 
   async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
     const findedTags = await this.tagRepository.findByTagNames(tagNames);
+    const tags = new Tags(findedTags);
+    const notExistTags = tags.findNotExistTagNames(tagNames);
 
-    const notExistTags = this.getNotExistTag(findedTags, tagNames);
-
+    //리팩토링 대상. 안쓸 객체 만들어서 그냥 보냄.
     const createTags = notExistTags.map((tag) => {
       return this.tagFactory.create(this.utilsService.getUuid(), tag);
     });
@@ -100,13 +90,5 @@ export class TagUseCasesImpl implements TagUseCases {
   async getUserAllTags(userId: string): Promise<TagWithCount[]> {
     const tags = await this.tagRepository.getUserAllTags(userId);
     return tags;
-  }
-
-  //이거 tags 메서드로 넘기자
-  getNotExistTag(existTags: Tag[], inputTags: string[]): string[] {
-    const tagArr = existTags.map((tag) => {
-      return tag.tag;
-    });
-    return inputTags.filter((tag) => !tagArr.includes(tag));
   }
 }
