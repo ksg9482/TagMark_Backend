@@ -1,14 +1,15 @@
+import { UserRole, UserType } from 'src/user/interface';
 import { UserEntity } from '../entity/user.entity';
 
 export class GetDto {
-  #id: string;
-  #email: string;
-  #nickname: string;
-  #password: string;
-  #role: string;
-  #type: string;
+  readonly #id: string;
+  readonly #email: string;
+  readonly #nickname: string;
+  readonly #password: string;
+  readonly #role: UserRole;
+  readonly #type: UserType;
 
-  private constructor(entity: UserEntity) {
+  constructor(entity: UserEntity) {
     this.#id = entity.id;
     this.#email = entity.email;
     this.#nickname = entity.nickname;
@@ -34,10 +35,5 @@ export class GetDto {
   }
   get type() {
     return this.#type;
-  }
-
-  static from(entity: UserEntity) {
-    const dto = new GetDto(entity);
-    return dto;
   }
 }

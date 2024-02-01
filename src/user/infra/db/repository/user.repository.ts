@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
+import { UserRepository } from 'src/user/domain/repository/user.repository';
 import { User } from 'src/user/domain/user';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { UserFactory } from 'src/user/domain/user.factory';
@@ -12,9 +12,10 @@ import { UserType, UserTypeEnum } from 'src/user/domain/types/userType';
 import { SaveDto } from '../dto/save.dto';
 import { UpdateDto } from '../dto/update.dto';
 import { DeleteDto } from '../dto/delete.dto';
+import { GetDto } from '../dto/get.dto';
 
 @Injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepositoryImpl implements UserRepository {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
@@ -23,64 +24,21 @@ export class UserRepository implements IUserRepository {
   ) {}
 
   async findByEmail(inputEmail: string): Promise<User | null> {
-    const userEntity = await this.userRepository
-      .createQueryBuilder('user')
-      .select('id')
-      .addSelect('email')
-      .addSelect('password')
-      .addSelect('nickname')
-      .addSelect('role')
-      .addSelect('type')
-      .addSelect('"createdAt"')
-      .addSelect('"updatedAt"')
-      .where('("user"."email" = :email)', { email: inputEmail })
-      .limit(1)
-      .getRawOne();
+    const userEntity = await this.userRepository.findOneBy({
+      email: inputEmail,
+    });
 
     if (!userEntity) {
       return null;
     }
-    const { id, nickname, email, password, role, type } = userEntity;
-    return this.userFactory.reconstitute(
-      id,
-      email,
-      nickname,
-      password,
-      role,
-      type,
-    );
-  }
 
-  async findByEmailAndPassword(
-    inputEmail: string,
-    inputPassword: string,
-  ): Promise<User | null> {
-    const userEntity = await this.userRepository
-      .createQueryBuilder('user')
-      .select('id')
-      .addSelect('email')
-      .addSelect('password')
-      .addSelect('nickname')
-      .addSelect('role')
-      .addSelect('type')
-      .addSelect('"createdAt"')
-      .addSelect('"updatedAt"')
-      .where('("user"."email" = :email)', { email: inputEmail })
-      .andWhere('("user"."password" = :password)', { password: inputPassword })
-      .limit(1)
-      .getRawOne();
-
-    if (!userEntity) {
-      return null;
-    }
-    const { id, nickname, email, password, role, type } = userEntity;
     return this.userFactory.reconstitute(
-      id,
-      email,
-      nickname,
-      password,
-      role,
-      type,
+      userEntity.id,
+      userEntity.email,
+      userEntity.nickname,
+      userEntity.password,
+      userEntity.role,
+      userEntity.type,
     );
   }
 
@@ -109,29 +67,17 @@ export class UserRepository implements IUserRepository {
 
   async update(id: string, item: Partial<User>): Promise<any> {
     const userentity = this.userRepository.create(item);
-    const a = User.from({
-      email: '',
-      id: '',
-      nickname: '',
-      password: '',
-      role: UserRoleEnum.USER,
-      type: UserTypeEnum.BASIC,
-    });
 
-    //https://orkhan.gitbook.io/typeorm/docs/transactions
-    //가장 중요한 제한사항은 항상 제공된 엔티티 관리자 인스턴스를 사용하는것.
-    //모든 작업은 반드시 제공된 트랜잭션 엔티티 관리자를 사용하여 실행되어야 하며 글로벌 엔티티 관리자를 사용해선 안된다.
-    //실행하려는 모든 항목은 콜백에서 실행되어야 한다.
     await this.userRepository.manager.transaction(
       'REPEATABLE READ',
       async (transactionalEntityManager) => {
         await transactionalEntityManager.update(UserEntity, id, userentity);
       },
     );
-    return UpdateDto.from(userentity);
+    return new UpdateDto(userentity);
   }
 
-  async get(inputId: string): Promise<User | null> {
+  async get(inputId: string): Promise<GetDto | null> {
     const userEntity = await this.userRepository.findOne({
       where: { id: inputId },
     });
@@ -139,19 +85,20 @@ export class UserRepository implements IUserRepository {
       return null;
     }
     const { id, nickname, email, password, role, type } = userEntity;
-    return this.userFactory.reconstitute(
-      id,
-      email,
-      nickname,
-      password,
-      role,
-      type,
-    );
+    return new GetDto(userEntity);
+    // return this.userFactory.reconstitute(
+    //   id,
+    //   email,
+    //   nickname,
+    //   password,
+    //   role,
+    //   type,
+    // );
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<DeleteDto> {
     const userentity = this.userRepository.create({ id: id });
     await this.userRepository.delete(userentity.id);
-    return DeleteDto.from(userentity);
+    return new DeleteDto(userentity);
   }
 }

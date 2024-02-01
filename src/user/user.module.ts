@@ -5,15 +5,10 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserFactory } from './domain/user.factory';
 import { UserEntity } from './infra/db/entity/user.entity';
 import { UserController } from './interface/user.controller';
-import { UserRepository } from './infra/db/repository/user.repository';
+import { UserRepositoryImpl } from './infra/db/repository/user.repository';
 import { UserUseCases } from './application/user.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
-
-const factories = [UserFactory];
-
-const useCases = [UserUseCases];
-
-const repositories = [{ provide: 'UserRepository', useClass: UserRepository }];
+import { UserRepository } from './domain/repository/user.repository';
 
 @Module({
   imports: [
@@ -23,7 +18,12 @@ const repositories = [{ provide: 'UserRepository', useClass: UserRepository }];
     AuthModule,
   ],
   controllers: [UserController],
-  providers: [Logger, ...factories, ...useCases, ...repositories],
-  exports: [...useCases],
+  providers: [
+    UserUseCases,
+    { provide: UserRepository, useClass: UserRepositoryImpl },
+    Logger,
+    UserFactory,
+  ],
+  exports: [UserUseCases],
 })
 export class UsersModule {}

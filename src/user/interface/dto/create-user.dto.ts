@@ -33,7 +33,6 @@ export class CreateUserDto {
 }
 
 export class CreateUserResponseDto {
-  // @Exclude()
   #id: string;
 
   constructor(user: Pick<User, 'id'>) {

@@ -33,11 +33,8 @@ import {
   GoogleOauthResponseDto,
   LoginDto,
   LoginResponseDto,
-  LogoutResponseDto,
   RefreshTokenResponseDto,
   UserProfileResponseDto,
-  PasswordValidDto,
-  PasswordValidResponseDto,
 } from 'src/user/interface/dto';
 import { UserUseCases } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
@@ -100,33 +97,6 @@ export class UserController {
         createUserDto.nickname,
       );
       return ResponseDto.OK_WITH(new CreateUserResponseDto(createdUser));
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @ApiOperation({
-    summary: '비밀번호의 정합 여부를 확인하는 API',
-    description: '입력한 비밀번호가 DB에 저장된 비밀번호와 동일한지 확인한다.',
-  })
-  @ApiCreatedResponse({
-    description: '정합여부를 boolean으로 반환한다.',
-    type: PasswordValidResponseDto,
-  })
-  @ApiBody({ type: PasswordValidDto })
-  @Post('/valid')
-  async checkPassword(
-    @AuthUser() userId: string,
-    @Body(new ValidationPipe()) passwordValidDto: PasswordValidDto,
-  ) {
-    const { password } = passwordValidDto;
-    try {
-      const validResult = await this.userUseCases.passwordValid(
-        userId,
-        password,
-      );
-      return ResponseDto.OK_WITH(new PasswordValidResponseDto(validResult));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -212,9 +182,11 @@ export class UserController {
   ) {
     try {
       const deleteResult = await this.userUseCases.deleteUser(userId);
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-      res.clearCookie('Authorization');
+
+      const deleteCookies = ['refreshToken', 'accessToken', 'Authorization'];
+      for (const cookie of deleteCookies) {
+        res.clearCookie(cookie);
+      }
 
       return ResponseDto.OK_WITH(new DeleteUserResponseDto(deleteResult));
     } catch (error) {
@@ -229,12 +201,11 @@ export class UserController {
   @Get('logout')
   async logOut(@Res({ passthrough: true }) res: Response) {
     try {
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-      res.clearCookie('Authorization');
-      // logOutResponse.ok = true;
-      // logOutResponse.message = 'logout';
-      // return logOutResponse;
+      const deleteCookies = ['refreshToken', 'accessToken', 'Authorization'];
+      for (const cookie of deleteCookies) {
+        res.clearCookie(cookie);
+      }
+
       return ResponseDto.OK_WITH({
         message: 'logout',
       });
