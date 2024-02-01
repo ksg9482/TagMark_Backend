@@ -6,8 +6,8 @@ import {
 } from 'src/bookmark/application/bookmark.pagination';
 import {
   BookmarkSaveDto,
-  BookmarkRepository,
-} from 'src/bookmark/domain/repository/bookmark.repository';
+  IBookmarkRepository,
+} from 'src/bookmark/domain/repository/ibookmark.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookmarkEntity } from 'src/bookmark/infra/db/entity/bookmark.entity';
 import { Bookmarks_TagsEntity } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
@@ -43,7 +43,7 @@ class SaveBookmarkDto {
   }
 }
 @Injectable()
-export class BookmarkRepositoryImpl implements BookmarkRepository {
+export class BookmarkRepositoryDev implements IBookmarkRepository {
   constructor(
     @InjectRepository(BookmarkEntity)
     private readonly bookmarkRepository: Repository<BookmarkEntity>,

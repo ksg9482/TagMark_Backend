@@ -3,7 +3,6 @@ import {
   Page,
 } from 'src/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { IGenericRepository } from 'src/common/domain/repository/igeneric-repository';
 interface BookmarkSaveData {
   userId: string;
   url: string;
@@ -24,9 +23,9 @@ export class BookmarkSaveDto {
     return this.#url;
   }
 }
-export interface IBookmarkRepository {
+
+export abstract class BookmarkRepository {
   getAll: () => Promise<Bookmark[]>;
-  get: (id: string) => Promise<Bookmark | null>;
   save: (item: BookmarkSaveDto) => Promise<any>;
   update: (id: string, item: Partial<Bookmark>) => Promise<any>;
   delete: (id: string) => Promise<any>;

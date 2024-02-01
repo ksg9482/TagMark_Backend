@@ -10,8 +10,9 @@ import { Repository } from 'typeorm';
 import { Bookmark } from '../domain/bookmark';
 import { BookmarkFactory } from '../domain/bookmark.factory';
 import { Bookmarks } from '../domain/bookmarks';
+import { BookmarkRepository } from '../domain/repository/bookmark.repository';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
-import { BookmarkRepository } from '../infra/db/repository/bookmark.repository';
+import { BookmarkRepositoryImpl } from '../infra/db/repository/bookmark.repository';
 import { BookmarkUseCases } from './bookmark.use-case';
 
 describe('bookmark-use-case', () => {
@@ -123,9 +124,9 @@ describe('bookmark-use-case', () => {
       tag: 'fakeTagOne',
     };
     it('북마크가 이미 있는 경우 HttpException을 반환 한다.', async () => {
-      bookmarkService['bookmarkCheck'] = jest
-        .fn()
-        .mockResolvedValue(fakeBookmark);
+      // bookmarkService['bookmarkCheck'] = jest
+      //   .fn()
+      //   .mockResolvedValue(fakeBookmark);
 
       await expect(async () => {
         await bookmarkService.createBookmark(
@@ -455,31 +456,6 @@ describe('bookmark-use-case', () => {
     it('유저아이디를 인수로 제공하면 북마크 갯수를 반환한다.', async () => {
       bookmarkRepository.getcount = jest.fn().mockResolvedValue({ count: 1 });
       expect(await bookmarkService.getUserBookmarkCount(fakeUserId)).toBe(1);
-    });
-  });
-
-  describe('bookmarkCheck', () => {
-    const fakeBookmarkUrl = 'fakeBookmarkUrl';
-    const fakeBookmark = {
-      id: 'fakeId',
-      url: 'fakeUrl',
-      userId: 'fakeUserId',
-      tags: [],
-    };
-    it('검색된 북마크가 없을 경우 null을 반환한다', async () => {
-      bookmarkRepository.getBookmarkByUrl = jest.fn().mockResolvedValue(null);
-      expect(
-        await bookmarkService['bookmarkCheck'](fakeBookmarkUrl),
-      ).toStrictEqual(null);
-    });
-
-    it('검색된 북마크가 없을 경우 null을 반환한다', async () => {
-      bookmarkRepository.getBookmarkByUrl = jest
-        .fn()
-        .mockResolvedValue(fakeBookmark);
-      expect(
-        await bookmarkService['bookmarkCheck'](fakeBookmarkUrl),
-      ).toStrictEqual(fakeBookmark);
     });
   });
 
