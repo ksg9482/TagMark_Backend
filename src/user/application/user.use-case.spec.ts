@@ -10,9 +10,10 @@ import { UserRoleEnum } from '../domain/types/userRole';
 import { UserTypeEnum } from '../domain/types/userType';
 import { UserFactory } from '../domain/user.factory';
 import { UserEntity } from '../infra/db/entity/user.entity';
-import { UserRepository } from '../infra/db/repository/user.repository';
+import { UserRepositoryImpl } from '../infra/db/repository/user.repository';
 import { UserUseCases } from './user.use-case';
 import { User } from '../domain';
+import { UserRepository } from '../domain/repository/user.repository';
 // import { UserRoleEnum, UserTypeEnum } from '../domain';
 
 describe('bookmark-use-case', () => {
@@ -34,7 +35,6 @@ describe('bookmark-use-case', () => {
   const MockUserRepository = {
     ...MockGenericRepository,
     findByEmail: jest.fn(),
-    findByEmailAndPassword: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -519,48 +519,19 @@ describe('bookmark-use-case', () => {
       };
       userRepository.get = jest.fn().mockResolvedValue(fakeUser);
 
-      expect(await userService.findById(fakeUserId)).toStrictEqual({
-        id: 'fake',
-        email: 'fakeEmail',
-        nickname: 'fakeNickname',
-        password: 'fakepassword',
-        role: UserRoleEnum.USER,
-        type: UserTypeEnum.BASIC,
-      });
+      expect(await userService.findById(fakeUserId)).toStrictEqual(
+        new User(
+          'fake',
+          'fakeEmail',
+          'fakeNickname',
+          'fakepassword',
+          UserRoleEnum.USER,
+          UserTypeEnum.BASIC,
+        ),
+      );
     });
   });
-  // describe('deleteUserProperty', () => {
-  //   const fakeUser = User.from({
-  //     id: 'fake',
-  //     email: 'fakeEmail',
-  //     nickname: 'fakeNickname',
-  //     password: 'fakepassword',
-  //     role: UserRoleEnum.USER,
-  //     type: UserTypeEnum.BASIC,
-  //   });
-  //   it('targetProperty가 default인 경우 password와 role이 제거된 user 객체를 반환한다.', () => {
-  //     expect(userService.deleteUserProperty('default', fakeUser)).toStrictEqual(
-  //       {
-  //         id: 'fake',
-  //         email: 'fakeEmail',
-  //         nickname: 'fakeNickname',
-  //         type: UserTypeEnum.BASIC,
-  //       },
-  //     );
-  //   });
 
-  //   it('targetProperty가 password인 경우 password가 제거된 user 객체를 반환한다.', () => {
-  //     expect(
-  //       userService.deleteUserProperty('password', fakeUser),
-  //     ).toStrictEqual({
-  //       id: 'fake',
-  //       email: 'fakeEmail',
-  //       nickname: 'fakeNickname',
-  //       role: UserRoleEnum.USER,
-  //       type: UserTypeEnum.BASIC,
-  //     });
-  //   });
-  // });
   describe('checkPassword', () => {
     const fakeUser = User.from({
       id: 'fake',

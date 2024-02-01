@@ -10,17 +10,16 @@ import {
 import { User } from 'src/user/domain';
 import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
-import { IUserRepository } from 'src/user/domain/repository/iuser.repository';
+import { UserRepository } from 'src/user/domain/repository/user.repository';
 import { SecureService } from 'src/utils/secure.service';
 import { UserSaveDto } from '../domain/repository/dtos/userSave.dto';
 import { UserRole, UserRoleEnum } from '../domain/types/userRole';
 import { UserType, UserTypeEnum } from '../domain/types/userType';
 
-type DeleteUserProperty = 'default' | 'password';
 @Injectable()
 export class UserUseCases {
   constructor(
-    @Inject('UserRepository') private userRepository: IUserRepository,
+    @Inject('UserRepository') private userRepository: UserRepository,
     private readonly utilService: UtilsService,
     private readonly secureService: SecureService,
     private readonly jwtService: JwtService,
@@ -35,20 +34,21 @@ export class UserUseCases {
     type?: UserType,
   ): Promise<Pick<User, 'id'>> {
     const user = await this.findByEmail(email);
+
     if (user) {
       this.logger.error('Email Already exists.');
       throw new HttpException('Email Already exists.', HttpStatus.BAD_REQUEST);
     }
 
-    const userSaveDto = UserSaveDto.of({
-      email,
-      password,
-      nickname: nickname || '',
-      role: UserRoleEnum.USER,
-      type: UserTypeEnum.BASIC,
-    });
-
-    const createdUser = await this.userRepository.save(userSaveDto);
+    const createdUser = await this.userRepository.save(
+      UserSaveDto.of({
+        email,
+        password,
+        nickname: nickname || '',
+        role: UserRoleEnum.USER,
+        type: UserTypeEnum.BASIC,
+      }),
+    );
 
     return { id: createdUser.id };
   }
@@ -74,9 +74,9 @@ export class UserUseCases {
 
   async passwordValid(userId: string, password: string): Promise<boolean> {
     const user = await this.findById(userId);
-    const result = await this.checkPassword(password, user);
+    const isValid = await this.checkPassword(password, user);
 
-    return result;
+    return isValid;
   }
 
   async editUser(
@@ -185,7 +185,14 @@ export class UserUseCases {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
 
-    return user;
+    return new User(
+      user.id,
+      user.email,
+      user.nickname,
+      user.password,
+      user.role,
+      user.type,
+    );
   }
 
   async checkPassword(password: string, user: User): Promise<boolean> {
