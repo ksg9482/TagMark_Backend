@@ -10,8 +10,8 @@ import {
 } from 'src/bookmark/domain/bookmark.interface';
 import {
   BookmarkSaveDto,
-  IBookmarkRepository,
-} from 'src/bookmark/domain/repository/ibookmark.repository';
+  BookmarkRepository,
+} from 'src/bookmark/domain/repository/bookmark.repository';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
@@ -26,7 +26,7 @@ type SearchTags = PageRequest;
 export class BookmarkUseCases {
   constructor(
     @Inject('BookmarkRepository')
-    private bookmarkRepository: IBookmarkRepository,
+    private bookmarkRepository: BookmarkRepository,
     private tagUseCases: TagUseCases,
     private utilsService: UtilsService,
   ) {}
@@ -52,12 +52,15 @@ export class BookmarkUseCases {
       }),
     );
 
+    const emptyTags = new Tags([]);
+
     const bookmark = new Bookmark(
       createdBookmark.id,
       createdBookmark.userId,
       createdBookmark.url,
-      new Tags([]),
+      emptyTags,
     );
+
     if (tagNames !== undefined) {
       const tags = await this.tagUseCases.getTagsByNames(tagNames);
       bookmark.updateTags(tags);
@@ -69,16 +72,14 @@ export class BookmarkUseCases {
   }
 
   async getUserAllBookmarks(userId: string, page: UserAllBookmarks) {
-    const limit = page.getLimit();
-    const offset = page.getOffset();
-
     const bookmarks = await this.bookmarkRepository.getUserAllBookmarks(
       userId,
       {
-        take: limit,
-        skip: offset,
+        take: page.getLimit(),
+        skip: page.getOffset(),
       },
     );
+
     return bookmarks;
   }
 
@@ -91,14 +92,14 @@ export class BookmarkUseCases {
     const bookmarkInsert = await this.bookmarkRepository.syncBookmark(
       bookmarks.bookmarks,
     );
-    await this.saveBookmarkTag(new Bookmarks(bookmarkInsert));
+    const syncedBookmarks = new Bookmarks(bookmarkInsert);
+    await this.saveBookmarkTag(syncedBookmarks);
     return bookmarkInsert;
   }
 
   async editBookmarkUrl(userId: string, bookmarkId: string, changeUrl: string) {
     const bookmark = await this.findBookmark(userId, bookmarkId);
     bookmark.updateUrl(changeUrl);
-    // bookmark.url = changeUrl;
     await this.bookmarkRepository.update(bookmarkId, bookmark);
     return { message: 'Updated' };
   }
@@ -114,6 +115,7 @@ export class BookmarkUseCases {
       userId,
       bookmarkId,
     );
+
     if (!bookmark) {
       throw new HttpException('Bookmark not found', HttpStatus.BAD_REQUEST);
     }
@@ -126,14 +128,12 @@ export class BookmarkUseCases {
     tags: string[],
     page: SearchTags,
   ): Promise<Page<Bookmark>> {
-    const limit = page.getLimit();
-    const offset = page.getOffset();
     const bookmarks = await this.bookmarkRepository.findBookmarkTag_OR(
       userId,
       tags,
       {
-        take: limit,
-        skip: offset,
+        take: page.getLimit(),
+        skip: page.getOffset(),
       },
     );
     return bookmarks;
@@ -144,23 +144,15 @@ export class BookmarkUseCases {
     tags: string[],
     page: SearchTags,
   ) {
-    const limit = page.getLimit();
-    const offset = page.getOffset();
     const bookmarks = await this.bookmarkRepository.findBookmarkTag_AND(
       userId,
       tags,
       {
-        take: limit,
-        skip: offset,
+        take: page.getLimit(),
+        skip: page.getOffset(),
       },
     );
     return bookmarks;
-  }
-
-  protected async bookmarkCheck(url: string) {
-    const bookmark = await this.bookmarkRepository.getBookmarkByUrl(url);
-
-    return bookmark;
   }
 
   protected async saveBookmarkTag(bookmarks: Bookmarks) {
@@ -198,6 +190,7 @@ export class BookmarkUseCases {
     }
     return bookmarkTagMap;
   }
+
   setSyncBookmarkForm(
     userId: string,
     bookmarks: Bookmark[],
