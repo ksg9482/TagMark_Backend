@@ -10,8 +10,6 @@ export class Tags {
 
   @Expose()
   get tags() {
-    console.log('Tags 호출');
-    console.log(this.#tags);
     return this.#tags;
   }
 

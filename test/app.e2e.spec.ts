@@ -60,9 +60,13 @@ describe('AppController (e2e)', () => {
       getRepositoryToken(UserEntity),
     );
 
-    await connectDB.initialize();
     setNestApp(app);
+    await connectDB.initialize();
     await app.init();
+  });
+
+  beforeEach(async () => {
+    await connectDB.synchronize();
   });
 
   const userParamsOne = { email: 'test1@test.com', password: '123456' };
@@ -94,6 +98,7 @@ describe('AppController (e2e)', () => {
           .post('/api/user')
           .send(userParamsOne);
 
+        console.log(result.body);
         userResponseDataOne.createdUser.id = result.body.data.id;
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
@@ -312,42 +317,42 @@ describe('AppController (e2e)', () => {
         expect(result.body.data.url).toBe('https://www.test1.com');
       });
 
-      // it('중복된 url을 가진 북마크는 새로 생성 할 수 없다.', async () => {
-      //   const result = await privateTest()
-      //     .post('/api/bookmark', accessToken)
-      //     .send(bookmarkParamsOne);
+      it('중복된 url을 가진 북마크는 새로 생성 할 수 없다.', async () => {
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(bookmarkParamsOne);
 
-      //   expect(result.status).toBe(400);
-      //   expect(result.body.ok).toBe(false);
-      //   expect(result.body.message).toBe('Bookmark is aleady exist');
-      // });
+        expect(result.status).toBe(400);
+        expect(result.body.ok).toBe(false);
+        expect(result.body.message).toBe('Bookmark is aleady exist');
+      });
 
-      // it('북마크 url이 없으면 생성 할 수 없다.', async () => {
-      //   const noUrlBookmark = {
-      //     tagNames: bookmarkParamsOne.tagNames,
-      //   };
-      //   const result = await privateTest()
-      //     .post('/api/bookmark', accessToken)
-      //     .send(noUrlBookmark);
+      it('북마크 url이 없으면 생성 할 수 없다.', async () => {
+        const noUrlBookmark = {
+          tagNames: bookmarkParamsOne.tagNames,
+        };
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(noUrlBookmark);
 
-      //   expect(result.status).toBe(400);
-      //   expect(result.body.ok).toBe(false);
-      //   expect(result.body.message).toBe('url should not be empty');
-      // });
+        expect(result.status).toBe(400);
+        expect(result.body.ok).toBe(false);
+        expect(result.body.message).toBe('url should not be empty');
+      });
 
-      // it('북마크 url이 빈 문자열이면 생성 할 수 없다.', async () => {
-      //   const emptyUrlBookmark = {
-      //     url: '',
-      //     tagNames: bookmarkParamsOne.tagNames,
-      //   };
-      //   const result = await privateTest()
-      //     .post('/api/bookmark', accessToken)
-      //     .send(emptyUrlBookmark);
+      it('북마크 url이 빈 문자열이면 생성 할 수 없다.', async () => {
+        const emptyUrlBookmark = {
+          url: '',
+          tagNames: bookmarkParamsOne.tagNames,
+        };
+        const result = await privateTest()
+          .post('/api/bookmark', accessToken)
+          .send(emptyUrlBookmark);
 
-      //   expect(result.status).toBe(400);
-      //   expect(result.body.ok).toBe(false);
-      //   expect(result.body.message).toBe('url should not be empty');
-      // });
+        expect(result.status).toBe(400);
+        expect(result.body.ok).toBe(false);
+        expect(result.body.message).toBe('url should not be empty');
+      });
     });
 
     describe('/ (get)', () => {
@@ -377,7 +382,6 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
         const bookmarks = result.body.data.bookmarks;
-        console.log(bookmarks);
         expect(bookmarks[0]['url']).toBe('https://www.test1.com');
         expect(bookmarks[0]['tags'][0]['tag']).toBe(
           bookmarkResponseDataOne.createdBookmark['tags'][0]['tag'],
@@ -397,7 +401,6 @@ describe('AppController (e2e)', () => {
         expect(result.body.ok).toBe(true);
 
         const bookmarks: Array<any> = result.body.data.bookmarks;
-        console.log(bookmarks);
 
         expect(bookmarks.length).toBe(2);
         expect(bookmarks[bookmarks.length - 1]['url']).toBe(
