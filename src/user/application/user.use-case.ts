@@ -16,8 +16,49 @@ import { UserSaveDto } from '../domain/repository/dtos/userSave.dto';
 import { UserRole, UserRoleEnum } from '../domain/types/userRole';
 import { UserType, UserTypeEnum } from '../domain/types/userType';
 
+export abstract class UserUseCase {
+  createUser: (
+    email: string,
+    password: string,
+    nickname?: string,
+    type?: UserType,
+  ) => Promise<Pick<User, 'id'>>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
+  me: (userId: string) => Promise<User>;
+  passwordValid: (userId: string, password: string) => Promise<boolean>;
+  editUser: (
+    userId: string,
+    editUserData: {
+      password?: string;
+      nickname?: string;
+    },
+  ) => Promise<Pick<User, 'id'>>;
+  deleteUser: (userId: string) => Promise<Pick<User, 'id'>>;
+  refresh: (refreshToken: string) => Promise<string>;
+  googleOauth: (accessToken: string) => Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
+  findByEmail: (email: string) => Promise<User | null>;
+  findById: (id: string) => Promise<User>;
+  checkPassword: (password: string, user: User) => Promise<boolean>;
+  getGoogleUserData: (accessToken: string) => Promise<any>;
+  setGoogleUserForm: (userData: any) => {
+    email: any;
+    password: any;
+    type: 'GOOGLE';
+    role: 'USER';
+  };
+}
+
 @Injectable()
-export class UserUseCases {
+export class UserUseCaseImpl {
   constructor(
     @Inject('UserRepository') private userRepository: UserRepository,
     private readonly utilService: UtilsService,
@@ -147,33 +188,6 @@ export class UserUseCases {
     };
   }
 
-  protected async getGoogleUserData(accessToken: string): Promise<any> {
-    const getUserInfo = await this.httpService.axiosRef.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo` +
-        `?access_token=${accessToken}`,
-    );
-
-    if (!getUserInfo) {
-      this.logger.error('Google OAuth get user info fail');
-      throw new HttpException(
-        'Google OAuth get user info fail',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    return getUserInfo;
-  }
-
-  protected setGoogleUserForm(userData: any) {
-    const userForm = {
-      email: userData.email,
-      password: userData.id,
-      type: UserTypeEnum.GOOGLE,
-      role: UserRoleEnum.USER,
-    };
-    return userForm;
-  }
-
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
     return user;
@@ -202,5 +216,33 @@ export class UserUseCases {
     }
 
     return result;
+  }
+
+  //OauthUser
+  async getGoogleUserData(accessToken: string): Promise<any> {
+    const getUserInfo = await this.httpService.axiosRef.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo` +
+        `?access_token=${accessToken}`,
+    );
+
+    if (!getUserInfo) {
+      this.logger.error('Google OAuth get user info fail');
+      throw new HttpException(
+        'Google OAuth get user info fail',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return getUserInfo;
+  }
+
+  setGoogleUserForm(userData: any) {
+    const userForm = {
+      email: userData.email,
+      password: userData.id,
+      type: UserTypeEnum.GOOGLE,
+      role: UserRoleEnum.USER,
+    };
+    return userForm;
   }
 }

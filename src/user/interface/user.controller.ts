@@ -36,7 +36,7 @@ import {
   RefreshTokenResponseDto,
   UserProfileResponseDto,
 } from 'src/user/interface/dto';
-import { UserUseCases } from 'src/user/application/user.use-case';
+import { UserUseCase } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { AuthService } from 'src/auth/auth.service';
@@ -54,7 +54,7 @@ const cookieOption: CookieOptions = {
 @Controller('api/user')
 export class UserController {
   constructor(
-    private userUseCases: UserUseCases,
+    private userUseCases: UserUseCase,
     private userFactory: UserFactory,
     private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,

@@ -19,29 +19,6 @@ import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tags } from 'src/tag/domain/tags';
 
-class SaveBookmarkDto {
-  readonly #id: string;
-  readonly #url: string;
-  readonly #userId: string;
-
-  constructor(id: string, url: string, userId: string) {
-    this.#id = id;
-    this.#url = url;
-    this.#userId = userId;
-  }
-
-  get id(): string {
-    return this.#id;
-  }
-
-  get url(): string {
-    return this.#url;
-  }
-
-  get userId(): string {
-    return this.#userId;
-  }
-}
 @Injectable()
 export class BookmarkRepositoryImpl implements BookmarkRepository {
   constructor(
@@ -69,11 +46,7 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
     });
 
     await this.bookmarkRepository.save(bookmarkEntity);
-    new SaveBookmarkDto(
-      bookmarkEntity.id,
-      bookmarkEntity.url,
-      bookmarkEntity.userId,
-    );
+
     return this.bookmarkFactory.reconstitute(
       bookmarkEntity.id,
       bookmarkEntity.url,

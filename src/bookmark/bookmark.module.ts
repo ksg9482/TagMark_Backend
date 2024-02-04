@@ -21,7 +21,7 @@ import { BookmarkRepository } from './domain/repository/bookmark.repository';
   controllers: [BookmarkController],
   providers: [
     BookmarkUseCases,
-    { provide: BookmarkRepository, useClass: BookmarkRepositoryImpl },
+    { provide: 'BookmarkRepository', useClass: BookmarkRepositoryImpl },
     BookmarkFactory,
     Logger,
   ],

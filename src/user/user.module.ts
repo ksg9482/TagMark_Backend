@@ -6,7 +6,7 @@ import { UserFactory } from './domain/user.factory';
 import { UserEntity } from './infra/db/entity/user.entity';
 import { UserController } from './interface/user.controller';
 import { UserRepositoryImpl } from './infra/db/repository/user.repository';
-import { UserUseCases } from './application/user.use-case';
+import { UserUseCase, UserUseCaseImpl } from './application/user.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UserRepository } from './domain/repository/user.repository';
 
@@ -19,11 +19,11 @@ import { UserRepository } from './domain/repository/user.repository';
   ],
   controllers: [UserController],
   providers: [
-    UserUseCases,
-    { provide: UserRepository, useClass: UserRepositoryImpl },
+    { provide: UserUseCase, useClass: UserUseCaseImpl },
+    { provide: 'UserRepository', useClass: UserRepositoryImpl },
     Logger,
     UserFactory,
   ],
-  exports: [UserUseCases],
+  exports: [{ provide: UserUseCase, useClass: UserUseCaseImpl }],
 })
 export class UsersModule {}

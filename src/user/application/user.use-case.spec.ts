@@ -11,13 +11,13 @@ import { UserTypeEnum } from '../domain/types/userType';
 import { UserFactory } from '../domain/user.factory';
 import { UserEntity } from '../infra/db/entity/user.entity';
 import { UserRepositoryImpl } from '../infra/db/repository/user.repository';
-import { UserUseCases } from './user.use-case';
+import { UserUseCase, UserUseCaseImpl } from './user.use-case';
 import { User } from '../domain';
 import { UserRepository } from '../domain/repository/user.repository';
 // import { UserRoleEnum, UserTypeEnum } from '../domain';
 
 describe('bookmark-use-case', () => {
-  let userService: UserUseCases;
+  let userService: UserUseCase;
   let userRepository: UserRepository;
   let userFactory: UserFactory;
   let secureService: SecureService;
@@ -40,7 +40,7 @@ describe('bookmark-use-case', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        UserUseCases,
+        { provide: UserUseCase, useClass: UserUseCaseImpl },
         {
           provide: 'UserRepository',
           useValue: MockUserRepository,
@@ -75,7 +75,7 @@ describe('bookmark-use-case', () => {
         },
       ],
     }).compile();
-    userService = module.get(UserUseCases);
+    userService = module.get(UserUseCase);
     userRepository = module.get('UserRepository');
     userEntityRepository = module.get('UserEntityRepository');
     userFactory = module.get(UserFactory);
