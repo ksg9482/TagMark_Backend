@@ -1,13 +1,13 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { UserUseCases } from 'src/user/application/user.use-case';
+import { UserUseCase } from 'src/user/application/user.use-case';
 import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
-    private userUsecases: UserUseCases,
+    private userUsecases: UserUseCase,
     private authServices: AuthService,
   ) {}
   async use(req: any, res: any, next: () => void) {

@@ -6,4 +6,3 @@ export * from './login.dto';
 export * from './refresh.dto';
 export * from './user-profile.dto';
 export * from './logout.dto';
-export * from './password-valid.dto';

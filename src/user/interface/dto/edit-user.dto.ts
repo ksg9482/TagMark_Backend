@@ -25,15 +25,15 @@ export class EditUserDto {
 }
 
 export class EditUserResponseDto {
-  #id: string;
+  readonly #message: string;
 
-  constructor(user: Pick<User, 'id'>) {
-    this.#id = user.id;
+  constructor(message: string) {
+    this.#message = message;
   }
 
+  @ApiProperty({ description: '메시지' })
   @Expose()
-  @ApiProperty({ description: '생성된 유저 아이디' })
-  get id() {
-    return this.#id;
+  get message() {
+    return this.#message;
   }
 }

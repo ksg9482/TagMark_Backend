@@ -1,13 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import { IsArray } from 'class-validator';
 import { Tag } from 'src/tag/domain/tag';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 
 export class GetUserAllTagsDto {}
 
-export class GetUserAllTagsResponseDto extends BaseResponseDto {
+export class GetUserAllTagsResponseDto {
+  #tagWithCounts: TagWithCount[];
+
+  constructor(tagWithCounts: TagWithCount[]) {
+    this.#tagWithCounts = tagWithCounts;
+  }
+
   @ApiProperty({ description: '태그 배열', type: [Tag] })
-  @IsArray()
-  tags: TagWithCount[];
+  @Expose()
+  get tagWithCounts() {
+    return this.#tagWithCounts;
+  }
 }

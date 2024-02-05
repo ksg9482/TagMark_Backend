@@ -6,7 +6,6 @@ import { User } from 'src/user/domain/user';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { UtilsService } from 'src/utils/utils.service';
-import { UserSaveDto } from 'src/user/domain/repository/dtos/userSave.dto';
 import { UserRole, UserRoleEnum } from 'src/user/domain/types/userRole';
 import { UserType, UserTypeEnum } from 'src/user/domain/types/userType';
 import { SaveDto } from '../dto/save.dto';
@@ -58,8 +57,13 @@ export class UserRepositoryImpl implements UserRepository {
       type,
     });
   }
-  async save(item: UserSaveDto) {
-    const { email, nickname, password, role, type } = item;
+  async save(
+    email: string,
+    nickname: string,
+    password: string,
+    role: UserRole,
+    type: UserType,
+  ) {
     const userEntity = this.createEntity(email, nickname, password, role, type);
     await this.userRepository.save(userEntity);
     return SaveDto.from(userEntity);
@@ -84,16 +88,7 @@ export class UserRepositoryImpl implements UserRepository {
     if (!userEntity) {
       return null;
     }
-    const { id, nickname, email, password, role, type } = userEntity;
     return new GetDto(userEntity);
-    // return this.userFactory.reconstitute(
-    //   id,
-    //   email,
-    //   nickname,
-    //   password,
-    //   role,
-    //   type,
-    // );
   }
 
   async delete(id: string): Promise<DeleteDto> {
