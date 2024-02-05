@@ -12,7 +12,6 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { UserRepository } from 'src/user/domain/repository/user.repository';
 import { SecureService } from 'src/utils/secure.service';
-import { UserSaveDto } from '../domain/repository/dtos/userSave.dto';
 import { UserRole, UserRoleEnum } from '../domain/types/userRole';
 import { UserType, UserTypeEnum } from '../domain/types/userType';
 
@@ -82,15 +81,12 @@ export class UserUseCaseImpl {
     }
 
     const createdUser = await this.userRepository.save(
-      UserSaveDto.of({
-        email,
-        password,
-        nickname: nickname || '',
-        role: UserRoleEnum.USER,
-        type: UserTypeEnum.BASIC,
-      }),
+      email,
+      password,
+      nickname || '',
+      UserRoleEnum.USER,
+      UserTypeEnum.BASIC,
     );
-
     return { id: createdUser.id };
   }
 
@@ -157,30 +153,43 @@ export class UserUseCaseImpl {
   }
 
   async googleOauth(accessToken: string) {
+    let jwtAccessToken;
+    let jwtRefreshToken;
+
     const googleUserInfo = await this.getGoogleUserData(accessToken);
     let user = await this.findByEmail(googleUserInfo.email);
-    if (!user) {
-      const googleUser = this.setGoogleUserForm(googleUserInfo.data);
 
-      const createdUser = await this.createUser(
-        googleUser.email,
-        googleUser.password,
-        '',
-        UserTypeEnum.GOOGLE,
-      );
+    if (user !== null) {
+      jwtAccessToken = this.jwtService.sign(user);
+      jwtRefreshToken = this.jwtService.refresh(user);
 
-      user = new User(
-        createdUser.id,
-        googleUser.email,
-        '',
-        googleUser.password,
-        UserRoleEnum.USER,
-        UserTypeEnum.GOOGLE,
-      );
+      return {
+        accessToken: jwtAccessToken,
+        refreshToken: jwtRefreshToken,
+      };
     }
 
-    const jwtAccessToken = this.jwtService.sign(user);
-    const jwtRefreshToken = this.jwtService.refresh(user);
+    //이거 필요한가?
+    const googleUser = this.setGoogleUserForm(googleUserInfo.data);
+
+    const createdUser = await this.createUser(
+      googleUser.email,
+      googleUser.password,
+      '',
+      UserTypeEnum.GOOGLE,
+    );
+
+    const createdGoogleUser = new User(
+      createdUser.id,
+      googleUser.email,
+      '',
+      googleUser.password,
+      UserRoleEnum.USER,
+      UserTypeEnum.GOOGLE,
+    );
+
+    jwtAccessToken = this.jwtService.sign(createdGoogleUser);
+    jwtRefreshToken = this.jwtService.refresh(createdGoogleUser);
 
     return {
       accessToken: jwtAccessToken,

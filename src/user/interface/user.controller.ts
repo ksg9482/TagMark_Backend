@@ -55,7 +55,6 @@ const cookieOption: CookieOptions = {
 export class UserController {
   constructor(
     private userUseCases: UserUseCase,
-    private userFactory: UserFactory,
     private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,
     private authService: AuthService,
@@ -159,7 +158,9 @@ export class UserController {
         userId,
         editUserDto,
       );
-      return ResponseDto.OK_WITH(new EditUserResponseDto(editUserResult));
+
+      const message = 'updated';
+      return ResponseDto.OK_WITH(new EditUserResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -188,7 +189,8 @@ export class UserController {
         res.clearCookie(cookie);
       }
 
-      return ResponseDto.OK_WITH(new DeleteUserResponseDto(deleteResult));
+      const message = 'deleted';
+      return ResponseDto.OK_WITH(new DeleteUserResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

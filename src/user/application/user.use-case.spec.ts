@@ -10,11 +10,9 @@ import { UserRoleEnum } from '../domain/types/userRole';
 import { UserTypeEnum } from '../domain/types/userType';
 import { UserFactory } from '../domain/user.factory';
 import { UserEntity } from '../infra/db/entity/user.entity';
-import { UserRepositoryImpl } from '../infra/db/repository/user.repository';
 import { UserUseCase, UserUseCaseImpl } from './user.use-case';
 import { User } from '../domain';
 import { UserRepository } from '../domain/repository/user.repository';
-// import { UserRoleEnum, UserTypeEnum } from '../domain';
 
 describe('bookmark-use-case', () => {
   let userService: UserUseCase;

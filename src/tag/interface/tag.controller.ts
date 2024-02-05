@@ -74,13 +74,10 @@ export class TagController {
   })
   @Get('/')
   async getUserAllTags(@AuthUser() userId: string) {
-    const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
     try {
-      const tags = await this.tagUseCases.getUserAllTags(userId);
+      const tagWithCounts = await this.tagUseCases.getUserAllTags(userId);
 
-      getUserAllTagsResponse.ok = true;
-      getUserAllTagsResponse.tags = tags;
-      return getUserAllTagsResponse;
+      return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -97,13 +94,9 @@ export class TagController {
   })
   @Get('/count')
   async getUserTagCount(@AuthUser() userId: string) {
-    const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
     try {
-      const tags = await this.tagUseCases.getUserAllTags(userId);
-
-      getUserAllTagsResponse.ok = true;
-      getUserAllTagsResponse.tags = tags;
-      return getUserAllTagsResponse;
+      const tagWithCounts = await this.tagUseCases.getUserAllTags(userId);
+      return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -129,16 +122,14 @@ export class TagController {
     @Param('bookmark_id') bookmarkId: string,
     @Query('tag_ids') tagIds: string,
   ) {
-    const deleteTagResponse = new DeleteTagResponseDto();
     try {
       const parseTagIds = tagIds.split(',').map((tagIds) => {
         return tagIds;
       });
       await this.tagUseCases.detachTag(bookmarkId, parseTagIds);
 
-      deleteTagResponse.ok = true;
-      deleteTagResponse.message = 'Deleted';
-      return deleteTagResponse;
+      const message = 'Deleted';
+      return ResponseDto.OK_WITH(new DeleteTagResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
