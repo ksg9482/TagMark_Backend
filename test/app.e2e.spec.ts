@@ -98,7 +98,6 @@ describe('AppController (e2e)', () => {
           .post('/api/user')
           .send(userParamsOne);
 
-        console.log(result.body);
         userResponseDataOne.createdUser.id = result.body.data.id;
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
@@ -117,10 +116,15 @@ describe('AppController (e2e)', () => {
 
     describe('/login (post)', () => {
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
+        //매시작시 초기화가 안됨
+        // const signup = await privateTest()
+        //   .post('/api/user')
+        //   .send(userParamsOne);
+
         const result = await privateTest()
           .post('/api/user/login')
           .send(userParamsOne);
-
+        console.log(result.body);
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
         expect(typeof result.body.data.accessToken === 'string').toBeTruthy();
@@ -589,7 +593,7 @@ describe('AppController (e2e)', () => {
         const result = await privateTest().get('/api/tag', accessToken);
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(tagResponseData.ok);
-        const tags: Array<any> = result.body.tags;
+        const tags: Array<any> = result.body.data.tagWithCounts; //tags;
         targetTags.forEach((tag) => {
           expect(
             tags
@@ -613,7 +617,7 @@ describe('AppController (e2e)', () => {
       );
       expect(result.status).toBe(200);
       expect(result.body.ok).toBe(true);
-      expect(result.body.message).toBe('Deleted');
+      expect(result.body.data.message).toBe('Deleted');
     });
   });
 
@@ -637,7 +641,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
-        expect(typeof result.body.data.id).toBe('string');
+        expect(result.body.data.message).toBe('deleted');
       });
     });
   });
