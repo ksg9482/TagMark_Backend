@@ -82,8 +82,8 @@ export class UserUseCaseImpl {
 
     const createdUser = await this.userRepository.save(
       email,
-      password,
       nickname || '',
+      password,
       UserRoleEnum.USER,
       UserTypeEnum.BASIC,
     );
@@ -96,6 +96,7 @@ export class UserUseCaseImpl {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
 
+    console.log(user.password);
     await this.checkPassword(password, user);
 
     const accessToken = this.jwtService.sign(user);
@@ -199,6 +200,8 @@ export class UserUseCaseImpl {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
+    console.log(user);
+    console.log(user?.password);
     return user;
   }
 

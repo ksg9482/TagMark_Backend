@@ -26,12 +26,11 @@ export class UserRepositoryImpl implements UserRepository {
     const userEntity = await this.userRepository.findOneBy({
       email: inputEmail,
     });
-
-    if (!userEntity) {
+    console.log(userEntity);
+    if (userEntity === null) {
       return null;
     }
-
-    return this.userFactory.reconstitute(
+    return new User(
       userEntity.id,
       userEntity.email,
       userEntity.nickname,
@@ -39,6 +38,14 @@ export class UserRepositoryImpl implements UserRepository {
       userEntity.role,
       userEntity.type,
     );
+    // return this.userFactory.reconstitute(
+    //   userEntity.id,
+    //   userEntity.email,
+    //   userEntity.nickname,
+    //   userEntity.password,
+    //   userEntity.role,
+    //   userEntity.type,
+    // );
   }
 
   createEntity(
