@@ -10,7 +10,7 @@ import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  let usersRepository: Repository<UserEntity>;
+  // let usersRepository: Repository<UserEntity>;
   const config: ConfigService = new ConfigService();
   const connectDB: DataSource = new DataSource({
     type: 'postgres',
@@ -56,17 +56,20 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    usersRepository = moduleFixture.get<Repository<UserEntity>>(
-      getRepositoryToken(UserEntity),
-    );
 
     setNestApp(app);
     await connectDB.initialize();
     await app.init();
   });
 
-  beforeEach(async () => {
-    await connectDB.synchronize();
+  afterEach(async () => {
+    const connection = app.get(DataSource);
+    await connection.synchronize();
+  });
+
+  afterAll(async () => {
+    await connectDB.dropDatabase();
+    await app.close();
   });
 
   const userParamsOne = { email: 'test1@test.com', password: '123456' };
@@ -115,16 +118,16 @@ describe('AppController (e2e)', () => {
     });
 
     describe('/login (post)', () => {
+      const userValue = {
+        email: 'testUser@test.com',
+        password: 'testPassword',
+      };
       it('정상적인 데이터를 전송하면 로그인한다', async () => {
-        //매시작시 초기화가 안됨
-        // const signup = await privateTest()
-        //   .post('/api/user')
-        //   .send(userParamsOne);
-
+        const signup = await privateTest().post('/api/user').send(userValue);
         const result = await privateTest()
           .post('/api/user/login')
-          .send(userParamsOne);
-        console.log(result.body);
+          .send(userValue);
+
         expect(result.status).toBe(201);
         expect(result.body.ok).toBe(true);
         expect(typeof result.body.data.accessToken === 'string').toBeTruthy();
@@ -244,7 +247,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
-        expect(result.body.data.user['email']).toBe('test1@test.com');
+        expect(result.body.data.user['email']).toBe('testUser@test.com');
       });
     });
 
@@ -644,10 +647,5 @@ describe('AppController (e2e)', () => {
         expect(result.body.data.message).toBe('deleted');
       });
     });
-  });
-
-  afterAll(async () => {
-    await connectDB.dropDatabase();
-    await app.close();
   });
 });
