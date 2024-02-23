@@ -28,14 +28,14 @@ export class UserFactory {
     role: UserRole;
     type: UserType;
   }) {
-    return new User(
-      user.id,
-      user.email,
-      user.nickname,
-      user.password,
-      user.role,
-      user.type,
-    );
+    return User.from({
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      password: user.password,
+      role: user.role,
+      type: user.type,
+    });
   }
 
   reconstitute(
@@ -49,6 +49,6 @@ export class UserFactory {
     if (nickname === undefined) {
       nickname = '익명';
     }
-    return new User(id, email, nickname, password, role, type);
+    return User.from({ id, email, nickname, password, role, type });
   }
 }

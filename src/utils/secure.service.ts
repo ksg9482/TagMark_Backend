@@ -11,8 +11,6 @@ export class SecureService {
     @Inject(Configuration.KEY) private config: ConfigType<typeof Configuration>,
   ) {}
   async checkPassword(password: string, user: User): Promise<boolean> {
-    console.log(password);
-    console.log(user.password);
     try {
       return await bcrypt.compare(password, user.password);
     } catch (error) {

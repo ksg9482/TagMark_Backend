@@ -180,14 +180,14 @@ export class UserUseCaseImpl {
       UserTypeEnum.GOOGLE,
     );
 
-    const createdGoogleUser = new User(
-      createdUser.id,
-      googleUser.email,
-      '',
-      googleUser.password,
-      UserRoleEnum.USER,
-      UserTypeEnum.GOOGLE,
-    );
+    const createdGoogleUser = User.from({
+      id: createdUser.id,
+      email: googleUser.email,
+      nickname: '',
+      password: googleUser.password,
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.GOOGLE,
+    });
 
     jwtAccessToken = this.jwtService.sign(createdGoogleUser);
     jwtRefreshToken = this.jwtService.refresh(createdGoogleUser);
@@ -200,8 +200,6 @@ export class UserUseCaseImpl {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
-    console.log(user);
-    console.log(user?.password);
     return user;
   }
 
