@@ -54,7 +54,7 @@ const cookieOption: CookieOptions = {
 @Controller('api/user')
 export class UserController {
   constructor(
-    private userUseCases: UserUseCase,
+    private userUsecase: UserUseCase,
     private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,
     private authService: AuthService,
@@ -71,7 +71,7 @@ export class UserController {
   @Get('/')
   async findUserData(@AuthUser() userId: string) {
     try {
-      const user = await this.userUseCases.me(userId);
+      const user = await this.userUsecase.me(userId);
       return ResponseDto.OK_WITH({ user: new UserProfileResponseDto(user) });
     } catch (error) {
       this.logger.error(error);
@@ -90,7 +90,7 @@ export class UserController {
     @Body(new ValidationPipe()) createUserDto: CreateUserDto,
   ): Promise<ResponseDto<{ id: string }>> {
     try {
-      const createdUser = await this.userUseCases.createUser(
+      const createdUser = await this.userUsecase.createUser(
         createUserDto.email,
         createUserDto.password,
         createUserDto.nickname,
@@ -117,7 +117,7 @@ export class UserController {
       const secureWrap = this.secureService.secure().wrapper();
       const { email, password } = loginDto;
 
-      const { accessToken, refreshToken } = await this.userUseCases.login(
+      const { accessToken, refreshToken } = await this.userUsecase.login(
         email,
         password,
       );
@@ -154,7 +154,7 @@ export class UserController {
     @Body(new ValidationPipe()) editUserDto: EditUserDto,
   ) {
     try {
-      const editUserResult = await this.userUseCases.editUser(
+      const editUserResult = await this.userUsecase.editUser(
         userId,
         editUserDto,
       );
@@ -182,7 +182,7 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const deleteResult = await this.userUseCases.deleteUser(userId);
+      const deleteResult = await this.userUsecase.deleteUser(userId);
 
       const deleteCookies = ['refreshToken', 'accessToken', 'Authorization'];
       for (const cookie of deleteCookies) {
@@ -231,7 +231,7 @@ export class UserController {
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);
-      const newAccessToken = await this.userUseCases.refresh(decrypted);
+      const newAccessToken = await this.userUsecase.refresh(decrypted);
 
       return ResponseDto.OK_WITH(new RefreshTokenResponseDto(newAccessToken));
     } catch (error) {
@@ -256,7 +256,7 @@ export class UserController {
   ) {
     const secureWrap = this.secureService.secure().wrapper();
     try {
-      const { accessToken, refreshToken } = await this.userUseCases.googleOauth(
+      const { accessToken, refreshToken } = await this.userUsecase.googleOauth(
         googleOauthDto.accessToken,
       );
 

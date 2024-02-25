@@ -5,6 +5,7 @@ import { UpdateDto } from 'src/user/infra/db/dto/update.dto';
 import { GetDto } from 'src/user/infra/db/dto/get.dto';
 import { UserRole } from '../types/userRole';
 import { UserType } from '../types/userType';
+import { DeleteDto } from 'src/user/infra/db/dto/delete.dto';
 
 export abstract class UserRepository {
   get: (id: string) => Promise<GetDto | null>;
@@ -16,6 +17,6 @@ export abstract class UserRepository {
     type: UserType,
   ) => Promise<SaveDto>;
   update: (id: string, item: Partial<User>) => Promise<UpdateDto>;
-  delete: (id: string) => Promise<any>;
-  findByEmail: (email: string) => Promise<User | null>;
+  delete: (id: string) => Promise<DeleteDto>;
+  findByEmail: (email: string) => Promise<GetDto | null>;
 }

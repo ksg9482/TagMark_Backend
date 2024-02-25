@@ -57,7 +57,7 @@ export abstract class UserUseCase {
 }
 
 @Injectable()
-export class UserUseCaseImpl {
+export class UserUseCaseImpl implements UserUseCase {
   constructor(
     @Inject('UserRepository') private userRepository: UserRepository,
     private readonly utilService: UtilsService,
@@ -96,7 +96,6 @@ export class UserUseCaseImpl {
       throw new HttpException('User not exists.', HttpStatus.BAD_REQUEST);
     }
 
-    console.log(user.password);
     await this.checkPassword(password, user);
 
     const accessToken = this.jwtService.sign(user);
@@ -200,7 +199,18 @@ export class UserUseCaseImpl {
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
-    return user;
+
+    if (user === null) {
+      return null;
+    }
+    return User.from({
+      id: user.id,
+      email: user.email,
+      nickname: user.nickname,
+      password: user.password,
+      role: user.role,
+      type: user.type,
+    });
   }
 
   async findById(id: string): Promise<User> {
