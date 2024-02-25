@@ -164,8 +164,6 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
       return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
     });
     return new BookmarkPage(Number(count), page.take, bookmarksInstance);
-
-    //return new Page<Bookmark>(Number(count), page.take, bookmarksInstance);
   }
 
   async getcount(userId: string): Promise<any> {
@@ -240,9 +238,6 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
   }
 
   async findBookmarkTag_OR(userId: string, tags: string[], page: any) {
-    /**
-     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
-     */
     const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`DISTINCT bookmark."id"`, 'ids')
@@ -286,12 +281,8 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
       return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
     });
     return new BookmarkPage(Number(count), page.take, bookmarksInstance);
-    //return new Page<Bookmark>(count, page.take, bookmarksInstance);
   }
   async findBookmarkTag_AND(userId: string, tags: string[], page: any) {
-    /**
-     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
-     */
     const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
@@ -336,6 +327,5 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
       return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
     });
     return new BookmarkPage(Number(count), page.take, bookmarksInstance);
-    //return new Page<Bookmark>(count, page.take, bookmarksInstance);
   }
 }

@@ -36,9 +36,9 @@ import {
   SyncBookmarkDto,
   SyncBookmarkResponseDto,
 } from 'src/bookmark/interface/dto';
-import { BookmarkUseCases } from 'src/bookmark/application/bookmark.use-case';
+import { BookmarkUseCase } from 'src/bookmark/application/bookmark.use-case';
 import { BookmarkFactory } from 'src/bookmark/domain/bookmark.factory';
-import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { TagUseCase } from 'src/tag/application/tag.use-case';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import {
   GetSearchTagsDto,
@@ -55,8 +55,8 @@ import { Bookmarks } from '../domain/bookmarks';
 @Controller('api/bookmark')
 export class BookmarkController {
   constructor(
-    private bookmarkUseCases: BookmarkUseCases,
-    private tagUseCases: TagUseCases,
+    private bookmarkUseCase: BookmarkUseCase,
+    private tagUseCase: TagUseCase,
     @Inject(Logger) private readonly logger: LoggerService,
     private utilsService: UtilsService,
   ) {}
@@ -77,8 +77,10 @@ export class BookmarkController {
   ) {
     try {
       const { url, tagNames } = createBookmarkDto;
-
-      const createdBookmark = await this.bookmarkUseCases.createBookmark(
+      console.log(
+        `createBookmark - userId: ${userId}, url: ${url}, tagNames: ${tagNames}`,
+      );
+      const createdBookmark = await this.bookmarkUseCase.createBookmark(
         userId,
         url,
         tagNames,
@@ -110,13 +112,13 @@ export class BookmarkController {
     try {
       const tagNames = loginsyncBookmarkDto.tagNames || [];
       const bookmarks = loginsyncBookmarkDto.bookmarks || [];
-      const dbTags = await this.tagUseCases.getTagsByNames(tagNames);
-      const syncedBookmarks = this.bookmarkUseCases.setSyncBookmarkForm(
+      const dbTags = await this.tagUseCase.getTagsByNames(tagNames);
+      const syncedBookmarks = this.bookmarkUseCase.setSyncBookmarkForm(
         userId,
         bookmarks,
         new Tags(dbTags.tags),
       );
-      await this.bookmarkUseCases.syncBookmark(new Bookmarks(syncedBookmarks));
+      await this.bookmarkUseCase.syncBookmark(new Bookmarks(syncedBookmarks));
 
       const message = 'synced';
       return ResponseDto.OK_WITH(
@@ -148,7 +150,7 @@ export class BookmarkController {
     page: GetUserAllBookmarksDto,
   ) {
     try {
-      const bookmarks = await this.bookmarkUseCases.getUserAllBookmarks(
+      const bookmarks = await this.bookmarkUseCase.getUserAllBookmarks(
         userId,
         page,
       );
@@ -177,7 +179,7 @@ export class BookmarkController {
   @Get('/count')
   async getUserBookmarkCount(@AuthUser() userId: string) {
     try {
-      const count = await this.bookmarkUseCases.getUserBookmarkCount(userId);
+      const count = await this.bookmarkUseCase.getUserBookmarkCount(userId);
 
       return ResponseDto.OK_WITH(
         new GetUserBookmarkCountResponseDto(Number(count)),
@@ -218,16 +220,16 @@ export class BookmarkController {
         editBookmarkDto.addTag?.length > 0 ? editBookmarkDto.addTag : null;
 
       if (deleteTag) {
-        await this.tagUseCases.detachTag(bookmarkId, deleteTag);
+        await this.tagUseCase.detachTag(bookmarkId, deleteTag);
       }
 
       if (addTag) {
-        const tags = await this.tagUseCases.getTagsByNames(addTag);
-        await this.tagUseCases.attachTag(bookmarkId, tags);
+        const tags = await this.tagUseCase.getTagsByNames(addTag);
+        await this.tagUseCase.attachTag(bookmarkId, tags);
       }
 
       if (url) {
-        await this.bookmarkUseCases.editBookmarkUrl(userId, bookmarkId, url);
+        await this.bookmarkUseCase.editBookmarkUrl(userId, bookmarkId, url);
       }
 
       const message = 'Updated';
@@ -265,7 +267,7 @@ export class BookmarkController {
     try {
       const tagArr = tags.split(',');
 
-      const bookmarks = await this.bookmarkUseCases.getTagAllBookmarksAND(
+      const bookmarks = await this.bookmarkUseCase.getTagAllBookmarksAND(
         userId,
         tagArr,
         page,
@@ -311,7 +313,7 @@ export class BookmarkController {
     try {
       const tagArr = tags.split(',');
 
-      const bookmarks = await this.bookmarkUseCases.getTagAllBookmarksOR(
+      const bookmarks = await this.bookmarkUseCase.getTagAllBookmarksOR(
         userId,
         tagArr,
         page,
@@ -345,7 +347,7 @@ export class BookmarkController {
     @Param('id') bookmarkId: string,
   ) {
     try {
-      await this.bookmarkUseCases.deleteBookmark(userId, bookmarkId);
+      await this.bookmarkUseCase.deleteBookmark(userId, bookmarkId);
 
       const message = 'Deleted';
       return ResponseDto.OK_WITH(new DeleteBookmarkResponseDto(message));
