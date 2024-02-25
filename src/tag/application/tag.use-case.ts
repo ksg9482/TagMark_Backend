@@ -1,31 +1,32 @@
-import { Inject } from '@nestjs/common';
-import { ITagRepository } from 'src/tag/domain/repository/itag.repository';
+import { Inject, Injectable } from '@nestjs/common';
+import { TagRepository } from 'src/tag/domain/repository/tag.repository';
 import { Tag } from 'src/tag/domain/tag';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
 
-export abstract class TagUseCases {
-  getAllTags: () => Promise<Tag[]>;
+export abstract class TagUseCase {
+  getAllTags: () => Promise<Tags>;
   createTag: (tag: Omit<Tag, 'id'>) => Promise<Tag>;
   getTagsByNames: (tagName: string | string[]) => Promise<Tags>;
   attachTag: (bookmarkId: string, tags: Tags) => Promise<any[]>;
   detachTag: (bookmarkId: string, tagId: string | string[]) => Promise<string>;
-  getTagsByIds: (tagId: string | string[]) => Promise<Tag[]>;
+  getTagsByIds: (tagId: string | string[]) => Promise<Tags>;
   getUserAllTags: (userId: string) => Promise<TagWithCount[]>;
   tagFindOrCreate: (tagNames: string[]) => Promise<Tags>;
 }
 
-export class TagUseCasesImpl implements TagUseCases {
+@Injectable()
+export class TagUseCaseImpl implements TagUseCase {
   constructor(
     @Inject('TagRepository')
-    private tagRepository: ITagRepository,
+    private tagRepository: TagRepository,
     private tagFactory: TagFactory,
     private utilsService: UtilsService,
   ) {}
 
-  async getAllTags(): Promise<Tag[]> {
+  async getAllTags(): Promise<Tags> {
     const tags = await this.tagRepository.getAll();
     return tags;
   }
@@ -49,18 +50,19 @@ export class TagUseCasesImpl implements TagUseCases {
   }
 
   async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
-    const findedTags = await this.tagRepository.findByTagNames(tagNames);
-    const tags = new Tags(findedTags);
+    const tags = await this.tagRepository.findByTagNames(tagNames);
     const notExistTags = tags.findNotExistTagNames(tagNames);
 
     //리팩토링 대상. 안쓸 객체 만들어서 그냥 보냄.
-    const createTags = notExistTags.map((tag) => {
-      return this.tagFactory.create(this.utilsService.getUuid(), tag);
-    });
-    await this.tagRepository.insertBulk(createTags);
-    const resultTags = [...findedTags, ...createTags];
+    const createTags = new Tags(
+      notExistTags.map((tag) => {
+        return new Tag(this.utilsService.getUuid(), tag);
+      }),
+    );
 
-    return new Tags(resultTags);
+    await this.tagRepository.insertBulk(createTags);
+    tags.mergeTags(createTags);
+    return tags;
   }
 
   async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
@@ -79,7 +81,7 @@ export class TagUseCasesImpl implements TagUseCases {
     return 'Deleted';
   }
 
-  async getTagsByIds(tagId: string | string[]): Promise<Tag[]> {
+  async getTagsByIds(tagId: string | string[]): Promise<Tags> {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }

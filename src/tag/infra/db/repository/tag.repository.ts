@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { ITagRepository } from 'src/tag/domain/repository/itag.repository';
+import { TagRepository } from 'src/tag/domain/repository/tag.repository';
 import { Tag } from 'src/tag/domain/tag';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
@@ -10,7 +10,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { Tags } from 'src/tag/domain/tags';
 
 @Injectable()
-export class TagRepository implements ITagRepository {
+export class TagRepositoryImpl implements TagRepository {
   constructor(
     @InjectRepository(TagEntity)
     private tagRepository: Repository<TagEntity>,
@@ -56,39 +56,46 @@ export class TagRepository implements ITagRepository {
     return await this.tagRepository.update(id, tagEntities);
   }
 
-  async getAll(): Promise<Tag[]> {
+  async getAll(): Promise<Tags> {
     const tagEntities = await this.tagRepository.find();
     if (tagEntities.length <= 0) {
-      return [];
+      return new Tags([]);
     }
-    return tagEntities.map((entity) => {
-      return this.tagFactory.reconstitute(entity.id, entity.tag);
-    });
+
+    return new Tags(
+      tagEntities.map((entity) => {
+        return new Tag(entity.id, entity.tag);
+      }),
+    );
   }
 
-  async findByTagNames(tagNames: string[]): Promise<Tag[]> {
+  async findByTagNames(tagNames: string[]): Promise<Tags> {
     if (tagNames.length <= 0) {
-      return [];
+      return new Tags([]);
     }
     const tagEntities = await this.tagRepository
       .createQueryBuilder('tag')
       .where('tag.tag IN (:...tags)', { tags: tagNames })
       .getMany();
 
-    return tagEntities.map((entity) => {
-      return this.tagFactory.reconstitute(entity.id, entity.tag);
-    });
+    return new Tags(
+      tagEntities.map((entity) => {
+        return new Tag(entity.id, entity.tag);
+      }),
+    );
   }
-  async getTagsByIds(tagId: string[]): Promise<Tag[]> {
+  async getTagsByIds(tagId: string[]): Promise<Tags> {
     const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
       .whereInIds(tagId)
       .getMany();
 
-    return tagEntities.map((entity) => {
-      return this.tagFactory.reconstitute(entity.id, entity.tag);
-    });
+    return new Tags(
+      tagEntities.map((entity) => {
+        return new Tag(entity.id, entity.tag);
+      }),
+    );
   }
 
   async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
@@ -139,12 +146,12 @@ export class TagRepository implements ITagRepository {
     return deletedTag;
   }
 
-  async insertBulk(tags: Tag[]): Promise<any> {
+  async insertBulk(tags: Tags): Promise<any> {
     const tagInsertBultk = await this.tagRepository
       .createQueryBuilder()
       .insert()
       .into('tag')
-      .values(tags)
+      .values(tags.tags)
       .execute();
     return tagInsertBultk;
   }

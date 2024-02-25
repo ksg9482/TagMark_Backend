@@ -29,7 +29,7 @@ import {
   DeleteTagResponseDto,
   GetUserAllTagsResponseDto,
 } from 'src/tag/interface/dto';
-import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { TagUseCase } from 'src/tag/application/tag.use-case';
 import { AuthGuard } from 'src/auth.guard';
 import { ResponseDto } from 'src/common/dto/response.dto';
 
@@ -38,7 +38,7 @@ import { ResponseDto } from 'src/common/dto/response.dto';
 @Controller('api/tag')
 export class TagController {
   constructor(
-    private tagUseCases: TagUseCases,
+    private tagUseCase: TagUseCase,
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -55,7 +55,7 @@ export class TagController {
   async createTag(@Body(new ValidationPipe()) createTagDto: CreateTagDto) {
     const { tag } = createTagDto;
     try {
-      const createdTag = await this.tagUseCases.createTag({ tag: tag });
+      const createdTag = await this.tagUseCase.createTag({ tag: tag });
 
       return ResponseDto.OK_WITH(new CreateTagResponseDto(createdTag));
     } catch (error) {
@@ -75,7 +75,7 @@ export class TagController {
   @Get('/')
   async getUserAllTags(@AuthUser() userId: string) {
     try {
-      const tagWithCounts = await this.tagUseCases.getUserAllTags(userId);
+      const tagWithCounts = await this.tagUseCase.getUserAllTags(userId);
 
       return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
@@ -95,7 +95,7 @@ export class TagController {
   @Get('/count')
   async getUserTagCount(@AuthUser() userId: string) {
     try {
-      const tagWithCounts = await this.tagUseCases.getUserAllTags(userId);
+      const tagWithCounts = await this.tagUseCase.getUserAllTags(userId);
       return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
       this.logger.error(error);
@@ -126,7 +126,7 @@ export class TagController {
       const parseTagIds = tagIds.split(',').map((tagIds) => {
         return tagIds;
       });
-      await this.tagUseCases.detachTag(bookmarkId, parseTagIds);
+      await this.tagUseCase.detachTag(bookmarkId, parseTagIds);
 
       const message = 'Deleted';
       return ResponseDto.OK_WITH(new DeleteTagResponseDto(message));

@@ -1,15 +1,16 @@
 import { Test } from '@nestjs/testing';
 import { UtilsService } from 'src/utils/utils.service';
 import { Repository } from 'typeorm';
+import { TagRepository } from '../domain/repository/tag.repository';
 import { Tag } from '../domain/tag';
 import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
 import { TagEntity } from '../infra/db/entity/tag.entity';
-import { TagRepository } from '../infra/db/repository/tag.repository';
-import { TagUseCases, TagUseCasesImpl } from './tag.use-case';
+import { TagRepositoryImpl } from '../infra/db/repository/tag.repository';
+import { TagUseCase, TagUseCaseImpl } from './tag.use-case';
 
 describe('tag-use-case', () => {
-  let tagService: TagUseCases;
+  let tagService: TagUseCase;
   let tagRepository: TagRepository;
   let tagFactory: TagFactory;
   let tagEntityRepository: Repository<TagEntity>;
@@ -35,7 +36,7 @@ describe('tag-use-case', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        { provide: TagUseCases, useClass: TagUseCasesImpl },
+        { provide: TagUseCase, useClass: TagUseCaseImpl },
         {
           provide: 'TagRepository',
           useValue: MockTagRepository,
@@ -50,7 +51,7 @@ describe('tag-use-case', () => {
         },
       ],
     }).compile();
-    tagService = module.get(TagUseCases);
+    tagService = module.get(TagUseCase);
     tagRepository = module.get('TagRepository');
     tagEntityRepository = module.get('TagEntityRepository');
     tagFactory = module.get(TagFactory);
@@ -172,7 +173,7 @@ describe('tag-use-case', () => {
     ];
 
     it('태그 이름 배열을 인수로 제공했을 때 전부 저장되지 않은 경우 저장한 결과와 검색된 태그를 배열로 반환한다', async () => {
-      tagRepository.findByTagNames = jest.fn().mockResolvedValue([]);
+      tagRepository.findByTagNames = jest.fn().mockResolvedValue(new Tags([]));
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
 
       const result = await tagService.tagFindOrCreate([
@@ -191,7 +192,11 @@ describe('tag-use-case', () => {
     it('태그 이름 배열을 인수로 제공하면 저장되지 않은 태그가 있을 경우 저장한 결과와 검색된 태그를 배열로 반환한다', async () => {
       tagRepository.findByTagNames = jest
         .fn()
-        .mockResolvedValue([findByTagNamesResolve[0]]);
+        .mockResolvedValue(
+          new Tags([
+            new Tag(findByTagNamesResolve[0].id, findByTagNamesResolve[0].tag),
+          ]),
+        );
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
       tagFactory.create = jest.fn().mockReturnValue(findByTagNamesResolve[1]);
 
@@ -205,9 +210,13 @@ describe('tag-use-case', () => {
     });
 
     it('태그 이름 배열을 인수로 제공하면 다 저장된 태그인 경우 검색된 태그를 배열로 반환한다', async () => {
-      tagRepository.findByTagNames = jest
-        .fn()
-        .mockResolvedValue(findByTagNamesResolve);
+      tagRepository.findByTagNames = jest.fn().mockResolvedValue(
+        new Tags(
+          findByTagNamesResolve.map((tag) => {
+            return new Tag(tag.id, tag.tag);
+          }),
+        ),
+      );
       tagRepository.insertBulk = jest.fn().mockResolvedValue('');
       tagFactory.create = jest.fn().mockReturnValue(findByTagNamesResolve);
 
