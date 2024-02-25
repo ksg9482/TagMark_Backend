@@ -52,14 +52,9 @@ export class Page<T> {
     this.totalPage = Math.ceil(totalCount / pageSize);
     this.bookmarks = bookmarks;
   }
-
-  // get bookmark() {
-  //   return this.bookmarks;
-  // }
 }
 
 export class BookmarkPage extends Page<Bookmark> {
-  // readonly #bookmarks: Bookmark[]
   constructor(totalCount: number, pageSize: number, bookmarks: Bookmark[]) {
     super(totalCount, pageSize, bookmarks);
   }

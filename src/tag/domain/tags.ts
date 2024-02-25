@@ -31,4 +31,8 @@ export class Tags {
 
     return notExistTagNames;
   }
+
+  mergeTags(tags: Tags): void {
+    this.#tags.push(...tags.tags);
+  }
 }

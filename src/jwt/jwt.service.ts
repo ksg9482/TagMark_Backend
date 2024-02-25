@@ -19,7 +19,6 @@ export class JwtService {
   sign(user: User): string {
     const accessTokenExpireTime = '15m';
     const { id, email, nickname, type } = user;
-    console.log(id, email, nickname, type);
     const token = jwt.sign(
       { id, email, nickname, type },
       this.options.privateKey,
@@ -28,7 +27,6 @@ export class JwtService {
         algorithm: this.jwtAlgorithm,
       },
     );
-    console.log(token);
     return token;
   }
 

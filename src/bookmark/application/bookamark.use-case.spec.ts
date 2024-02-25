@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthModule } from 'src/auth/auth.module';
-import { TagUseCases, TagUseCasesImpl } from 'src/tag/application/tag.use-case';
+import { TagUseCase, TagUseCaseImpl } from 'src/tag/application/tag.use-case';
 import { Tag } from 'src/tag/domain/tag';
 import { TagFactory } from 'src/tag/domain/tag.factory';
 import { Tags } from 'src/tag/domain/tags';
@@ -13,14 +13,14 @@ import { Bookmarks } from '../domain/bookmarks';
 import { BookmarkRepository } from '../domain/repository/bookmark.repository';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
 import { BookmarkRepositoryImpl } from '../infra/db/repository/bookmark.repository';
-import { BookmarkUseCases } from './bookmark.use-case';
+import { BookmarkUseCase, BookmarkUseCaseImpl } from './bookmark.use-case';
 
 describe('bookmark-use-case', () => {
-  let bookmarkService: BookmarkUseCases;
+  let bookmarkService: BookmarkUseCase;
   let bookmarkRepository: BookmarkRepository;
   let bookmarkFactory: BookmarkFactory;
   let tagFactory: TagFactory;
-  let tagService: TagUseCases;
+  let tagService: TagUseCase;
   let bookmarkEntityRepository: Repository<BookmarkEntity>;
 
   const MockGenericRepository = {
@@ -56,7 +56,8 @@ describe('bookmark-use-case', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        BookmarkUseCases,
+        { provide: BookmarkUseCase, useClass: BookmarkUseCaseImpl },
+
         {
           provide: 'BookmarkRepository',
           useValue: MockBookmarkRepository,
@@ -67,8 +68,8 @@ describe('bookmark-use-case', () => {
         },
         BookmarkFactory,
         {
-          provide: TagUseCases,
-          useClass: TagUseCasesImpl,
+          provide: TagUseCase,
+          useClass: TagUseCaseImpl,
         },
         TagFactory,
         UtilsService,
@@ -81,8 +82,8 @@ describe('bookmark-use-case', () => {
         },
       ],
     }).compile();
-    bookmarkService = module.get(BookmarkUseCases);
-    tagService = module.get(TagUseCases);
+    bookmarkService = module.get(BookmarkUseCase);
+    tagService = module.get(TagUseCase);
     bookmarkRepository = module.get('BookmarkRepository');
     bookmarkEntityRepository = module.get('BookmarkEntityRepository');
     bookmarkFactory = module.get(BookmarkFactory);

@@ -1,6 +1,7 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import {
+  BookmarkPage,
   Page,
   PageRequest,
 } from 'src/bookmark/application/bookmark.pagination';
@@ -17,18 +18,78 @@ import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
 import { Bookmarks } from '../domain/bookmarks';
-import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { TagUseCase } from 'src/tag/application/tag.use-case';
 
-//DTO 의존성 해소용.
 type UserAllBookmarks = PageRequest;
 type SearchTags = PageRequest;
 
-export class BookmarkUseCases {
+export abstract class BookmarkUseCase {
+  createBookmark: (
+    userId: string,
+    url: string,
+    tagNames?: string[],
+  ) => Promise<Bookmark>;
+
+  getUserAllBookmarks: (
+    userId: string,
+    page: UserAllBookmarks,
+  ) => Promise<BookmarkPage>;
+
+  getUserBookmarkCount: (userId: string) => Promise<Number>;
+
+  syncBookmark: (bookmarks: Bookmarks) => Promise<Bookmark[]>;
+
+  editBookmarkUrl: (
+    userId: string,
+    bookmarkId: string,
+    changeUrl: string,
+  ) => Promise<{
+    message: string;
+  }>;
+
+  deleteBookmark: (
+    userId: string,
+    bookmarkId: string,
+  ) => Promise<{
+    message: string;
+  }>;
+
+  findBookmark: (userId: string, bookmarkId: string) => Promise<Bookmark>;
+
+  getTagAllBookmarksOR: (
+    userId: string,
+    tags: string[],
+    page: SearchTags,
+  ) => Promise<BookmarkPage>;
+
+  getTagAllBookmarksAND: (
+    userId: string,
+    tags: string[],
+    page: SearchTags,
+  ) => Promise<BookmarkPage>;
+
+  saveBookmarkTag: (bookmarks: Bookmarks) => Promise<any>;
+
+  getBookmarkIdAndTagId: (bookmarks: Bookmarks) => {
+    bookmarkId: string;
+    tagIds: string[];
+  }[];
+
+  getBookmarkTagMap: (bookmarksAndTags: BookmarkAndTag[]) => BookmarkTagMap[];
+
+  setSyncBookmarkForm: (
+    userId: string,
+    bookmarks: Bookmark[],
+    tags: Tags,
+  ) => Bookmark[];
+}
+
+@Injectable()
+export class BookmarkUseCaseImpl implements BookmarkUseCase {
   constructor(
     @Inject('BookmarkRepository')
     private bookmarkRepository: BookmarkRepository,
-    private tagUseCases: TagUseCases,
-    private utilsService: UtilsService,
+    private tagUseCase: TagUseCase,
   ) {}
 
   async createBookmark(
@@ -51,7 +112,7 @@ export class BookmarkUseCases {
         url: url,
       }),
     );
-
+    console.log(`createBookmark - boomark saved`);
     const emptyTags = new Tags([]);
 
     const bookmark = new Bookmark(
@@ -62,16 +123,22 @@ export class BookmarkUseCases {
     );
 
     if (tagNames !== undefined) {
-      const tags = await this.tagUseCases.getTagsByNames(tagNames);
+      console.log(tagNames);
+      const tags = await this.tagUseCase.getTagsByNames(tagNames);
+      console.log(`createBookmark - ${tags} ${tags.tags}`);
+
       bookmark.updateTags(tags);
 
-      await this.tagUseCases.attachTag(createdBookmark.id, tags);
+      await this.tagUseCase.attachTag(createdBookmark.id, tags);
     }
 
     return bookmark;
   }
 
-  async getUserAllBookmarks(userId: string, page: UserAllBookmarks) {
+  async getUserAllBookmarks(
+    userId: string,
+    page: UserAllBookmarks,
+  ): Promise<BookmarkPage> {
     const bookmarks = await this.bookmarkRepository.getUserAllBookmarks(
       userId,
       {
@@ -83,7 +150,7 @@ export class BookmarkUseCases {
     return bookmarks;
   }
 
-  async getUserBookmarkCount(userId: string) {
+  async getUserBookmarkCount(userId: string): Promise<Number> {
     const { count } = await this.bookmarkRepository.getcount(userId);
     return count;
   }
@@ -127,7 +194,7 @@ export class BookmarkUseCases {
     userId: string,
     tags: string[],
     page: SearchTags,
-  ): Promise<Page<Bookmark>> {
+  ): Promise<BookmarkPage> {
     const bookmarks = await this.bookmarkRepository.findBookmarkTag_OR(
       userId,
       tags,
@@ -143,7 +210,7 @@ export class BookmarkUseCases {
     userId: string,
     tags: string[],
     page: SearchTags,
-  ) {
+  ): Promise<BookmarkPage> {
     const bookmarks = await this.bookmarkRepository.findBookmarkTag_AND(
       userId,
       tags,
@@ -155,7 +222,8 @@ export class BookmarkUseCases {
     return bookmarks;
   }
 
-  protected async saveBookmarkTag(bookmarks: Bookmarks) {
+  //protected
+  async saveBookmarkTag(bookmarks: Bookmarks) {
     const bookmarksAndTags: any = this.getBookmarkIdAndTagId(bookmarks);
     const bookmarksAndTagsMap = this.getBookmarkTagMap(bookmarksAndTags);
     const result = await this.bookmarkRepository.attachbulk(
@@ -165,7 +233,8 @@ export class BookmarkUseCases {
     return result;
   }
 
-  protected getBookmarkIdAndTagId(bookmarks: Bookmarks) {
+  //protected
+  getBookmarkIdAndTagId(bookmarks: Bookmarks) {
     const result = bookmarks.bookmarks.map((bookmark) => {
       const bookmarkTags = bookmark.tags;
       const bookmarkId = bookmark.id;
@@ -177,7 +246,8 @@ export class BookmarkUseCases {
     return result;
   }
 
-  protected getBookmarkTagMap(bookmarksAndTags: BookmarkAndTag[]) {
+  //protected
+  getBookmarkTagMap(bookmarksAndTags: BookmarkAndTag[]) {
     const bookmarkTagMap: BookmarkTagMap[] = [];
 
     for (const bookmarksTags of bookmarksAndTags) {

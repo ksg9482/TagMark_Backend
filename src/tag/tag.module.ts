@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TagFactory } from './domain/tag.factory';
 import { TagEntity } from './infra/db/entity/tag.entity';
 import { TagController } from './interface/tag.controller';
-import { TagRepository } from './infra/db/repository/tag.repository';
-import { TagUseCases, TagUseCasesImpl } from './application/tag.use-case';
+import { TagRepositoryImpl } from './infra/db/repository/tag.repository';
+import { TagUseCase, TagUseCaseImpl } from './application/tag.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
 import { AuthModule } from 'src/auth/auth.module';
 
@@ -12,14 +12,14 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [TypeOrmModule.forFeature([TagEntity]), UtilsModule, AuthModule],
   controllers: [TagController],
   providers: [
-    { provide: TagUseCases, useClass: TagUseCasesImpl },
-    { provide: 'TagRepository', useClass: TagRepository },
+    { provide: TagUseCase, useClass: TagUseCaseImpl },
+    { provide: 'TagRepository', useClass: TagRepositoryImpl },
     TagFactory,
     Logger,
   ],
   exports: [
-    { provide: TagUseCases, useClass: TagUseCasesImpl },
-    { provide: 'TagRepository', useClass: TagRepository },
+    { provide: TagUseCase, useClass: TagUseCaseImpl },
+    { provide: 'TagRepository', useClass: TagRepositoryImpl },
     TagFactory,
   ],
 })

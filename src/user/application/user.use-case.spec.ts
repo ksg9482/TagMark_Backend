@@ -483,14 +483,16 @@ describe('bookmark-use-case', () => {
       };
       userRepository.findByEmail = jest.fn().mockResolvedValue(fakeUser);
 
-      expect(await userService.findByEmail(fakeEmail)).toStrictEqual({
-        id: 'fake',
-        email: 'fakeEmail',
-        nickname: 'fakeNickname',
-        password: 'fakepassword',
-        role: UserRoleEnum.USER,
-        type: UserTypeEnum.BASIC,
-      });
+      expect(await userService.findByEmail(fakeEmail)).toStrictEqual(
+        User.from({
+          id: 'fake',
+          email: 'fakeEmail',
+          nickname: 'fakeNickname',
+          password: 'fakepassword',
+          role: UserRoleEnum.USER,
+          type: UserTypeEnum.BASIC,
+        }),
+      );
     });
   });
   describe('findById', () => {

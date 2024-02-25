@@ -316,6 +316,7 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsThree);
 
+        console.log(result.body);
         bookmarkResponseDataOne.createdBookmark.id = result.body.data.id;
 
         expect(result.status).toBe(201);

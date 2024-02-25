@@ -4,7 +4,10 @@ import { BookmarkFactory } from './domain/bookmark.factory';
 import { BookmarkEntity } from './infra/db/entity/bookmark.entity';
 import { BookmarkController } from './interface/bookmark.controller';
 import { BookmarkRepositoryImpl } from './infra/db/repository/bookmark.repository';
-import { BookmarkUseCases } from './application/bookmark.use-case';
+import {
+  BookmarkUseCase,
+  BookmarkUseCaseImpl,
+} from './application/bookmark.use-case';
 import { TagModule } from 'src/tag/tag.module';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { UtilsModule } from 'src/utils/utils.module';
@@ -20,11 +23,14 @@ import { BookmarkRepository } from './domain/repository/bookmark.repository';
   ],
   controllers: [BookmarkController],
   providers: [
-    BookmarkUseCases,
+    { provide: BookmarkUseCase, useClass: BookmarkUseCaseImpl },
     { provide: 'BookmarkRepository', useClass: BookmarkRepositoryImpl },
     BookmarkFactory,
     Logger,
   ],
-  exports: [BookmarkUseCases, BookmarkFactory],
+  exports: [
+    { provide: BookmarkUseCase, useClass: BookmarkUseCaseImpl },
+    BookmarkFactory,
+  ],
 })
 export class BookmarkModule {}

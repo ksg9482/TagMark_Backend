@@ -4,10 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserRepository } from 'src/user/domain/repository/user.repository';
 import { User } from 'src/user/domain/user';
 import { UserEntity } from 'src/user/infra/db/entity/user.entity';
-import { UserFactory } from 'src/user/domain/user.factory';
 import { UtilsService } from 'src/utils/utils.service';
-import { UserRole, UserRoleEnum } from 'src/user/domain/types/userRole';
-import { UserType, UserTypeEnum } from 'src/user/domain/types/userType';
+import { UserRole } from 'src/user/domain/types/userRole';
+import { UserType } from 'src/user/domain/types/userType';
 import { SaveDto } from '../dto/save.dto';
 import { UpdateDto } from '../dto/update.dto';
 import { DeleteDto } from '../dto/delete.dto';
@@ -18,11 +17,10 @@ export class UserRepositoryImpl implements UserRepository {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private userFactory: UserFactory,
     private utilsService: UtilsService,
   ) {}
 
-  async findByEmail(inputEmail: string): Promise<User | null> {
+  async findByEmail(inputEmail: string): Promise<GetDto | null> {
     const userEntity = await this.userRepository.findOneBy({
       email: inputEmail,
     });
@@ -30,22 +28,8 @@ export class UserRepositoryImpl implements UserRepository {
     if (userEntity === null) {
       return null;
     }
-    return User.from({
-      id: userEntity.id,
-      email: userEntity.email,
-      nickname: userEntity.nickname,
-      password: userEntity.password,
-      role: userEntity.role,
-      type: userEntity.type,
-    });
-    // return this.userFactory.reconstitute(
-    //   userEntity.id,
-    //   userEntity.email,
-    //   userEntity.nickname,
-    //   userEntity.password,
-    //   userEntity.role,
-    //   userEntity.type,
-    // );
+
+    return new GetDto(userEntity);
   }
 
   createEntity(
@@ -72,7 +56,8 @@ export class UserRepositoryImpl implements UserRepository {
     type: UserType,
   ) {
     const userEntity = this.createEntity(email, nickname, password, role, type);
-    const result = await this.userRepository.save(userEntity);
+
+    await this.userRepository.save(userEntity);
 
     return SaveDto.from(userEntity);
   }
@@ -89,9 +74,9 @@ export class UserRepositoryImpl implements UserRepository {
     return new UpdateDto(userentity);
   }
 
-  async get(inputId: string): Promise<GetDto | null> {
+  async get(id: string): Promise<GetDto | null> {
     const userEntity = await this.userRepository.findOne({
-      where: { id: inputId },
+      where: { id: id },
     });
     if (!userEntity) {
       return null;
