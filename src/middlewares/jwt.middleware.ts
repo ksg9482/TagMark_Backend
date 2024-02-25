@@ -7,7 +7,7 @@ import { JwtService } from '../jwt/jwt.service';
 export class JwtMiddleware implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
-    private userUsecases: UserUseCase,
+    private userUsecase: UserUseCase,
     private authServices: AuthService,
   ) {}
   async use(req: any, res: any, next: () => void) {
@@ -21,7 +21,7 @@ export class JwtMiddleware implements NestMiddleware {
       }
       const decoded = this.jwtService.verify(accessToken);
       if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const user = await this.userUsecases.me(decoded.id);
+        const user = await this.userUsecase.me(decoded.id);
         req['userId'] = user.id;
       }
     }
