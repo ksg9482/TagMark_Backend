@@ -16,6 +16,7 @@ import { DeleteDto } from '../dto/delete.dto';
 import { TagWithCountsDto } from '../dto/tag-with-count.dto';
 import { AttachTagDto } from '../dto/attach-tag.dto';
 import { DetachTagDto } from '../dto/detach-tag.dto';
+import { InsertBulkDto } from '../dto/insert-bulk.dto';
 
 @Injectable()
 export class TagRepositoryImpl implements TagRepository {
@@ -177,14 +178,19 @@ export class TagRepositoryImpl implements TagRepository {
     );
   }
 
-  async insertBulk(tags: Tags): Promise<any> {
-    const tagInsertBultk = await this.tagRepository
+  async insertBulk(tags: Tags): Promise<InsertBulkDto> {
+    const tagEntities = tags.tags.map((tag) => {
+      return this.tagRepository.create({ id: tag.id, tag: tag.tag });
+    });
+
+    await this.tagRepository
       .createQueryBuilder()
       .insert()
       .into('tag')
       .values(tags.tags)
       .execute();
-    return tagInsertBultk;
+
+    return new InsertBulkDto(tagEntities);
   }
 
   async getUserAllTags(userId: string): Promise<TagWithCountsDto> {
@@ -208,7 +214,8 @@ export class TagRepositoryImpl implements TagRepository {
   }
 
   async delete(id: string): Promise<DeleteDto> {
-    const userEntity = await this.tagRepository.delete(id);
-    return new DeleteDto(userEntity);
+    const tagEntity = this.tagRepository.create({ id: id });
+    await this.tagRepository.delete(tagEntity.id);
+    return new DeleteDto(tagEntity);
   }
 }
