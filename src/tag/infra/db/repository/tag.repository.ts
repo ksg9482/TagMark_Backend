@@ -8,6 +8,14 @@ import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagWithCount } from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { Tags } from 'src/tag/domain/tags';
+import { GetDto } from '../dto/get.dto';
+import { SaveDto } from '../dto/save.dto';
+import { UpdateDto } from '../dto/update.dto';
+import { GetAllDto } from '../dto/get-all.dto';
+import { DeleteDto } from '../dto/delete.dto';
+import { TagWithCountsDto } from '../dto/tag-with-count.dto';
+import { AttachTagDto } from '../dto/attach-tag.dto';
+import { DetachTagDto } from '../dto/detach-tag.dto';
 
 @Injectable()
 export class TagRepositoryImpl implements TagRepository {
@@ -18,7 +26,7 @@ export class TagRepositoryImpl implements TagRepository {
     private utilsService: UtilsService,
   ) {}
 
-  async get(inputId: string): Promise<Tag | null> {
+  async get(inputId: string): Promise<GetDto | null> {
     const tagEntity = await this.tagRepository.findOne({
       where: { id: inputId },
     });
@@ -26,7 +34,7 @@ export class TagRepositoryImpl implements TagRepository {
       return null;
     }
     const { id, tag } = tagEntity;
-    return this.tagFactory.reconstitute(id, tag);
+    return new GetDto(tagEntity); //this.tagFactory.reconstitute(id, tag);
   }
 
   createEntity(tag: string): TagEntity {
@@ -36,73 +44,61 @@ export class TagRepositoryImpl implements TagRepository {
     });
   }
 
-  async save(tag: Omit<Tag, 'id'>): Promise<Tag> {
+  async save(tag: Omit<Tag, 'id'>): Promise<SaveDto> {
     const tagEntity = this.createEntity(tag.tag);
     await this.tagRepository.save(tagEntity);
-    return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
+    //저장 결과물 넣는게?
+
+    return new SaveDto(tagEntity); //this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
   }
 
-  async update(id: string, item: Tag): Promise<any> {
-    const tagEntities = await this.tagRepository
-      .createQueryBuilder()
-      .select()
-      .whereInIds(id)
-      .getOne();
-    if (tagEntities === null) {
-      return null;
-    }
-    tagEntities.id = id;
-    tagEntities.tag = item.tag;
-    return await this.tagRepository.update(id, tagEntities);
-  }
+  async update(id: string, item: Tag): Promise<UpdateDto> {
+    //트랜잭션을 고려하면 존재 유무 검사부터 업데이트까지 리포지토리에서 커넥트 하나 가지고 쭉 진행한는게 좋지 않을까?
+    const tagEntity = this.tagRepository.create(item);
 
-  async getAll(): Promise<Tags> {
-    const tagEntities = await this.tagRepository.find();
-    if (tagEntities.length <= 0) {
-      return new Tags([]);
-    }
-
-    return new Tags(
-      tagEntities.map((entity) => {
-        return new Tag(entity.id, entity.tag);
-      }),
+    await this.tagRepository.manager.transaction(
+      'REPEATABLE READ',
+      async (transactionalEntityManager) => {
+        await transactionalEntityManager.update(TagEntity, id, tagEntity);
+      },
     );
+    return new UpdateDto(tagEntity);
   }
 
-  async findByTagNames(tagNames: string[]): Promise<Tags> {
+  async getAll(): Promise<GetAllDto> {
+    const tagEntities = await this.tagRepository.find();
+    return new GetAllDto(tagEntities);
+  }
+
+  async findByTagNames(tagNames: string[]): Promise<GetAllDto> {
     if (tagNames.length <= 0) {
-      return new Tags([]);
+      return new GetAllDto([]);
     }
+
     const tagEntities = await this.tagRepository
       .createQueryBuilder('tag')
       .where('tag.tag IN (:...tags)', { tags: tagNames })
       .getMany();
 
-    return new Tags(
-      tagEntities.map((entity) => {
-        return new Tag(entity.id, entity.tag);
-      }),
-    );
+    return new GetAllDto(tagEntities);
   }
-  async getTagsByIds(tagId: string[]): Promise<Tags> {
+
+  async getTagsByIds(tagId: string[]): Promise<GetAllDto> {
+    if (tagId.length <= 0) {
+      return new GetAllDto([]);
+    }
     const tagEntities = await this.tagRepository
       .createQueryBuilder()
       .select()
       .whereInIds(tagId)
       .getMany();
 
-    return new Tags(
-      tagEntities.map((entity) => {
-        return new Tag(entity.id, entity.tag);
-      }),
-    );
+    return new GetAllDto(tagEntities);
   }
 
-  async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
-    const arr: any[] = [];
-    //for of로. for 돌때마다 select보내는거 개선
-    for (let i = 0; i < tags.tags.length; i++) {
-      const tag = tags.tags[i];
+  async attachTag(bookmarkId: string, tags: Tags): Promise<AttachTagDto> {
+    let checkedTags: TagEntity[] = [];
+    for (let tag of tags.tags) {
       const check = await this.tagRepository
         .createQueryBuilder()
         .select('*')
@@ -112,11 +108,14 @@ export class TagRepositoryImpl implements TagRepository {
           { bookmarkId: bookmarkId, tagId: tag.id },
         )
         .getRawOne();
+
       if (check) {
-        arr.push(check);
+        checkedTags.push(
+          this.tagRepository.create({ id: tag.id, tag: tag.tag }),
+        );
       }
 
-      const attachTag = await this.tagRepository
+      await this.tagRepository
         .createQueryBuilder()
         .insert()
         .into('bookmark_tag')
@@ -126,14 +125,38 @@ export class TagRepositoryImpl implements TagRepository {
           tagId: tag.id,
         })
         .execute();
-
-      arr.push(attachTag);
     }
-    return arr;
+
+    return new AttachTagDto(
+      checkedTags.map((checkedTag) => {
+        return {
+          id: checkedTag.id,
+          bookmarkId: bookmarkId,
+          tagId: checkedTag.tag,
+        };
+      }),
+    );
   }
 
-  async detachTag(bookmarkId: string, tagIds: string[]): Promise<any> {
-    const deletedTag = await this.tagRepository
+  async detachTag(bookmarkId: string, tagIds: string[]): Promise<DetachTagDto> {
+    let checkedTags: TagEntity[] = [];
+    for (let tagId of tagIds) {
+      const check = await this.tagRepository
+        .createQueryBuilder()
+        .select('*')
+        .from('bookmark_tag', 'bookmark_tag')
+        .where(
+          'bookmark_tag."bookmarkId" = (:bookmarkId) and bookmark_tag."tagId" = (:tagId)',
+          { bookmarkId: bookmarkId, tagId: tagId },
+        )
+        .getRawOne();
+
+      if (check) {
+        checkedTags.push(this.tagRepository.create({ id: tagId }));
+      }
+    }
+
+    await this.tagRepository
       .createQueryBuilder()
       .delete()
       .from('bookmark_tag', 'bookmark_tag')
@@ -143,7 +166,15 @@ export class TagRepositoryImpl implements TagRepository {
       )
       .execute();
 
-    return deletedTag;
+    return new DetachTagDto(
+      checkedTags.map((checkedTag) => {
+        return {
+          id: checkedTag.id,
+          bookmarkId: bookmarkId,
+          tagId: checkedTag.tag,
+        };
+      }),
+    );
   }
 
   async insertBulk(tags: Tags): Promise<any> {
@@ -156,7 +187,7 @@ export class TagRepositoryImpl implements TagRepository {
     return tagInsertBultk;
   }
 
-  async getUserAllTags(userId: string): Promise<TagWithCount[]> {
+  async getUserAllTags(userId: string): Promise<TagWithCountsDto> {
     const tags: TagWithCount[] = await this.tagRepository
       .createQueryBuilder('tag')
       .select(`tag.*, COUNT(bookmark.id)`)
@@ -173,11 +204,11 @@ export class TagRepositoryImpl implements TagRepository {
       .orderBy('count', 'DESC')
       .getRawMany();
 
-    return tags;
+    return new TagWithCountsDto(tags);
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<DeleteDto> {
     const userEntity = await this.tagRepository.delete(id);
-    return userEntity;
+    return new DeleteDto(userEntity);
   }
 }

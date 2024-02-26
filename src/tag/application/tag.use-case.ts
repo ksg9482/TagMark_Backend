@@ -1,7 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TagRepository } from 'src/tag/domain/repository/tag.repository';
 import { Tag } from 'src/tag/domain/tag';
-import { TagWithCount } from 'src/tag/domain/tag.interface';
+import {
+  AttachTagId,
+  AttachTagIds,
+  TagWithCount,
+  TagWithCounts,
+} from 'src/tag/domain/tag.interface';
 import { UtilsService } from 'src/utils/utils.service';
 import { TagFactory } from '../domain/tag.factory';
 import { Tags } from '../domain/tags';
@@ -10,10 +15,10 @@ export abstract class TagUseCase {
   getAllTags: () => Promise<Tags>;
   createTag: (tag: Omit<Tag, 'id'>) => Promise<Tag>;
   getTagsByNames: (tagName: string | string[]) => Promise<Tags>;
-  attachTag: (bookmarkId: string, tags: Tags) => Promise<any[]>;
+  attachTag: (bookmarkId: string, tags: Tags) => Promise<AttachTagIds>;
   detachTag: (bookmarkId: string, tagId: string | string[]) => Promise<string>;
   getTagsByIds: (tagId: string | string[]) => Promise<Tags>;
-  getUserAllTags: (userId: string) => Promise<TagWithCount[]>;
+  getUserAllTags: (userId: string) => Promise<TagWithCounts>;
   tagFindOrCreate: (tagNames: string[]) => Promise<Tags>;
 }
 
@@ -27,8 +32,13 @@ export class TagUseCaseImpl implements TagUseCase {
   ) {}
 
   async getAllTags(): Promise<Tags> {
-    const tags = await this.tagRepository.getAll();
-    return tags;
+    const tagEntities = await this.tagRepository.getAll();
+
+    return new Tags(
+      tagEntities.tags.map((tag) => {
+        return new Tag(tag.id, tag.tag);
+      }),
+    );
   }
 
   async createTag(tag: Omit<Tag, 'id'>): Promise<Tag> {
@@ -37,8 +47,10 @@ export class TagUseCaseImpl implements TagUseCase {
     if (tagCheck.tags.length >= 0) {
       return tagCheck.tags[0];
     }
+
     const createdTag = await this.tagRepository.save(tag);
-    return createdTag;
+
+    return new Tag(createdTag.id, createdTag.tag);
   }
 
   async getTagsByNames(tagName: string | string[]): Promise<Tags> {
@@ -50,7 +62,12 @@ export class TagUseCaseImpl implements TagUseCase {
   }
 
   async tagFindOrCreate(tagNames: string[]): Promise<Tags> {
-    const tags = await this.tagRepository.findByTagNames(tagNames);
+    const tagEntities = await this.tagRepository.findByTagNames(tagNames);
+    const tags = new Tags(
+      tagEntities.tags.map((tag) => {
+        return new Tag(tag.id, tag.tag);
+      }),
+    );
     const notExistTags = tags.findNotExistTagNames(tagNames);
 
     //리팩토링 대상. 안쓸 객체 만들어서 그냥 보냄.
@@ -65,9 +82,14 @@ export class TagUseCaseImpl implements TagUseCase {
     return tags;
   }
 
-  async attachTag(bookmarkId: string, tags: Tags): Promise<any[]> {
+  async attachTag(bookmarkId: string, tags: Tags): Promise<AttachTagIds> {
     const attach = await this.tagRepository.attachTag(bookmarkId, tags);
-    return attach;
+
+    return new AttachTagIds(
+      attach.attaches.map((attach) => {
+        return new AttachTagId(attach.id, attach.bookmarkId, attach.tagId);
+      }),
+    );
   }
 
   async detachTag(
@@ -77,7 +99,7 @@ export class TagUseCaseImpl implements TagUseCase {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }
-    await this.tagRepository.detachTag(bookmarkId, tagId);
+    const detached = await this.tagRepository.detachTag(bookmarkId, tagId);
     return 'Deleted';
   }
 
@@ -85,12 +107,21 @@ export class TagUseCaseImpl implements TagUseCase {
     if (!Array.isArray(tagId)) {
       tagId = [tagId];
     }
-    const tags = await this.tagRepository.getTagsByIds(tagId);
-    return tags;
+    const tagEntities = await this.tagRepository.getTagsByIds(tagId);
+    return new Tags(
+      tagEntities.tags.map((tag) => {
+        return new Tag(tag.id, tag.tag);
+      }),
+    );
   }
 
-  async getUserAllTags(userId: string): Promise<TagWithCount[]> {
+  async getUserAllTags(userId: string): Promise<TagWithCounts> {
     const tags = await this.tagRepository.getUserAllTags(userId);
-    return tags;
+
+    return new TagWithCounts(
+      tags.tagWithCounts.map((item) => {
+        return new TagWithCount(item.id, item.tag, item.count);
+      }),
+    );
   }
 }
