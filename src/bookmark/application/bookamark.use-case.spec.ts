@@ -11,6 +11,8 @@ import { Bookmark } from '../domain/bookmark';
 import { BookmarkFactory } from '../domain/bookmark.factory';
 import { Bookmarks } from '../domain/bookmarks';
 import { BookmarkRepository } from '../domain/repository/bookmark.repository';
+import { GetAllDto } from '../infra/db/dto/get-all.dto';
+import { GetDto } from '../infra/db/dto/get.dto';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
 import { BookmarkRepositoryImpl } from '../infra/db/repository/bookmark.repository';
 import { BookmarkUseCase, BookmarkUseCaseImpl } from './bookmark.use-case';
@@ -194,18 +196,32 @@ describe('bookmark-use-case', () => {
       fakeTags,
     );
     it('북마크 배열을 반환한다.', async () => {
-      bookmarkRepository.syncBookmark = jest
-        .fn()
-        .mockResolvedValue([fakeBookmark]);
+      bookmarkRepository.syncBookmark = jest.fn().mockResolvedValue(
+        new GetAllDto([
+          {
+            id: 'fakeId',
+            userId: 'fakeUserId',
+            url: 'fakeUrl',
+            tags: [
+              {
+                id: 'fakeIdOne',
+                tag: 'fakeTagOne',
+              },
+            ],
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          },
+        ]),
+      );
 
       const result = await bookmarkService.syncBookmark(
         new Bookmarks([fakeBookmark]),
       );
-      expect(result[0].id).toBe('fakeId');
-      expect(result[0].userId).toBe('fakeUserId');
-      expect(result[0].url).toBe('fakeUrl');
-      expect(result[0].tags[0].id).toBe('fakeIdOne');
-      expect(result[0].tags[0].tag).toBe('fakeTagOne');
+      expect(result.bookmarks[0].id).toBe('fakeId');
+      expect(result.bookmarks[0].userId).toBe('fakeUserId');
+      expect(result.bookmarks[0].url).toBe('fakeUrl');
+      expect(result.bookmarks[0].tags[0].id).toBe('fakeIdOne');
+      expect(result.bookmarks[0].tags[0].tag).toBe('fakeTagOne');
     });
   });
 
@@ -282,6 +298,8 @@ describe('bookmark-use-case', () => {
       url: 'fakeUrl',
       userId: 'fakeUserId',
       tags: [],
+      createdAt: new Date('20024-01-01'),
+      updatedAt: new Date('20024-01-01'),
     };
 
     it('검색된 북마크가 없으면 HttpException를 반환한다.', async () => {
@@ -300,14 +318,21 @@ describe('bookmark-use-case', () => {
     it('검색된 북마크를 반환한다.', async () => {
       bookmarkRepository.getUserBookmark = jest
         .fn()
-        .mockResolvedValue(fakeBookmark);
+        .mockResolvedValue(new GetDto(fakeBookmark));
 
       expect(
         await bookmarkService.findBookmark(
           findBookmarkParam.userId,
           findBookmarkParam.bookmarkId,
         ),
-      ).toStrictEqual(fakeBookmark);
+      ).toStrictEqual(
+        new Bookmark(
+          fakeBookmark.id,
+          fakeBookmark.userId,
+          fakeBookmark.url,
+          new Tags(fakeBookmark.tags),
+        ),
+      );
     });
   });
 

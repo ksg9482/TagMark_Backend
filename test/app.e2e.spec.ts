@@ -597,6 +597,7 @@ describe('AppController (e2e)', () => {
         const result = await privateTest().get('/api/tag', accessToken);
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(tagResponseData.ok);
+
         const tags: Array<any> = result.body.data.tagWithCounts; //tags;
         targetTags.forEach((tag) => {
           expect(
