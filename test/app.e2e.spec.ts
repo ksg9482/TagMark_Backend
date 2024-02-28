@@ -316,7 +316,6 @@ describe('AppController (e2e)', () => {
           .post('/api/bookmark', accessToken)
           .send(bookmarkParamsThree);
 
-        console.log(result.body);
         bookmarkResponseDataOne.createdBookmark.id = result.body.data.id;
 
         expect(result.status).toBe(201);
@@ -389,6 +388,7 @@ describe('AppController (e2e)', () => {
 
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(true);
+
         const bookmarks = result.body.data.bookmarks;
         expect(bookmarks[0]['url']).toBe('https://www.test1.com');
         expect(bookmarks[0]['tags'][0]['tag']).toBe(
@@ -597,6 +597,7 @@ describe('AppController (e2e)', () => {
         const result = await privateTest().get('/api/tag', accessToken);
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(tagResponseData.ok);
+
         const tags: Array<any> = result.body.data.tagWithCounts; //tags;
         targetTags.forEach((tag) => {
           expect(

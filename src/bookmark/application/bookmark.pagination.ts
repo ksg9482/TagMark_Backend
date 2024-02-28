@@ -1,6 +1,7 @@
 import { Expose } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 import { Bookmark } from '../domain/bookmark';
+import { Bookmarks } from '../domain/bookmarks';
 
 export class PageRequest {
   @IsString()
@@ -45,8 +46,8 @@ export class Page<T> {
   @Expose()
   totalPage: number;
   @Expose()
-  bookmarks: T[];
-  constructor(totalCount: number, pageSize: number, bookmarks: T[]) {
+  bookmarks: Bookmarks;
+  constructor(totalCount: number, pageSize: number, bookmarks: Bookmarks) {
     this.pageSize = pageSize;
     this.totalCount = totalCount;
     this.totalPage = Math.ceil(totalCount / pageSize);
@@ -55,7 +56,7 @@ export class Page<T> {
 }
 
 export class BookmarkPage extends Page<Bookmark> {
-  constructor(totalCount: number, pageSize: number, bookmarks: Bookmark[]) {
+  constructor(totalCount: number, pageSize: number, bookmarks: Bookmarks) {
     super(totalCount, pageSize, bookmarks);
   }
 }

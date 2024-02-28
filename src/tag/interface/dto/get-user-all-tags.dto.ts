@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsArray } from 'class-validator';
 import { Tag } from 'src/tag/domain/tag';
-import { TagWithCount, TagWithCounts } from 'src/tag/domain/tag.interface';
+import { TagWithCounts } from 'src/tag/domain/tag.interface';
 
 export class GetUserAllTagsDto {}
 

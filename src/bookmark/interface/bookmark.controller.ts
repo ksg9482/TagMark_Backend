@@ -77,9 +77,6 @@ export class BookmarkController {
   ) {
     try {
       const { url, tagNames } = createBookmarkDto;
-      console.log(
-        `createBookmark - userId: ${userId}, url: ${url}, tagNames: ${tagNames}`,
-      );
       const createdBookmark = await this.bookmarkUseCase.createBookmark(
         userId,
         url,

@@ -29,16 +29,12 @@ export abstract class BookmarkUseCase {
     url: string,
     tagNames?: string[],
   ) => Promise<Bookmark>;
-
   getUserAllBookmarks: (
     userId: string,
     page: UserAllBookmarks,
   ) => Promise<BookmarkPage>;
-
-  getUserBookmarkCount: (userId: string) => Promise<Number>;
-
-  syncBookmark: (bookmarks: Bookmarks) => Promise<Bookmark[]>;
-
+  getUserBookmarkCount: (userId: string) => Promise<{ count: number }>;
+  syncBookmark: (bookmarks: Bookmarks) => Promise<Bookmarks>;
   editBookmarkUrl: (
     userId: string,
     bookmarkId: string,
@@ -46,37 +42,29 @@ export abstract class BookmarkUseCase {
   ) => Promise<{
     message: string;
   }>;
-
   deleteBookmark: (
     userId: string,
     bookmarkId: string,
   ) => Promise<{
     message: string;
   }>;
-
   findBookmark: (userId: string, bookmarkId: string) => Promise<Bookmark>;
-
   getTagAllBookmarksOR: (
     userId: string,
     tags: string[],
     page: SearchTags,
   ) => Promise<BookmarkPage>;
-
   getTagAllBookmarksAND: (
     userId: string,
     tags: string[],
     page: SearchTags,
   ) => Promise<BookmarkPage>;
-
   saveBookmarkTag: (bookmarks: Bookmarks) => Promise<any>;
-
   getBookmarkIdAndTagId: (bookmarks: Bookmarks) => {
     bookmarkId: string;
     tagIds: string[];
   }[];
-
   getBookmarkTagMap: (bookmarksAndTags: BookmarkAndTag[]) => BookmarkTagMap[];
-
   setSyncBookmarkForm: (
     userId: string,
     bookmarks: Bookmark[],
@@ -112,7 +100,6 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
         url: url,
       }),
     );
-    console.log(`createBookmark - boomark saved`);
     const emptyTags = new Tags([]);
 
     const bookmark = new Bookmark(
@@ -123,9 +110,7 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     );
 
     if (tagNames !== undefined) {
-      console.log(tagNames);
       const tags = await this.tagUseCase.getTagsByNames(tagNames);
-      console.log(`createBookmark - ${tags} ${tags.tags}`);
 
       bookmark.updateTags(tags);
 
@@ -139,7 +124,7 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     userId: string,
     page: UserAllBookmarks,
   ): Promise<BookmarkPage> {
-    const bookmarks = await this.bookmarkRepository.getUserAllBookmarks(
+    const bookmarkResult = await this.bookmarkRepository.getUserAllBookmarks(
       userId,
       {
         take: page.getLimit(),
@@ -147,21 +132,47 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
       },
     );
 
-    return bookmarks;
+    const bookmark = new Bookmarks(
+      bookmarkResult.Bookmarks.map((bookmark) => {
+        const tags = new Tags(
+          bookmark.tags.map((tag) => {
+            return new Tag(tag.id, tag.tag);
+          }),
+        );
+        return new Bookmark(bookmark.id, bookmark.userId, bookmark.url, tags);
+      }),
+    );
+
+    return new BookmarkPage(
+      Number(bookmarkResult.count),
+      page.pageSize || 20,
+      bookmark,
+    );
   }
 
-  async getUserBookmarkCount(userId: string): Promise<Number> {
-    const { count } = await this.bookmarkRepository.getcount(userId);
-    return count;
+  async getUserBookmarkCount(userId: string): Promise<{ count: number }> {
+    const count = await this.bookmarkRepository.getcount(userId);
+    return { count };
   }
 
   async syncBookmark(bookmarks: Bookmarks) {
     const bookmarkInsert = await this.bookmarkRepository.syncBookmark(
       bookmarks.bookmarks,
     );
-    const syncedBookmarks = new Bookmarks(bookmarkInsert);
+
+    const syncedBookmarks = new Bookmarks(
+      bookmarkInsert.bookmarks.map((bookmark) => {
+        const tags = new Tags(
+          bookmark.tags.map((tag) => {
+            return new Tag(tag.id, tag.tag);
+          }),
+        );
+        return new Bookmark(bookmark.id, bookmark.userId, bookmark.url, tags);
+      }),
+    );
+
     await this.saveBookmarkTag(syncedBookmarks);
-    return bookmarkInsert;
+    return syncedBookmarks;
   }
 
   async editBookmarkUrl(userId: string, bookmarkId: string, changeUrl: string) {
@@ -186,8 +197,14 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     if (!bookmark) {
       throw new HttpException('Bookmark not found', HttpStatus.BAD_REQUEST);
     }
+    bookmark.tags;
 
-    return bookmark;
+    return Bookmark.from(
+      bookmark.id,
+      bookmark.userId,
+      bookmark.url,
+      bookmark.tags,
+    );
   }
 
   async getTagAllBookmarksOR(
@@ -195,7 +212,7 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     tags: string[],
     page: SearchTags,
   ): Promise<BookmarkPage> {
-    const bookmarks = await this.bookmarkRepository.findBookmarkTag_OR(
+    const bookmarkResult = await this.bookmarkRepository.findBookmarkTag_OR(
       userId,
       tags,
       {
@@ -203,7 +220,23 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
         skip: page.getOffset(),
       },
     );
-    return bookmarks;
+
+    const bookmarks = new Bookmarks(
+      bookmarkResult.Bookmarks.map((bookmark) => {
+        const tags = new Tags(
+          bookmark.tags.map((tag) => {
+            return new Tag(tag.id, tag.tag);
+          }),
+        );
+        return new Bookmark(bookmark.id, bookmark.userId, bookmark.url, tags);
+      }),
+    );
+
+    return new BookmarkPage(
+      Number(bookmarkResult.count),
+      page.pageSize || 20,
+      bookmarks,
+    );
   }
 
   async getTagAllBookmarksAND(
@@ -211,7 +244,7 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     tags: string[],
     page: SearchTags,
   ): Promise<BookmarkPage> {
-    const bookmarks = await this.bookmarkRepository.findBookmarkTag_AND(
+    const bookmarkResult = await this.bookmarkRepository.findBookmarkTag_AND(
       userId,
       tags,
       {
@@ -219,7 +252,23 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
         skip: page.getOffset(),
       },
     );
-    return bookmarks;
+
+    const bookmarks = new Bookmarks(
+      bookmarkResult.Bookmarks.map((bookmark) => {
+        const tags = new Tags(
+          bookmark.tags.map((tag) => {
+            return new Tag(tag.id, tag.tag);
+          }),
+        );
+        return new Bookmark(bookmark.id, bookmark.userId, bookmark.url, tags);
+      }),
+    );
+
+    return new BookmarkPage(
+      Number(bookmarkResult.count),
+      page.pageSize || 20,
+      bookmarks,
+    );
   }
 
   //protected
