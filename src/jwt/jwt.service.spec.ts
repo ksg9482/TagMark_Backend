@@ -1,8 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UserRole, UserType } from 'src/user/domain';
 import * as jwt from 'jsonwebtoken';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { UserRoleEnum } from 'src/user/domain/types/userRole';
+import { UserTypeEnum } from 'src/user/domain/types/userType';
+import { User } from 'src/user/domain';
 
 describe('JwtService', () => {
   let jwtService: JwtService;
@@ -33,14 +35,14 @@ describe('JwtService', () => {
   });
 
   describe('sign', () => {
-    const fakeUser = {
+    const fakeUser = User.from({
       id: 'fake',
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
+    });
     const fakeAccessToken = 'fakeAccessToken';
     it('accessToken을 반환한다.', () => {
       jest.spyOn(jwt, 'sign').mockImplementation(() => fakeAccessToken);
@@ -49,14 +51,14 @@ describe('JwtService', () => {
   });
 
   describe('refresh', () => {
-    const fakeUser = {
+    const fakeUser = User.from({
       id: 'fake',
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
+    });
     const fakeRefreshToken = 'fakeRefreshToken';
     it('refreshToken을 반환한다.', () => {
       jest.spyOn(jwt, 'sign').mockImplementation(() => fakeRefreshToken);
@@ -65,14 +67,14 @@ describe('JwtService', () => {
   });
 
   describe('verify', () => {
-    const fakeUser = {
+    const fakeUser = User.from({
       id: 'fake',
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
+    });
     const fakeAccessToken = 'fakeAccessToken';
 
     it('accessToken을 검증하여 통과되지 않으면 HttpException을 반환한다.', () => {
@@ -100,14 +102,14 @@ describe('JwtService', () => {
   });
 
   describe('refreshVerify', () => {
-    const fakeUser = {
+    const fakeUser = User.from({
       id: 'fake',
       email: 'fakeEmail',
       nickname: 'fakeNickname',
       password: 'fakepassword',
-      role: UserRole.USER,
-      type: UserType.BASIC,
-    };
+      role: UserRoleEnum.USER,
+      type: UserTypeEnum.BASIC,
+    });
     const fakeRefreshToken = 'fakeRefreshToken';
 
     it('accessToken을 검증하여 통과되지 않으면 HttpException을 반환한다.', () => {

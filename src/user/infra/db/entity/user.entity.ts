@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import * as bcrypt from 'bcrypt';
 import {
   BeforeInsert,
@@ -12,7 +12,8 @@ import {
 } from 'typeorm';
 import { BookmarkEntity as Bookmark } from 'src/bookmark/infra/db/entity/bookmark.entity';
 import { MaxLength, MinLength } from 'class-validator';
-import { UserRole, UserType } from 'src/user/domain';
+import { UserRole, UserRoleEnum } from 'src/user/domain/types/userRole';
+import { UserType, UserTypeEnum } from 'src/user/domain/types/userType';
 
 @Entity('user')
 export class UserEntity {
@@ -35,11 +36,11 @@ export class UserEntity {
   @ApiProperty({ description: '별명' })
   nickname: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  @Column({ type: 'enum', enum: UserRoleEnum, default: UserRoleEnum.USER })
   @ApiProperty({ description: '유저/매니저' })
   role: UserRole;
 
-  @Column({ type: 'enum', enum: UserType, default: UserType.BASIC })
+  @Column({ type: 'enum', enum: UserTypeEnum, default: UserTypeEnum.BASIC })
   @ApiProperty({ description: '유저 가입 유형' })
   type: UserType;
 
@@ -74,9 +75,3 @@ export class UserEntity {
     }
   }
 }
-
-export class ResponseUser extends OmitType(UserEntity, [
-  'password',
-  'role',
-  'type',
-] as const) {}

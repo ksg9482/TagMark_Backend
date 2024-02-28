@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude, Expose } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
-  IsObject,
   IsOptional,
   IsString,
   Matches,
@@ -10,53 +10,38 @@ import {
   MinLength,
 } from 'class-validator';
 import { User } from 'src/user/domain';
-import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 
 export class CreateUserDto {
-  private _email: string;
-  private _password: string;
-  private _nickname?: string;
-
   @ApiProperty({ description: '이메일' })
   @IsEmail()
   @MaxLength(60)
   @IsNotEmpty()
-  get email() {
-    return this._email;
-  }
-
-  set email(value) {
-    this._email = value;
-  }
+  readonly email: string;
 
   @ApiProperty({ description: '비밀번호' })
   @IsString()
   @Matches(/^[A-Za-z\d!@#$%^&*()]{6,30}$/)
   @MinLength(6)
   @IsNotEmpty()
-  get password() {
-    return this._password;
-  }
-
-  set password(value) {
-    this._password = value;
-  }
+  readonly password: string;
 
   @ApiProperty({ description: '별명' })
   @IsString()
   @MaxLength(20)
   @IsOptional()
-  get nickname() {
-    return this._nickname;
-  }
-
-  set nickname(value) {
-    this._nickname = value;
-  }
+  readonly nickname?: string;
 }
 
-export class CreateUserResponseDto extends BaseResponseDto {
-  @ApiProperty({ description: '생성된 유저 데이터' })
-  @IsObject()
-  createdUser: Partial<User>;
+export class CreateUserResponseDto {
+  #id: string;
+
+  constructor(user: Pick<User, 'id'>) {
+    this.#id = user.id;
+  }
+
+  @Expose()
+  @ApiProperty({ description: '생성된 유저 아이디' })
+  get id() {
+    return this.#id;
+  }
 }

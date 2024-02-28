@@ -33,17 +33,15 @@ import {
   GoogleOauthResponseDto,
   LoginDto,
   LoginResponseDto,
-  LogoutResponseDto,
   RefreshTokenResponseDto,
   UserProfileResponseDto,
-  PasswordValidDto,
-  PasswordValidResponseDto,
 } from 'src/user/interface/dto';
-import { UserUseCases } from 'src/user/application/user.use-case';
+import { UserUseCase } from 'src/user/application/user.use-case';
 import { UserFactory } from 'src/user/domain/user.factory';
 import { SecureService } from 'src/utils/secure.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 const cookieOption: CookieOptions = {
   sameSite: 'none',
@@ -56,8 +54,7 @@ const cookieOption: CookieOptions = {
 @Controller('api/user')
 export class UserController {
   constructor(
-    private userUseCases: UserUseCases,
-    private userFactory: UserFactory,
+    private userUsecase: UserUseCase,
     private readonly secureService: SecureService,
     @Inject(Logger) private readonly logger: LoggerService,
     private authService: AuthService,
@@ -72,16 +69,10 @@ export class UserController {
     type: UserProfileResponseDto,
   })
   @Get('/')
-  async findUserData(
-    @AuthUser() userId: string,
-  ): Promise<UserProfileResponseDto> {
-    const userProfileResponse = new UserProfileResponseDto();
+  async findUserData(@AuthUser() userId: string) {
     try {
-      const user = await this.userUseCases.me(userId);
-
-      userProfileResponse.success = true;
-      userProfileResponse.user = user;
-      return userProfileResponse;
+      const user = await this.userUsecase.me(userId);
+      return ResponseDto.OK_WITH({ user: new UserProfileResponseDto(user) });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -96,51 +87,15 @@ export class UserController {
   @ApiBody({ type: CreateUserDto })
   @Post('/')
   async createUser(
-    @Body(new ValidationPipe()) userDto: CreateUserDto,
-  ): Promise<CreateUserResponseDto> {
-    const createUserResponse = new CreateUserResponseDto();
+    @Body(new ValidationPipe()) createUserDto: CreateUserDto,
+  ): Promise<ResponseDto<{ id: string }>> {
     try {
-      const { email, password, nickname } = userDto;
-      const createdUser = await this.userUseCases.createUser(
-        email,
-        password,
-        nickname,
+      const createdUser = await this.userUsecase.createUser(
+        createUserDto.email,
+        createUserDto.password,
+        createUserDto.nickname,
       );
-
-      createUserResponse.success = true;
-      createUserResponse.createdUser = createdUser;
-      return createUserResponse;
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @ApiOperation({
-    summary: '비밀번호의 정합 여부를 확인하는 API',
-    description: '입력한 비밀번호가 DB에 저장된 비밀번호와 동일한지 확인한다.',
-  })
-  @ApiCreatedResponse({
-    description: '정합여부를 boolean으로 반환한다.',
-    type: PasswordValidResponseDto,
-  })
-  @ApiBody({ type: PasswordValidDto })
-  @Post('/valid')
-  async checkPassword(
-    @AuthUser() userId: string,
-    @Body(new ValidationPipe()) passwordValidDto: PasswordValidDto,
-  ) {
-    const passwordValidResponse = new PasswordValidResponseDto();
-    const { password } = passwordValidDto;
-    try {
-      const createdUser = await this.userUseCases.passwordValid(
-        userId,
-        password,
-      );
-
-      passwordValidResponse.success = true;
-      passwordValidResponse.valid = createdUser;
-      return passwordValidResponse;
+      return ResponseDto.OK_WITH(new CreateUserResponseDto(createdUser));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -157,13 +112,12 @@ export class UserController {
   async login(
     @Body(new ValidationPipe()) loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
-    const loginResponse = new LoginResponseDto();
+  ) {
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const { email, password } = loginDto;
 
-      const { user, accessToken, refreshToken } = await this.userUseCases.login(
+      const { accessToken, refreshToken } = await this.userUsecase.login(
         email,
         password,
       );
@@ -175,10 +129,9 @@ export class UserController {
       res.cookie('refreshToken', encrytedToken.refreshToken, cookieOption);
       res.cookie('accessToken', encrytedToken.accessToken, cookieOption);
 
-      loginResponse.success = true;
-      loginResponse.user = user;
-      loginResponse.accessToken = encrytedToken.accessToken;
-      return loginResponse;
+      return ResponseDto.OK_WITH(
+        new LoginResponseDto(encrytedToken.accessToken),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -199,13 +152,15 @@ export class UserController {
   async editUser(
     @AuthUser() userId: string,
     @Body(new ValidationPipe()) editUserDto: EditUserDto,
-  ): Promise<EditUserResponseDto> {
-    const editUserResponse = new EditUserResponseDto();
+  ) {
     try {
-      await this.userUseCases.editUser(userId, editUserDto);
-      editUserResponse.success = true;
-      editUserResponse.message = 'updated';
-      return editUserResponse;
+      const editUserResult = await this.userUsecase.editUser(
+        userId,
+        editUserDto,
+      );
+
+      const message = 'updated';
+      return ResponseDto.OK_WITH(new EditUserResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -225,16 +180,17 @@ export class UserController {
   async deleteUser(
     @AuthUser() userId: string,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<DeleteUserResponseDto> {
-    const deleteUserResponse = new DeleteUserResponseDto();
+  ) {
     try {
-      await this.userUseCases.deleteUser(userId);
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-      res.clearCookie('Authorization');
-      deleteUserResponse.success = true;
-      deleteUserResponse.message = 'deleted';
-      return deleteUserResponse;
+      const deleteResult = await this.userUsecase.deleteUser(userId);
+
+      const deleteCookies = ['refreshToken', 'accessToken', 'Authorization'];
+      for (const cookie of deleteCookies) {
+        res.clearCookie(cookie);
+      }
+
+      const message = 'deleted';
+      return ResponseDto.OK_WITH(new DeleteUserResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -245,17 +201,16 @@ export class UserController {
   @ApiOperation({ summary: '로그아웃 API', description: '로그아웃 한다.' })
   @ApiCreatedResponse({ description: '로그아웃 한다.' })
   @Get('logout')
-  async logOut(
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<LogoutResponseDto> {
-    const logOutResponse = new LogoutResponseDto();
+  async logOut(@Res({ passthrough: true }) res: Response) {
     try {
-      res.clearCookie('refreshToken');
-      res.clearCookie('accessToken');
-      res.clearCookie('Authorization');
-      logOutResponse.success = true;
-      logOutResponse.message = 'logout';
-      return logOutResponse;
+      const deleteCookies = ['refreshToken', 'accessToken', 'Authorization'];
+      for (const cookie of deleteCookies) {
+        res.clearCookie(cookie);
+      }
+
+      return ResponseDto.OK_WITH({
+        message: 'logout',
+      });
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -271,18 +226,14 @@ export class UserController {
     type: RefreshTokenResponseDto,
   })
   @Get('/refresh')
-  async refresh(
-    @Headers('cookie') cookie: string,
-  ): Promise<RefreshTokenResponseDto> {
+  async refresh(@Headers('cookie') cookie: string) {
     const refreshToken = decodeURIComponent(cookie.split(';')[0].split('=')[1]);
     try {
       const secureWrap = this.secureService.secure().wrapper();
       const decrypted = secureWrap.decryptWrapper(refreshToken);
-      const newAccessToken = await this.userUseCases.refresh(decrypted);
+      const newAccessToken = await this.userUsecase.refresh(decrypted);
 
-      const refreshTokenResponse = new RefreshTokenResponseDto(newAccessToken);
-      refreshTokenResponse.success = true;
-      return refreshTokenResponse;
+      return ResponseDto.OK_WITH(new RefreshTokenResponseDto(newAccessToken));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -302,27 +253,24 @@ export class UserController {
   async googleOauth(
     @Body() googleOauthDto: GoogleOauthDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<GoogleOauthResponseDto> {
-    const googleOauthResponse = new GoogleOauthResponseDto();
+  ) {
     const secureWrap = this.secureService.secure().wrapper();
     try {
-      const {
-        propertyDeletedUser: user,
-        jwtAccessToken,
-        jwtRefreshToken,
-      } = await this.userUseCases.googleOauth(googleOauthDto.accessToken);
+      const { accessToken, refreshToken } = await this.userUsecase.googleOauth(
+        googleOauthDto.accessToken,
+      );
 
       const encrytedToken = {
-        accessToken: secureWrap.encryptWrapper(jwtAccessToken),
-        refreshToken: secureWrap.encryptWrapper(jwtRefreshToken),
+        accessToken: secureWrap.encryptWrapper(accessToken),
+        refreshToken: secureWrap.encryptWrapper(refreshToken),
       };
+
       res.cookie('refreshToken', encrytedToken.refreshToken, cookieOption);
       res.cookie('accessToken', encrytedToken.accessToken, cookieOption);
 
-      googleOauthResponse.success = true;
-      googleOauthResponse.user = user;
-      googleOauthResponse.accessToken = encrytedToken.accessToken;
-      return googleOauthResponse;
+      return ResponseDto.OK_WITH(
+        new GoogleOauthResponseDto(encrytedToken.accessToken),
+      );
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);

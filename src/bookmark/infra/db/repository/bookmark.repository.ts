@@ -1,7 +1,13 @@
 import { Repository } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
-import { Page } from 'src/bookmark/application/bookmark.pagination';
-import { IBookmarkRepository } from 'src/bookmark/domain/repository/ibookmark.repository';
+import {
+  BookmarkPage,
+  Page,
+} from 'src/bookmark/application/bookmark.pagination';
+import {
+  BookmarkSaveDto,
+  BookmarkRepository,
+} from 'src/bookmark/domain/repository/bookmark.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookmarkEntity } from 'src/bookmark/infra/db/entity/bookmark.entity';
 import { Bookmarks_TagsEntity } from 'src/bookmark/infra/db/entity/bookmarks_tags.entity';
@@ -11,76 +17,67 @@ import { TagFactory } from 'src/tag/domain/tag.factory';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { BookmarkTagMap } from 'src/bookmark/domain/bookmark.interface';
 import { UtilsService } from 'src/utils/utils.service';
+import { Tags } from 'src/tag/domain/tags';
+import { DeleteDto } from '../dto/delete.dto';
+import { SaveDto } from '../dto/save.dto';
+import { UpdateDto } from '../dto/update.dto';
+import { GetAllDto } from '../dto/get-all.dto';
+import { GetDto } from '../dto/get.dto';
+import { BookmarkWithCountDto } from '../dto/bookmark-with-count.dto';
 
 @Injectable()
-export class BookmarkRepository implements IBookmarkRepository {
+export class BookmarkRepositoryImpl implements BookmarkRepository {
   constructor(
     @InjectRepository(BookmarkEntity)
-    @Inject('BookmarkRepository')
-    private bookmarkRepository: Repository<BookmarkEntity>,
+    private readonly bookmarkRepository: Repository<BookmarkEntity>,
     @InjectRepository(TagEntity)
-    @Inject('TagRepository')
-    private tagRepository: Repository<TagEntity>,
-    private bookmarkFactory: BookmarkFactory,
-    private tagFactory: TagFactory,
-    private utilsService: UtilsService,
+    private readonly tagRepository: Repository<TagEntity>,
+    private readonly bookmarkFactory: BookmarkFactory,
+    private readonly tagFactory: TagFactory,
+    private readonly utilsService: UtilsService,
   ) {}
-  get: (id: string) => Promise<Bookmark | null>;
 
   async delete(id: string) {
-    const deleteBookmark = await this.bookmarkRepository.delete(id);
-    return deleteBookmark;
+    const entity = this.bookmarkRepository.create({ id: id });
+    await this.bookmarkRepository.delete(entity.id);
+    return new DeleteDto(entity);
   }
 
-  createEntity(userId: string, url: string): BookmarkEntity {
-    return this.bookmarkRepository.create({
+  async save(item: BookmarkSaveDto): Promise<SaveDto> {
+    const { url, userId } = item;
+
+    const bookmarkEntity = this.bookmarkRepository.create({
       id: this.utilsService.getUuid(),
       url: url,
       userId: userId,
     });
-  }
 
-  async save(bookmark: Omit<Bookmark, 'id'>): Promise<Bookmark> {
-    const { url, userId, tags } = bookmark;
-    const bookmarkEntity = this.createEntity(userId, url);
     await this.bookmarkRepository.save(bookmarkEntity);
-    return this.bookmarkFactory.reconstitute(
-      bookmarkEntity.id,
-      bookmarkEntity.url,
-      bookmarkEntity.userId,
-      tags || [],
-    );
+
+    return new SaveDto(bookmarkEntity);
   }
 
-  async update(id: string, item: Bookmark): Promise<any> {
-    const bookmark = item;
-    return await this.bookmarkRepository.update(id, { url: bookmark.url });
+  async update(id: string, item: Bookmark): Promise<UpdateDto> {
+    const entity = this.bookmarkRepository.create({ id: id, url: item.url });
+    await this.bookmarkRepository.update(id, { url: item.url });
+    return new UpdateDto(entity);
   }
 
-  async getAll(): Promise<Bookmark[]> {
+  async getAll(): Promise<GetAllDto> {
     const bookmarkEntities = await this.bookmarkRepository.find({
       relations: ['tags'],
     });
     if (bookmarkEntities.length <= 0) {
-      return [];
+      return new GetAllDto([]);
     }
-    return bookmarkEntities.map((entity) => {
-      const tags = entity.tags.map((tag) => {
-        return this.tagFactory.reconstitute(tag.id, tag.tag);
-      });
-      return this.bookmarkFactory.reconstitute(
-        entity.id,
-        entity.url,
-        entity.userId,
-        tags,
-      );
-    });
+
+    return new GetAllDto(bookmarkEntities);
   }
 
   async getUserBookmark(
     inputUserId: string,
     bookmarkId: string,
-  ): Promise<Bookmark | null> {
+  ): Promise<GetDto | null> {
     const bookmarkEntity = await this.bookmarkRepository.findOne({
       where: {
         id: bookmarkId,
@@ -95,10 +92,11 @@ export class BookmarkRepository implements IBookmarkRepository {
     const tags = tagEntities.map((tagEntity) => {
       return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
     });
-    return this.bookmarkFactory.reconstitute(id, url, userId, tags);
+
+    return new GetDto(bookmarkEntity);
   }
 
-  async getBookmarkByUrl(inputUrl: string): Promise<Bookmark | null> {
+  async getBookmarkByUrl(inputUrl: string): Promise<GetDto | null> {
     const bookmarkEntity = await this.bookmarkRepository.findOne({
       where: {
         url: inputUrl,
@@ -112,7 +110,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     const tags = tagEntities.map((tagEntity) => {
       return this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
     });
-    return this.bookmarkFactory.reconstitute(id, url, userId, tags);
+    return new GetDto(bookmarkEntity);
   }
 
   protected async findBookmarkByUrl(urls: string | string[]): Promise<any[]> {
@@ -131,10 +129,7 @@ export class BookmarkRepository implements IBookmarkRepository {
       .getRawMany();
   }
 
-  async getUserAllBookmarks(
-    userId: string,
-    page: any,
-  ): Promise<Page<Bookmark>> {
+  async getUserAllBookmarks(userId: string, page: any) {
     const tagProperty = () => {
       const id = `'id', "tag"."id"`;
       const tag = `'tag', "tag"."tag"`;
@@ -159,7 +154,18 @@ export class BookmarkRepository implements IBookmarkRepository {
       .offset(page.skip)
       .getRawMany();
 
-    return new Page<Bookmark>(Number(count), page.take, bookmarks);
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tagEntities = bookmark.tags.map((tag: { id: any; tag: any }) => {
+        return this.tagRepository.create({ id: tag.id, tag: tag.tag });
+      });
+      return this.bookmarkRepository.create({
+        id: bookmark.id,
+        userId: bookmark.userId,
+        url: bookmark.url,
+        tags: tagEntities,
+      });
+    });
+    return new BookmarkWithCountDto(bookmarksInstance, Number(count));
   }
 
   async getcount(userId: string): Promise<any> {
@@ -172,7 +178,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     return bookmarkCount[0];
   }
 
-  async syncBookmark(bookmarks: Bookmark[]): Promise<Bookmark[]> {
+  async syncBookmark(bookmarks: Bookmark[]): Promise<GetAllDto> {
     const urls = bookmarks.map((bookmark) => {
       return bookmark.url;
     });
@@ -211,13 +217,22 @@ export class BookmarkRepository implements IBookmarkRepository {
         bookmarkIdAndTagIdArr[i].id,
         bookmark.url,
         bookmark.userId,
-        reconstitutedTag,
+        new Tags(reconstitutedTag),
       );
 
       return bookmarks;
     });
 
-    return completedBookmarks;
+    return new GetAllDto(
+      completedBookmarks.map((bookmark) => {
+        return this.bookmarkRepository.create({
+          id: bookmark.id,
+          userId: bookmark.userId,
+          url: bookmark.url,
+          tags: bookmark.tags,
+        });
+      }),
+    );
   }
 
   async attachbulk(bookmarkTagMap: BookmarkTagMap[]): Promise<any> {
@@ -233,14 +248,7 @@ export class BookmarkRepository implements IBookmarkRepository {
     return attachBookmark;
   }
 
-  async findBookmarkTag_OR(
-    userId: string,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
-    /**
-     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
-     */
+  async findBookmarkTag_OR(userId: string, tags: string[], page: any) {
     const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`DISTINCT bookmark."id"`, 'ids')
@@ -279,16 +287,26 @@ export class BookmarkRepository implements IBookmarkRepository {
 
     const count = bookmarks.length;
 
-    return new Page<Bookmark>(count, page.take, bookmarks);
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tagEntities = bookmark.tags.map((tag: { id: any; tag: any }) => {
+        return this.tagRepository.create({ id: tag.id, tag: tag.tag });
+      });
+      return this.bookmarkRepository.create({
+        id: bookmark.id,
+        userId: bookmark.userId,
+        url: bookmark.url,
+        tags: tagEntities,
+      });
+    });
+    return new BookmarkWithCountDto(bookmarksInstance, Number(count));
+
+    // const bookmarksInstance = bookmarks.map((bookmark) => {
+    //   const tags = new Tags(bookmark.tags);
+    //   return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
+    // });
+    // return new BookmarkPage(Number(count), page.take, bookmarksInstance);
   }
-  async findBookmarkTag_AND(
-    userId: string,
-    tags: string[],
-    page: any,
-  ): Promise<Page<Bookmark>> {
-    /**
-     * tag를 기준으로 삼기 때문에 tagRepository를 이용하였다.
-     */
+  async findBookmarkTag_AND(userId: string, tags: string[], page: any) {
     const machedBookmarkIds = this.tagRepository
       .createQueryBuilder('tag')
       .select(`bookmark.id`)
@@ -328,6 +346,18 @@ export class BookmarkRepository implements IBookmarkRepository {
       .getRawMany();
 
     const count = bookmarks.length;
-    return new Page<Bookmark>(count, page.take, bookmarks);
+
+    const bookmarksInstance = bookmarks.map((bookmark) => {
+      const tagEntities = bookmark.tags.map((tag: { id: any; tag: any }) => {
+        return this.tagRepository.create({ id: tag.id, tag: tag.tag });
+      });
+      return this.bookmarkRepository.create({
+        id: bookmark.id,
+        userId: bookmark.userId,
+        url: bookmark.url,
+        tags: tagEntities,
+      });
+    });
+    return new BookmarkWithCountDto(bookmarksInstance, Number(count));
   }
 }

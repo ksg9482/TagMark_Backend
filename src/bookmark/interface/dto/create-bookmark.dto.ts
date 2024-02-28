@@ -1,13 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsObject,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Expose } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
+import { Tags } from 'src/tag/domain/tags';
 
 export class CreateBookmarkDto {
   @IsString()
@@ -23,8 +18,42 @@ export class CreateBookmarkDto {
   tagNames?: string[];
 }
 
-export class CreateBookmarkResponseDto extends BaseResponseDto {
-  @ApiProperty({ description: '생성된 북마크' })
-  @IsObject()
-  createdBookmark: Bookmark;
+export class CreateBookmarkResponseDto {
+  readonly #id: string;
+  readonly #userId: string;
+  readonly #url: string;
+  readonly #tags: Tags;
+
+  constructor(bookmark: Bookmark) {
+    this.#id = bookmark.id;
+    this.#userId = bookmark.userId;
+    this.#url = bookmark.url;
+    this.#tags = new Tags(bookmark.tags);
+  }
+
+  @ApiProperty({ description: '생성된 북마크 id' })
+  @Expose()
+  get id() {
+    return this.#id;
+  }
+
+  @ApiProperty({ description: '생성된 북마크 유저 id' })
+  @Expose()
+  get userId() {
+    return this.#userId;
+  }
+
+  @ApiProperty({ description: '생성된 북마크 url' })
+  @Expose()
+  get url() {
+    return this.#url;
+  }
+
+  @ApiProperty({ description: '생성된 북마크 태그 리스트' })
+  @Expose()
+  get tags() {
+    return this.#tags.tags.map((tag) => {
+      return { id: tag.id, tag: tag.tag };
+    });
+  }
 }

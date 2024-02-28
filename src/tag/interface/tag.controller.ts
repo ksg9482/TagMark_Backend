@@ -29,15 +29,16 @@ import {
   DeleteTagResponseDto,
   GetUserAllTagsResponseDto,
 } from 'src/tag/interface/dto';
-import { TagUseCases } from 'src/tag/application/tag.use-case';
+import { TagUseCase } from 'src/tag/application/tag.use-case';
 import { AuthGuard } from 'src/auth.guard';
+import { ResponseDto } from 'src/common/dto/response.dto';
 
 @UseGuards(AuthGuard)
 @ApiTags('Tag')
 @Controller('api/tag')
 export class TagController {
   constructor(
-    private tagUseCases: TagUseCases,
+    private tagUseCase: TagUseCase,
     @Inject(Logger) private readonly logger: LoggerService,
   ) {}
 
@@ -52,13 +53,11 @@ export class TagController {
   @ApiBody({ type: CreateTagDto })
   @Post('/')
   async createTag(@Body(new ValidationPipe()) createTagDto: CreateTagDto) {
-    const createTagResponse = new CreateTagResponseDto();
     const { tag } = createTagDto;
     try {
-      const createdTag = await this.tagUseCases.createTag({ tag: tag });
-      createTagResponse.success = true;
-      createTagResponse.createdTag = createdTag;
-      return createTagResponse;
+      const createdTag = await this.tagUseCase.createTag({ tag: tag });
+
+      return ResponseDto.OK_WITH(new CreateTagResponseDto(createdTag));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,13 +74,10 @@ export class TagController {
   })
   @Get('/')
   async getUserAllTags(@AuthUser() userId: string) {
-    const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
     try {
-      const tags = await this.tagUseCases.getUserAllTags(userId);
+      const tagWithCounts = await this.tagUseCase.getUserAllTags(userId);
 
-      getUserAllTagsResponse.success = true;
-      getUserAllTagsResponse.tags = tags;
-      return getUserAllTagsResponse;
+      return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -98,13 +94,9 @@ export class TagController {
   })
   @Get('/count')
   async getUserTagCount(@AuthUser() userId: string) {
-    const getUserAllTagsResponse = new GetUserAllTagsResponseDto();
     try {
-      const tags = await this.tagUseCases.getUserAllTags(userId);
-
-      getUserAllTagsResponse.success = true;
-      getUserAllTagsResponse.tags = tags;
-      return getUserAllTagsResponse;
+      const tagWithCounts = await this.tagUseCase.getUserAllTags(userId);
+      return ResponseDto.OK_WITH(new GetUserAllTagsResponseDto(tagWithCounts));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -130,16 +122,14 @@ export class TagController {
     @Param('bookmark_id') bookmarkId: string,
     @Query('tag_ids') tagIds: string,
   ) {
-    const deleteTagResponse = new DeleteTagResponseDto();
     try {
       const parseTagIds = tagIds.split(',').map((tagIds) => {
         return tagIds;
       });
-      await this.tagUseCases.detachTag(bookmarkId, parseTagIds);
+      await this.tagUseCase.detachTag(bookmarkId, parseTagIds);
 
-      deleteTagResponse.success = true;
-      deleteTagResponse.message = 'Deleted';
-      return deleteTagResponse;
+      const message = 'Deleted';
+      return ResponseDto.OK_WITH(new DeleteTagResponseDto(message));
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
