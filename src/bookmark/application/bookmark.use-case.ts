@@ -35,7 +35,7 @@ export abstract class BookmarkUseCase {
     page: UserAllBookmarks,
   ) => Promise<BookmarkPage>;
 
-  getUserBookmarkCount: (userId: string) => Promise<Number>;
+  getUserBookmarkCount: (userId: string) => Promise<{ count: number }>;
 
   syncBookmark: (bookmarks: Bookmarks) => Promise<Bookmarks>;
 
@@ -162,9 +162,9 @@ export class BookmarkUseCaseImpl implements BookmarkUseCase {
     );
   }
 
-  async getUserBookmarkCount(userId: string): Promise<Number> {
+  async getUserBookmarkCount(userId: string): Promise<{ count: number }> {
     const count = await this.bookmarkRepository.getcount(userId);
-    return count;
+    return { count };
   }
 
   async syncBookmark(bookmarks: Bookmarks) {

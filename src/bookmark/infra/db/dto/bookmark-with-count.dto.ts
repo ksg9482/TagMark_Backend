@@ -27,6 +27,7 @@ export class BookmarkWithCountDto {
         tags: tags,
       });
     });
+    this.#count = count;
   }
 
   get Bookmarks() {
