@@ -29,16 +29,12 @@ export abstract class BookmarkUseCase {
     url: string,
     tagNames?: string[],
   ) => Promise<Bookmark>;
-
   getUserAllBookmarks: (
     userId: string,
     page: UserAllBookmarks,
   ) => Promise<BookmarkPage>;
-
   getUserBookmarkCount: (userId: string) => Promise<{ count: number }>;
-
   syncBookmark: (bookmarks: Bookmarks) => Promise<Bookmarks>;
-
   editBookmarkUrl: (
     userId: string,
     bookmarkId: string,
@@ -46,37 +42,29 @@ export abstract class BookmarkUseCase {
   ) => Promise<{
     message: string;
   }>;
-
   deleteBookmark: (
     userId: string,
     bookmarkId: string,
   ) => Promise<{
     message: string;
   }>;
-
   findBookmark: (userId: string, bookmarkId: string) => Promise<Bookmark>;
-
   getTagAllBookmarksOR: (
     userId: string,
     tags: string[],
     page: SearchTags,
   ) => Promise<BookmarkPage>;
-
   getTagAllBookmarksAND: (
     userId: string,
     tags: string[],
     page: SearchTags,
   ) => Promise<BookmarkPage>;
-
   saveBookmarkTag: (bookmarks: Bookmarks) => Promise<any>;
-
   getBookmarkIdAndTagId: (bookmarks: Bookmarks) => {
     bookmarkId: string;
     tagIds: string[];
   }[];
-
   getBookmarkTagMap: (bookmarksAndTags: BookmarkAndTag[]) => BookmarkTagMap[];
-
   setSyncBookmarkForm: (
     userId: string,
     bookmarks: Bookmark[],
