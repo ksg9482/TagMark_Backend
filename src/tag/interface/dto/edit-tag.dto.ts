@@ -2,7 +2,6 @@ import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsString } from 'class-validator';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { CreateTagDto } from './create-tag.dto';
 
 export class EditTagDto extends PartialType(CreateTagDto) {

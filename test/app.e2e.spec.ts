@@ -1,11 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { setNestApp } from 'src/main';
-import { UserEntity } from 'src/user/infra/db/entity/user.entity';
 import * as request from 'supertest';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {

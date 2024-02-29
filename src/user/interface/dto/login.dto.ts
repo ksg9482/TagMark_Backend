@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 export class LoginDto {
   @ApiProperty({ description: '이메일' })

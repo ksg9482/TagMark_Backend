@@ -1,8 +1,7 @@
-import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { OmitType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 import { CreateBookmarkDto } from './create-bookmark.dto';
 
 export class EditBookmarkDto extends OmitType(CreateBookmarkDto, ['tagNames']) {

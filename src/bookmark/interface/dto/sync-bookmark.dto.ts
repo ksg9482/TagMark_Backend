@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
-import { BaseResponseDto } from 'src/common/dto/base-response.dto';
 
 export class SyncBookmarkDto {
   @IsArray()

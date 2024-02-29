@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import {
   BookmarkPage,
-  Page,
   PageRequest,
 } from 'src/bookmark/application/bookmark.pagination';
 import {
@@ -13,8 +12,6 @@ import {
   BookmarkSaveDto,
   BookmarkRepository,
 } from 'src/bookmark/domain/repository/bookmark.repository';
-import { TagFactory } from 'src/tag/domain/tag.factory';
-import { UtilsService } from 'src/utils/utils.service';
 import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
 import { Bookmarks } from '../domain/bookmarks';

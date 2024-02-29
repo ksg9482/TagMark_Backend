@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { User } from 'src/user/domain';
 export class LogoutDto {}
 

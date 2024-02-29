@@ -15,7 +15,6 @@ import { BookmarkWithCountDto } from '../infra/db/dto/bookmark-with-count.dto';
 import { GetAllDto } from '../infra/db/dto/get-all.dto';
 import { GetDto } from '../infra/db/dto/get.dto';
 import { BookmarkEntity } from '../infra/db/entity/bookmark.entity';
-import { BookmarkRepositoryImpl } from '../infra/db/repository/bookmark.repository';
 import { BookmarkPage } from './bookmark.pagination';
 import { BookmarkUseCase, BookmarkUseCaseImpl } from './bookmark.use-case';
 

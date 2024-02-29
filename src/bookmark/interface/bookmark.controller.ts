@@ -37,9 +37,7 @@ import {
   SyncBookmarkResponseDto,
 } from 'src/bookmark/interface/dto';
 import { BookmarkUseCase } from 'src/bookmark/application/bookmark.use-case';
-import { BookmarkFactory } from 'src/bookmark/domain/bookmark.factory';
 import { TagUseCase } from 'src/tag/application/tag.use-case';
-import { TagFactory } from 'src/tag/domain/tag.factory';
 import {
   GetSearchTagsDto,
   GetSearchTagsResponseDto,

@@ -12,7 +12,7 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { UserRepository } from 'src/user/domain/repository/user.repository';
 import { SecureService } from 'src/utils/secure.service';
-import { UserRole, UserRoleEnum } from '../domain/types/userRole';
+import { UserRoleEnum } from '../domain/types/userRole';
 import { UserType, UserTypeEnum } from '../domain/types/userType';
 
 export abstract class UserUseCase {

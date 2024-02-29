@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber } from 'class-validator';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import { PageRequest } from 'src/bookmark/application/bookmark.pagination';
 import { Expose } from 'class-transformer';

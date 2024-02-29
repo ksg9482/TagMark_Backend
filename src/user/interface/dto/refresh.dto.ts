@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { IsString } from 'class-validator';
-import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 export class RefreshTokenDto {}
 
 export class RefreshTokenResponseDto {
