@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Tag } from 'src/tag/domain/tag';
 import { Tags } from 'src/tag/domain/tags';
 import { Bookmark } from './bookmark';
 

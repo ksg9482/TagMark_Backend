@@ -2,8 +2,6 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { User } from 'src/user/domain/user';
 import { JwtModuleOptions } from './jwt.interfaces';
-import { UserRole } from 'src/user/domain/types/userRole';
-import { UserType } from 'src/user/domain/types/userType';
 type DeletePasswordUser = Omit<User, 'password'>;
 
 @Injectable()

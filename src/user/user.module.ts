@@ -8,7 +8,6 @@ import { UserController } from './interface/user.controller';
 import { UserRepositoryImpl } from './infra/db/repository/user.repository';
 import { UserUseCase, UserUseCaseImpl } from './application/user.use-case';
 import { UtilsModule } from 'src/utils/utils.module';
-import { UserRepository } from './domain/repository/user.repository';
 
 @Module({
   imports: [

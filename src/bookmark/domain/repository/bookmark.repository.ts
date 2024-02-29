@@ -1,7 +1,3 @@
-import {
-  BookmarkPage,
-  Page,
-} from 'src/bookmark/application/bookmark.pagination';
 import { Bookmark } from 'src/bookmark/domain/bookmark';
 import { BookmarkWithCountDto } from 'src/bookmark/infra/db/dto/bookmark-with-count.dto';
 import { DeleteDto } from 'src/bookmark/infra/db/dto/delete.dto';

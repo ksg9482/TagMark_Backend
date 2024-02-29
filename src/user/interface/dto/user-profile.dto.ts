@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { BaseResponseDto } from '../../../common/dto/base-response.dto';
 import { User } from 'src/user/domain/user';
 import { UserType } from 'src/user/domain/types/userType';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 
 export class UserProfileDto {
   @ApiProperty({ description: '유저 아이디' })

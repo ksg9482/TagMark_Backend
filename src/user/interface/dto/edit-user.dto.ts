@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import {
   IsOptional,
   IsString,
@@ -7,8 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { User } from 'src/user/domain';
-import { BaseResponseDto } from '../../../common/dto/base-response.dto';
+
 export class EditUserDto {
   @ApiProperty({ description: '변경하려는 비밀번호' })
   @IsString()

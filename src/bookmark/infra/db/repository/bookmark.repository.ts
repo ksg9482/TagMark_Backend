@@ -1,9 +1,5 @@
 import { Repository } from 'typeorm';
-import { Inject, Injectable } from '@nestjs/common';
-import {
-  BookmarkPage,
-  Page,
-} from 'src/bookmark/application/bookmark.pagination';
+import { Injectable } from '@nestjs/common';
 import {
   BookmarkSaveDto,
   BookmarkRepository,
@@ -299,12 +295,6 @@ export class BookmarkRepositoryImpl implements BookmarkRepository {
       });
     });
     return new BookmarkWithCountDto(bookmarksInstance, Number(count));
-
-    // const bookmarksInstance = bookmarks.map((bookmark) => {
-    //   const tags = new Tags(bookmark.tags);
-    //   return Bookmark.from(bookmark.id, bookmark.userId, bookmark.url, tags);
-    // });
-    // return new BookmarkPage(Number(count), page.take, bookmarksInstance);
   }
   async findBookmarkTag_AND(userId: string, tags: string[], page: any) {
     const machedBookmarkIds = this.tagRepository

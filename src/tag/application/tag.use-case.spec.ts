@@ -14,7 +14,6 @@ import { Tags } from '../domain/tags';
 import { AttachTagDto } from '../infra/db/dto/attach-tag.dto';
 import { GetAllDto } from '../infra/db/dto/get-all.dto';
 import { TagEntity } from '../infra/db/entity/tag.entity';
-import { TagRepositoryImpl } from '../infra/db/repository/tag.repository';
 import { TagUseCase, TagUseCaseImpl } from './tag.use-case';
 
 describe('tag-use-case', () => {

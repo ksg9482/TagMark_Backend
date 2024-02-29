@@ -1,5 +1,4 @@
 import { Test } from '@nestjs/testing';
-// import { UserRole, UserType } from 'src/user/domain';
 import * as bcrypt from 'bcrypt';
 import * as CryptoJS from 'crypto-js';
 import { UtilsService } from './utils.service';

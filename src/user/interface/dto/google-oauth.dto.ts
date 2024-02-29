@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
-import { User } from 'src/user/domain';
-import { BaseResponseDto } from '../../../common/dto/base-response.dto';
+import { Expose } from 'class-transformer';
+import { IsNotEmpty, IsString } from 'class-validator';
+
 export class GoogleOauthDto {
   @IsString()
   @IsNotEmpty()

@@ -12,7 +12,6 @@ import { TagModule } from 'src/tag/tag.module';
 import { TagEntity } from 'src/tag/infra/db/entity/tag.entity';
 import { UtilsModule } from 'src/utils/utils.module';
 import { AuthModule } from 'src/auth/auth.module';
-import { BookmarkRepository } from './domain/repository/bookmark.repository';
 
 @Module({
   imports: [
