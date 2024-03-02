@@ -237,7 +237,6 @@ describe('bookmark-use-case', () => {
       await userService.editUser(fakeUser.id, {
         password: 'editedPassword',
       });
-      //도메인 객체로 변경하므로 객체를 확인하지만 이게 맞는건가? 일단 도메인 객체는 도메인 유닛테스트로 해야할텐데?
       expect(fakeUser.password).toStrictEqual('editedPassword');
       expect(fakeUser.nickname).toStrictEqual('fakeNickname');
     });
@@ -332,9 +331,6 @@ describe('bookmark-use-case', () => {
     });
   });
   describe('googleOauth', () => {
-    /**
-     * google oauth 응답으로 온 유저 데이터
-     */
     const fakeGoogleOauthData = {
       data: {
         id: 'fakeGoogleOauthId',
@@ -362,12 +358,6 @@ describe('bookmark-use-case', () => {
 
       const googleLoginUser = await userService.googleOauth(fakeAccessToken);
 
-      // expect(googleLoginUser.user).toStrictEqual({
-      //   id: 'findedUserId',
-      //   email: 'fakeOauthEmail',
-      //   nickname: 'findedUserNickname',
-      //   type: "GOOGLE",
-      // });
       expect(googleLoginUser.accessToken).toBe('fakeAccessToken');
       expect(googleLoginUser.refreshToken).toBe('fakeRefreshToken');
     });
@@ -402,12 +392,6 @@ describe('bookmark-use-case', () => {
 
       const googleLoginUser = await userService.googleOauth(fakeAccessToken);
 
-      // expect(googleLoginUser.user).toStrictEqual({
-      //   id: 'createdUserId',
-      //   nickname: '', //빈문자열 들어가게 되어있음
-      //   email: 'fakeOauthEmail',
-      //   type: "GOOGLE",
-      // });
       expect(googleLoginUser.accessToken).toBe('fakeAccessToken');
       expect(googleLoginUser.refreshToken).toBe('fakeRefreshToken');
     });

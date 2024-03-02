@@ -128,10 +128,6 @@ describe('bookmark-use-case', () => {
       tag: 'fakeTagOne',
     };
     it('북마크가 이미 있는 경우 HttpException을 반환 한다.', async () => {
-      // bookmarkService['bookmarkCheck'] = jest
-      //   .fn()
-      //   .mockResolvedValue(fakeBookmark);
-
       await expect(async () => {
         await bookmarkService.createBookmark(
           fakeCreateBookmarkObj.userId,
@@ -656,11 +652,6 @@ describe('bookmark-use-case', () => {
         setSyncBookmarkFormInput.tags,
       );
 
-      /**
-       * const fakeBookmarks = [
-      new Bookmark('fakeBookmarkId', 'fakeUserId', 'fakeUrl', fakeTags),
-    ];
-       */
       const fakeTagOne = new Tag('fakeIdOne', 'fakeTagOne');
       const fakeTagTwo = new Tag('fakeIdTwo', 'fakeTagTwo');
       const fakeTags = new Tags([fakeTagOne, fakeTagTwo]);

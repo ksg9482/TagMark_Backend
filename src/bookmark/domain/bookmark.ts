@@ -31,7 +31,7 @@ export class Bookmark {
 
   @Expose()
   get tags() {
-    return this.#tags.tags; //.tags; // || [];
+    return this.#tags.tags;
   }
 
   static from(id: string, userId: string, url: string, tags?: Tags) {

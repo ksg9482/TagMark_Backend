@@ -13,7 +13,7 @@ export class User {
   readonly #email: string;
   #nickname: string;
   #password: string;
-  #role: UserRole; //이거도 클래스화 enum으로 충분? role은 없애자
+  #role: UserRole;
   #type: UserType;
 
   constructor(
