@@ -407,16 +407,4 @@ describe('tag-use-case', () => {
       );
     });
   });
-
-  // describe('getNotExistTag', () => {
-  //   const fakeInputTags = ['fakeTagOne', 'fakeTagTwo', 'fakeTagThree'];
-  //   const fakeExistTags = [new Tag('fakeIdTwo', 'fakeTagTwo')];
-
-  //   const fakeNotExistTag = ['fakeTagOne', 'fakeTagThree'];
-  //   it('inputTags중 existTags에 존재하지 않는 태그배열을 반환한다.', () => {
-  //     expect(
-  //       tagService.getNotExistTag(fakeExistTags, fakeInputTags),
-  //     ).toStrictEqual(fakeNotExistTag);
-  //   });
-  // });
 });
