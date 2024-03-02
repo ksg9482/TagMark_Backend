@@ -70,7 +70,6 @@ export class TagUseCaseImpl implements TagUseCase {
     );
     const notExistTags = tags.findNotExistTagNames(tagNames);
 
-    //리팩토링 대상. 안쓸 객체 만들어서 그냥 보냄.
     const createTags = new Tags(
       notExistTags.map((tag) => {
         return new Tag(this.utilsService.getUuid(), tag);

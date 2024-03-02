@@ -169,7 +169,6 @@ export class UserUseCaseImpl implements UserUseCase {
       };
     }
 
-    //이거 필요한가?
     const googleUser = this.setGoogleUserForm(googleUserInfo.data);
 
     const createdUser = await this.createUser(
@@ -238,7 +237,6 @@ export class UserUseCaseImpl implements UserUseCase {
     return result;
   }
 
-  //OauthUser
   async getGoogleUserData(accessToken: string): Promise<any> {
     const getUserInfo = await this.httpService.axiosRef.get(
       `https://www.googleapis.com/oauth2/v1/userinfo` +

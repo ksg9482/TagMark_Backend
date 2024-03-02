@@ -35,7 +35,7 @@ export class TagRepositoryImpl implements TagRepository {
       return null;
     }
     const { id, tag } = tagEntity;
-    return new GetDto(tagEntity); //this.tagFactory.reconstitute(id, tag);
+    return new GetDto(tagEntity);
   }
 
   createEntity(tag: string): TagEntity {
@@ -48,9 +48,8 @@ export class TagRepositoryImpl implements TagRepository {
   async save(tag: Omit<Tag, 'id'>): Promise<SaveDto> {
     const tagEntity = this.createEntity(tag.tag);
     await this.tagRepository.save(tagEntity);
-    //저장 결과물 넣는게?
 
-    return new SaveDto(tagEntity); //this.tagFactory.reconstitute(tagEntity.id, tagEntity.tag);
+    return new SaveDto(tagEntity);
   }
 
   async update(id: string, item: Tag): Promise<UpdateDto> {

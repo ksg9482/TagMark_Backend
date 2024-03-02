@@ -8,7 +8,6 @@ import { AppModule } from '../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  // let usersRepository: Repository<UserEntity>;
   const config: ConfigService = new ConfigService();
   const connectDB: DataSource = new DataSource({
     type: 'postgres',
@@ -596,7 +595,7 @@ describe('AppController (e2e)', () => {
         expect(result.status).toBe(200);
         expect(result.body.ok).toBe(tagResponseData.ok);
 
-        const tags: Array<any> = result.body.data.tagWithCounts; //tags;
+        const tags: Array<any> = result.body.data.tagWithCounts;
         targetTags.forEach((tag) => {
           expect(
             tags
