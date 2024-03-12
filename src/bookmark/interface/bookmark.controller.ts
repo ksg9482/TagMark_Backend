@@ -50,7 +50,7 @@ import { Bookmarks } from '../domain/bookmarks';
 
 @UseGuards(AuthGuard)
 @ApiTags('Bookmark')
-@Controller('api/bookmark')
+@Controller('api/bookmarks')
 export class BookmarkController {
   constructor(
     private bookmarkUseCase: BookmarkUseCase,
