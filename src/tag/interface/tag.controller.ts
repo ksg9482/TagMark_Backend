@@ -35,7 +35,7 @@ import { ResponseDto } from 'src/common/dto/response.dto';
 
 @UseGuards(AuthGuard)
 @ApiTags('Tag')
-@Controller('api/tag')
+@Controller('api/tags')
 export class TagController {
   constructor(
     private tagUseCase: TagUseCase,

@@ -50,7 +50,7 @@ const cookieOption: CookieOptions = {
 };
 
 @ApiTags('User')
-@Controller('api/user')
+@Controller('api/users')
 export class UserController {
   constructor(
     private userUsecase: UserUseCase,
