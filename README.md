@@ -22,3 +22,39 @@ TAG-MARK는 태그를 기반으로 북마크를 '구분'하는데 초점을 맞�
 - Ubuntu - 20.04
 - node - 16.13.0
 - npm - 8.1.0
+
+## API 명세
+
+### Common API
+
+- 서버 연결 확인 {get} /
+
+### Bookmark API
+
+- 북마크 생성 {POST} /api/bookmarks
+- 북마크 동기화 {POST} /api/bookmarks/sync
+- 북마크 수정 {PATCH} /api/bookmarks/{id}
+- 작성한 북마크 가져오기 {GET} /api/bookmarks
+- 북마크 갯수 확인 {GET} /api/bookmarks/count
+- 북마크 삭제 {DELETE} /api/bookmarks/{id}
+- 북마크 태그 AND 검색 {GET} /api/bookmarks/search-and
+- 북마크 태그 OR 검색 {GET} /api/bookmarks/search-or
+
+### Tag API
+
+- 태그 생성 {POST} /api/tags
+- 태그 확인 {GET} /api/tags
+- 태그 갯수 확인 {GET} /api/tags/count
+- 태그 삭제 {DELETE} /api/tags/{bookmark_id}
+
+### User API
+
+- 회원가입 {POST} /api/users
+- 로그인 {POST} /api/users/login
+- 구글 소셜 로그인 {POST} /api/usesr/google
+- 비밀번호 확인 {POST} /api/users/valid
+- 유저 정보 확인 {GET} /api/users
+- 유저 정보 수정 {PATCH} /api/users
+- 새 액세스 토큰 발급 {GET} /api/users/refresh
+- 로그아웃 {GET} /api/usesr/logout
+- 회원 탈퇴 {DELETE} /api/users
